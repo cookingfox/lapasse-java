@@ -9,19 +9,26 @@ import fixtures.message.handler.FixtureMessageHandler;
 /**
  * Minimal implementation of {@link AbstractMessageBus} using fixtures.
  */
-public class FixtureMessageBusImpl extends AbstractMessageBus<FixtureMessage, FixtureMessageHandler> {
+public class FixtureMessageBus extends AbstractMessageBus<FixtureMessage, FixtureMessageHandler> {
 
-    public FixtureMessageBusImpl(MessageStore messageStore) {
+    public int executeHandlerCalls = 0;
+    public int shouldHandleMessageCalls = 0;
+
+    public FixtureMessageBus(MessageStore messageStore) {
         super(messageStore);
     }
 
     @Override
     protected void executeHandler(FixtureMessage message, FixtureMessageHandler messageHandler) {
+        executeHandlerCalls++;
+
         messageHandler.handle(message);
     }
 
     @Override
-    protected boolean shouldHandleMessage(Message message) {
+    protected boolean shouldHandleMessageType(Message message) {
+        shouldHandleMessageCalls++;
+
         return message instanceof FixtureMessage;
     }
 

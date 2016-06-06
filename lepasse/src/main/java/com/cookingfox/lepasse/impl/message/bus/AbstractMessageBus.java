@@ -2,13 +2,12 @@ package com.cookingfox.lepasse.impl.message.bus;
 
 import com.cookingfox.lepasse.api.message.Message;
 import com.cookingfox.lepasse.api.message.bus.MessageBus;
+import com.cookingfox.lepasse.api.message.exception.NoMessageHandlersException;
 import com.cookingfox.lepasse.api.message.handler.MessageHandler;
 import com.cookingfox.lepasse.api.message.store.MessageStore;
+import com.cookingfox.lepasse.api.message.store.OnMessageAdded;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Abstract message bus implementation.
@@ -16,7 +15,8 @@ import java.util.Set;
  * @param <M> The concrete message type.
  * @param <H> The concrete message handler type.
  */
-public abstract class AbstractMessageBus<M extends Message, H extends MessageHandler<M>> implements MessageBus<M, H> {
+public abstract class AbstractMessageBus<M extends Message, H extends MessageHandler<M>>
+        implements MessageBus<M, H> {
 
     //----------------------------------------------------------------------------------------------
     // PROTECTED PROPERTIES
@@ -37,22 +37,9 @@ public abstract class AbstractMessageBus<M extends Message, H extends MessageHan
     //----------------------------------------------------------------------------------------------
 
     public AbstractMessageBus(MessageStore messageStore) {
+        messageStore.subscribe(onMessageAddedToStore);
+
         this.messageStore = messageStore;
-    }
-
-    //----------------------------------------------------------------------------------------------
-    // PUBLIC METHODS
-    //----------------------------------------------------------------------------------------------
-
-    @Override
-    public void handleMessage(M message) {
-        Objects.requireNonNull(message, "Message can not be null");
-    }
-
-    @Override
-    public void mapMessageHandler(Class<M> messageClass, H messageHandler) {
-        Objects.requireNonNull(messageClass, "Message class can not be null");
-        Objects.requireNonNull(messageHandler, "Message handler can not be null");
     }
 
     //----------------------------------------------------------------------------------------------
@@ -75,6 +62,87 @@ public abstract class AbstractMessageBus<M extends Message, H extends MessageHan
      * @return Whether the message should be handled by this message bus.
      * @see M
      */
-    protected abstract boolean shouldHandleMessage(Message message);
+    protected abstract boolean shouldHandleMessageType(Message message);
+
+    //----------------------------------------------------------------------------------------------
+    // PUBLIC METHODS
+    //----------------------------------------------------------------------------------------------
+
+    @Override
+    public void handleMessage(M message) {
+        Objects.requireNonNull(message, "Message can not be null");
+
+        // throws if there are no mapped handlers
+        getMessageHandlers(message.getClass());
+
+        messageStore.addMessage(message);
+    }
+
+    @Override
+    public void mapMessageHandler(Class<M> messageClass, H messageHandler) {
+        Objects.requireNonNull(messageClass, "Message class can not be null");
+        Objects.requireNonNull(messageHandler, "Message handler can not be null");
+
+        Set<H> handlers = messageHandlerMap.get(messageClass);
+
+        if (handlers == null) {
+            handlers = new LinkedHashSet<>();
+            messageHandlerMap.put(messageClass, handlers);
+        }
+
+        handlers.add(messageHandler);
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // PROTECTED METHODS
+    //----------------------------------------------------------------------------------------------
+
+    /**
+     * Get mapped handlers for this message class.
+     *
+     * @param messageClass The message class to get handlers for.
+     * @return The handlers for this message class.
+     * @throws NoMessageHandlersException
+     */
+    @SuppressWarnings("SuspiciousMethodCalls")
+    protected Set<H> getMessageHandlers(Class<? extends Message> messageClass) {
+        Set<H> handlers = messageHandlerMap.get(messageClass);
+
+        if (handlers == null) {
+            for (Class<M> mClass : messageHandlerMap.keySet()) {
+                if (mClass.isAssignableFrom(messageClass)) {
+                    handlers = messageHandlerMap.get(mClass);
+                    break;
+                }
+            }
+
+            if (handlers == null) {
+                throw new NoMessageHandlersException(messageClass);
+            }
+        }
+
+        return handlers;
+    }
+
+    /**
+     * Message store subscriber.
+     */
+    protected final OnMessageAdded onMessageAddedToStore = new OnMessageAdded() {
+        @Override
+        @SuppressWarnings("unchecked")
+        public void onMessageAdded(Message message) {
+            if (!shouldHandleMessageType(message)) {
+                // this message bus can should not handle messages of this type
+                return;
+            }
+
+            Set<H> handlers = getMessageHandlers(message.getClass());
+
+            // execute message handlers
+            for (H handler : handlers) {
+                executeHandler((M) message, handler);
+            }
+        }
+    };
 
 }
