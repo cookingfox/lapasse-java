@@ -1,0 +1,80 @@
+package com.cookingfox.lepasse.impl.message.bus;
+
+import com.cookingfox.lepasse.api.message.Message;
+import com.cookingfox.lepasse.api.message.bus.MessageBus;
+import com.cookingfox.lepasse.api.message.handler.MessageHandler;
+import com.cookingfox.lepasse.api.message.store.MessageStore;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+
+/**
+ * Abstract message bus implementation.
+ *
+ * @param <M> The concrete message type.
+ * @param <H> The concrete message handler type.
+ */
+public abstract class AbstractMessageBus<M extends Message, H extends MessageHandler<M>> implements MessageBus<M, H> {
+
+    //----------------------------------------------------------------------------------------------
+    // PROTECTED PROPERTIES
+    //----------------------------------------------------------------------------------------------
+
+    /**
+     * A map of message types to a set of message handlers.
+     */
+    protected final Map<Class<M>, Set<H>> messageHandlerMap = new LinkedHashMap<>();
+
+    /**
+     * Stores messages.
+     */
+    protected final MessageStore messageStore;
+
+    //----------------------------------------------------------------------------------------------
+    // CONSTRUCTOR
+    //----------------------------------------------------------------------------------------------
+
+    public AbstractMessageBus(MessageStore messageStore) {
+        this.messageStore = messageStore;
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // PUBLIC METHODS
+    //----------------------------------------------------------------------------------------------
+
+    @Override
+    public void handleMessage(M message) {
+        Objects.requireNonNull(message, "Message can not be null");
+    }
+
+    @Override
+    public void mapMessageHandler(Class<M> messageClass, H messageHandler) {
+        Objects.requireNonNull(messageClass, "Message class can not be null");
+        Objects.requireNonNull(messageHandler, "Message handler can not be null");
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // ABSTRACT PROTECTED METHODS
+    //----------------------------------------------------------------------------------------------
+
+    /**
+     * Actually execute the message handler for this message.
+     *
+     * @param message        The message to handle.
+     * @param messageHandler The message handler that is associated with this message.
+     */
+    protected abstract void executeHandler(M message, H messageHandler);
+
+    /**
+     * Returns whether this message bus implementation should handle the concrete message object.
+     * Typically this returns the result of an `instanceof` check for the concrete message type `M`.
+     *
+     * @param message The concrete message object.
+     * @return Whether the message should be handled by this message bus.
+     * @see M
+     */
+    protected abstract boolean shouldHandleMessage(Message message);
+
+}
