@@ -1,5 +1,7 @@
 package com.cookingfox.lepasse.impl.command.bus;
 
+import com.cookingfox.lepasse.api.command.handler.AsyncCommandHandler;
+import com.cookingfox.lepasse.api.command.handler.AsyncMultiCommandHandler;
 import com.cookingfox.lepasse.api.command.handler.SyncCommandHandler;
 import com.cookingfox.lepasse.api.command.handler.SyncMultiCommandHandler;
 import fixtures.command.FixtureIncrementCount;
@@ -14,9 +16,11 @@ import org.junit.Test;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * Unit tests for {@link DefaultCommandBus}.
@@ -90,13 +94,92 @@ public class DefaultCommandBusTest {
                 new SyncMultiCommandHandler<FixtureState, FixtureIncrementCount, FixtureCountIncremented>() {
                     @Override
                     public Collection<FixtureCountIncremented> handle(FixtureState state, FixtureIncrementCount command) {
-                        return Collections.singletonList(new FixtureCountIncremented(command.count));
+                        return Collections.singletonList(event);
                     }
                 });
 
         commandBus.handleCommand(new FixtureIncrementCount(count));
 
         assertTrue(eventBus.handleEventCalls.contains(event));
+    }
+
+    @Test
+    public void executeHandler_should_pass_event_from_async_handler() throws Exception {
+        final int count = 1;
+        final FixtureCountIncremented event = new FixtureCountIncremented(count);
+
+        commandBus.mapCommandHandler(FixtureIncrementCount.class,
+                new AsyncCommandHandler<FixtureState, FixtureIncrementCount, FixtureCountIncremented>() {
+                    @Override
+                    public Callable<FixtureCountIncremented> handle(FixtureState state, FixtureIncrementCount command) {
+                        return new Callable<FixtureCountIncremented>() {
+                            @Override
+                            public FixtureCountIncremented call() throws Exception {
+                                return event;
+                            }
+                        };
+                    }
+                });
+
+        commandBus.handleCommand(new FixtureIncrementCount(count));
+
+        assertTrue(eventBus.handleEventCalls.contains(event));
+    }
+
+    @Test
+    public void executeHandler_should_pass_events_from_async_multi_handler() throws Exception {
+        final int count = 1;
+        final FixtureCountIncremented event = new FixtureCountIncremented(count);
+
+        commandBus.mapCommandHandler(FixtureIncrementCount.class,
+                new AsyncMultiCommandHandler<FixtureState, FixtureIncrementCount, FixtureCountIncremented>() {
+                    @Override
+                    public Callable<Collection<FixtureCountIncremented>> handle(FixtureState state, FixtureIncrementCount command) {
+                        return new Callable<Collection<FixtureCountIncremented>>() {
+                            @Override
+                            public Collection<FixtureCountIncremented> call() throws Exception {
+                                return Collections.singletonList(event);
+                            }
+                        };
+                    }
+                });
+
+        commandBus.handleCommand(new FixtureIncrementCount(count));
+
+        assertTrue(eventBus.handleEventCalls.contains(event));
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // TESTS: getCommandHandlerExecutor
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void getCommandHandlerExecutor_defaults_to_single_thread_executor() throws Exception {
+        assertNull(commandBus.commandHandlerExecutor);
+
+        ExecutorService executor = commandBus.getCommandHandlerExecutor();
+
+        assertNotNull(executor);
+    }
+
+    @Test
+    public void getCommandHandlerExecutor_should_return_custom_executor() throws Exception {
+        ExecutorService customExecutor = Executors.newCachedThreadPool();
+
+        commandBus.setCommandHandlerExecutor(customExecutor);
+
+        ExecutorService executor = commandBus.getCommandHandlerExecutor();
+
+        assertSame(customExecutor, executor);
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // TESTS: setCommandHandlerExecutor
+    //----------------------------------------------------------------------------------------------
+
+    @Test(expected = NullPointerException.class)
+    public void setCommandHandlerExecutor_should_throw_if_executor_null() throws Exception {
+        commandBus.setCommandHandlerExecutor(null);
     }
 
     //----------------------------------------------------------------------------------------------

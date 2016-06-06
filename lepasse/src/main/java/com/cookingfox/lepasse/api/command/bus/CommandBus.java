@@ -5,6 +5,8 @@ import com.cookingfox.lepasse.api.command.handler.CommandHandler;
 import com.cookingfox.lepasse.api.event.Event;
 import com.cookingfox.lepasse.api.state.State;
 
+import java.util.concurrent.ExecutorService;
+
 /**
  * Map command handlers and execute them by handling command objects.
  *
@@ -31,5 +33,12 @@ public interface CommandBus<S extends State> {
      * @param <E>            The concrete event type that this handler will produce.
      */
     <C extends Command, E extends Event> void mapCommandHandler(Class<C> commandClass, CommandHandler<S, C, E> commandHandler);
+
+    /**
+     * Sets the executor service that will run async command handlers.
+     *
+     * @param executor The executor service to use.
+     */
+    void setCommandHandlerExecutor(ExecutorService executor);
 
 }
