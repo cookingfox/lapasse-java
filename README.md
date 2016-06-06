@@ -1,2 +1,3 @@
-# lepasse-java
-Simple CQRS and Redux inspired library for Java.
+# LePasse for Java
+
+CQRS and Redux inspired library for Java.
