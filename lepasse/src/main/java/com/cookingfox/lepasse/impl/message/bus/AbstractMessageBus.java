@@ -43,28 +43,6 @@ public abstract class AbstractMessageBus<M extends Message, H extends MessageHan
     }
 
     //----------------------------------------------------------------------------------------------
-    // ABSTRACT PROTECTED METHODS
-    //----------------------------------------------------------------------------------------------
-
-    /**
-     * Actually execute the message handler for this message.
-     *
-     * @param message        The message to handle.
-     * @param messageHandler The message handler that is associated with this message.
-     */
-    protected abstract void executeHandler(M message, H messageHandler);
-
-    /**
-     * Returns whether this message bus implementation should handle the concrete message object.
-     * Typically this returns the result of an `instanceof` check for the concrete message type `M`.
-     *
-     * @param message The concrete message object.
-     * @return Whether the message should be handled by this message bus.
-     * @see M
-     */
-    protected abstract boolean shouldHandleMessageType(Message message);
-
-    //----------------------------------------------------------------------------------------------
     // PUBLIC METHODS
     //----------------------------------------------------------------------------------------------
 
@@ -92,6 +70,28 @@ public abstract class AbstractMessageBus<M extends Message, H extends MessageHan
 
         handlers.add(messageHandler);
     }
+
+    //----------------------------------------------------------------------------------------------
+    // ABSTRACT PROTECTED METHODS
+    //----------------------------------------------------------------------------------------------
+
+    /**
+     * Actually execute the message handler for this message.
+     *
+     * @param message        The message to handle.
+     * @param messageHandler The message handler that is associated with this message.
+     */
+    protected abstract void executeHandler(M message, H messageHandler);
+
+    /**
+     * Returns whether this message bus implementation should handle the concrete message object.
+     * Typically this returns the result of an `instanceof` check for the concrete message type `M`.
+     *
+     * @param message The concrete message object.
+     * @return Whether the message should be handled by this message bus.
+     * @see M
+     */
+    protected abstract boolean shouldHandleMessageType(Message message);
 
     //----------------------------------------------------------------------------------------------
     // PROTECTED METHODS
