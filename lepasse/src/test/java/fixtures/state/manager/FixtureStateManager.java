@@ -5,6 +5,8 @@ import com.cookingfox.lepasse.api.state.manager.StateManager;
 import com.cookingfox.lepasse.api.state.observer.OnStateChanged;
 import fixtures.state.FixtureState;
 
+import java.util.Objects;
+
 /**
  * Fixture {@link StateManager} implementation for testing purposes only.
  */
@@ -13,12 +15,14 @@ public class FixtureStateManager implements StateManager<FixtureState> {
     public FixtureState currentState;
 
     public FixtureStateManager(FixtureState initialState) {
-        this.currentState = initialState;
+        this.currentState = Objects.requireNonNull(initialState, "Initial state can not be null");
     }
 
     @Override
     public void handleNewState(FixtureState newState, Event event) {
-        throw new UnsupportedOperationException("Not implemented");
+        if (!newState.equals(currentState)) {
+            currentState = newState;
+        }
     }
 
     @Override

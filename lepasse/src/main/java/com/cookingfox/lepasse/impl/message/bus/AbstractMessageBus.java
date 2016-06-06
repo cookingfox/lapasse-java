@@ -104,8 +104,8 @@ public abstract class AbstractMessageBus<M extends Message, H extends MessageHan
      * @return The handlers for this message class.
      * @throws NoMessageHandlersException
      */
-    @SuppressWarnings("SuspiciousMethodCalls")
     protected Set<H> getMessageHandlers(Class<? extends Message> messageClass) {
+        // noinspection SuspiciousMethodCalls
         Set<H> handlers = messageHandlerMap.get(messageClass);
 
         if (handlers == null) {
@@ -129,7 +129,6 @@ public abstract class AbstractMessageBus<M extends Message, H extends MessageHan
      */
     protected final OnMessageAdded onMessageAddedToStore = new OnMessageAdded() {
         @Override
-        @SuppressWarnings("unchecked")
         public void onMessageAdded(Message message) {
             if (!shouldHandleMessageType(message)) {
                 // this message bus can should not handle messages of this type
@@ -140,6 +139,7 @@ public abstract class AbstractMessageBus<M extends Message, H extends MessageHan
 
             // execute message handlers
             for (H handler : handlers) {
+                // noinspection unchecked
                 executeHandler((M) message, handler);
             }
         }

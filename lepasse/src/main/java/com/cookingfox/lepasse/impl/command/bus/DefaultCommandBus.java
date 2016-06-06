@@ -21,7 +21,7 @@ import java.util.concurrent.Executors;
 /**
  * Default implementation of {@link CommandBus}.
  *
- * @param <S>
+ * @param <S> The concrete type of the state object.
  */
 public class DefaultCommandBus<S extends State>
         extends AbstractMessageBus<Command, CommandHandler<S, Command, Event>>
@@ -63,8 +63,8 @@ public class DefaultCommandBus<S extends State>
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public <C extends Command, E extends Event> void mapCommandHandler(Class<C> commandClass, CommandHandler<S, C, E> commandHandler) {
+        // noinspection unchecked
         mapMessageHandler((Class) commandClass, (CommandHandler) commandHandler);
     }
 
@@ -124,7 +124,7 @@ public class DefaultCommandBus<S extends State>
             }
         } catch (Exception e) {
             e.printStackTrace();
-            // FIXME: 06/06/16 Handle exception - introduce logger & error handler
+            // FIXME: 06/06/16 Handle command handler exception - introduce logger & error handler
         }
 
         if (event != null) {
@@ -153,7 +153,7 @@ public class DefaultCommandBus<S extends State>
             }
         } catch (Exception e) {
             e.printStackTrace();
-            // FIXME: 06/06/16 Handle exception - introduce logger & error handler
+            // FIXME: 06/06/16 Handle command handler exception - introduce logger & error handler
         }
 
         if (events != null) {
