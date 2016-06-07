@@ -131,7 +131,7 @@ public abstract class AbstractMessageBus<M extends Message, H extends MessageHan
         @Override
         public void onMessageAdded(Message message) {
             if (!shouldHandleMessageType(message)) {
-                // this message bus can should not handle messages of this type
+                // this message bus should not handle messages of this type
                 return;
             }
 

@@ -139,8 +139,7 @@ public class DefaultCommandBus<S extends State>
                 throw new UnsupportedCommandHandlerException(handler);
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            // FIXME: 06/06/16 Handle command handler exception - introduce logger & error handler
+            loggers.onCommandHandlerError(e, command);
             return;
         }
 
@@ -171,8 +170,7 @@ public class DefaultCommandBus<S extends State>
                 throw new UnsupportedCommandHandlerException(handler);
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            // FIXME: 06/06/16 Handle command handler exception - introduce logger & error handler
+            loggers.onCommandHandlerError(e, command);
             return;
         }
 

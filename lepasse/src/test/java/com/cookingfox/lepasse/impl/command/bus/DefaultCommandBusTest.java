@@ -1,10 +1,9 @@
 package com.cookingfox.lepasse.impl.command.bus;
 
 import com.cookingfox.lepasse.api.command.Command;
-import com.cookingfox.lepasse.api.command.handler.AsyncCommandHandler;
-import com.cookingfox.lepasse.api.command.handler.AsyncMultiCommandHandler;
-import com.cookingfox.lepasse.api.command.handler.SyncCommandHandler;
-import com.cookingfox.lepasse.api.command.handler.SyncMultiCommandHandler;
+import com.cookingfox.lepasse.api.command.exception.NoRegisteredCommandErrorHandlerException;
+import com.cookingfox.lepasse.api.command.exception.UnsupportedCommandHandlerException;
+import com.cookingfox.lepasse.api.command.handler.*;
 import com.cookingfox.lepasse.api.event.Event;
 import com.cookingfox.lepasse.impl.logging.DefaultLogger;
 import com.cookingfox.lepasse.impl.logging.LePasseLoggers;
@@ -190,6 +189,39 @@ public class DefaultCommandBusTest {
     }
 
     @Test
+    public void executeHandler_should_log_error_of_throwing_single_handler() throws Exception {
+        final AtomicReference<Throwable> calledError = new AtomicReference<>();
+        final AtomicReference<Command> calledCommand = new AtomicReference<>();
+        final AtomicReference<Event[]> calledEvents = new AtomicReference<>();
+
+        final RuntimeException targetException = new RuntimeException("Example error");
+
+        commandBus.addCommandLogger(new DefaultLogger<FixtureState>() {
+            @Override
+            public void onCommandHandlerError(Throwable error, Command command, Event... events) {
+                calledError.set(error);
+                calledCommand.set(command);
+                calledEvents.set(events);
+            }
+        });
+
+        commandBus.mapCommandHandler(FixtureIncrementCount.class, new SyncCommandHandler<FixtureState, FixtureIncrementCount, FixtureCountIncremented>() {
+            @Override
+            public FixtureCountIncremented handle(FixtureState state, FixtureIncrementCount command) {
+                throw targetException;
+            }
+        });
+
+        final FixtureIncrementCount command = new FixtureIncrementCount(123);
+
+        commandBus.handleCommand(command);
+
+        assertSame(targetException, calledError.get());
+        assertSame(command, calledCommand.get());
+        assertArrayEquals(new Event[]{}, calledEvents.get());
+    }
+
+    @Test
     public void executeHandler_should_log_command_handler_result_of_multi_handler() throws Exception {
         final AtomicReference<Command> calledCommand = new AtomicReference<>();
         final AtomicReference<Event[]> calledEvents = new AtomicReference<>();
@@ -205,7 +237,40 @@ public class DefaultCommandBusTest {
         commandBus.mapCommandHandler(FixtureIncrementCount.class, new SyncMultiCommandHandler<FixtureState, FixtureIncrementCount, FixtureCountIncremented>() {
             @Override
             public Collection<FixtureCountIncremented> handle(FixtureState state, FixtureIncrementCount command) {
-                return Collections.singletonList(new FixtureCountIncremented(command.count));
+                // explicitly return null: this is a command handler valid result
+                return null;
+            }
+        });
+
+        final FixtureIncrementCount command = new FixtureIncrementCount(0);
+
+        commandBus.handleCommand(command);
+
+        assertSame(command, calledCommand.get());
+        assertArrayEquals(new Event[]{}, calledEvents.get());
+    }
+
+    @Test
+    public void executeHandler_should_log_error_of_throwing_multi_handler() throws Exception {
+        final AtomicReference<Throwable> calledError = new AtomicReference<>();
+        final AtomicReference<Command> calledCommand = new AtomicReference<>();
+        final AtomicReference<Event[]> calledEvents = new AtomicReference<>();
+
+        final RuntimeException targetException = new RuntimeException("Example error");
+
+        commandBus.addCommandLogger(new DefaultLogger<FixtureState>() {
+            @Override
+            public void onCommandHandlerError(Throwable error, Command command, Event... events) {
+                calledError.set(error);
+                calledCommand.set(command);
+                calledEvents.set(events);
+            }
+        });
+
+        commandBus.mapCommandHandler(FixtureIncrementCount.class, new SyncMultiCommandHandler<FixtureState, FixtureIncrementCount, FixtureCountIncremented>() {
+            @Override
+            public Collection<FixtureCountIncremented> handle(FixtureState state, FixtureIncrementCount command) {
+                throw targetException;
             }
         });
 
@@ -213,8 +278,33 @@ public class DefaultCommandBusTest {
 
         commandBus.handleCommand(command);
 
+        assertSame(targetException, calledError.get());
         assertSame(command, calledCommand.get());
-        assertArrayEquals(new Event[]{new FixtureCountIncremented(command.count)}, calledEvents.get());
+        assertArrayEquals(new Event[]{}, calledEvents.get());
+    }
+
+    @Test
+    public void executeHandler_should_throw_for_unsupported_single_handler_implementation() throws Exception {
+        try {
+            commandBus.executeHandler(new FixtureIncrementCount(1), new CommandHandler<FixtureState, Command, Event>() {
+            });
+
+            fail("Expected exception");
+        } catch (NoRegisteredCommandErrorHandlerException e) {
+            assertTrue(e.getCause() instanceof UnsupportedCommandHandlerException);
+        }
+    }
+
+    @Test
+    public void executeHandler_should_throw_for_unsupported_multi_handler_implementation() throws Exception {
+        try {
+            commandBus.executeHandler(new FixtureIncrementCount(1), new MultiCommandHandler<FixtureState, Command, Event>() {
+            });
+
+            fail("Expected exception");
+        } catch (NoRegisteredCommandErrorHandlerException e) {
+            assertTrue(e.getCause() instanceof UnsupportedCommandHandlerException);
+        }
     }
 
     //----------------------------------------------------------------------------------------------
