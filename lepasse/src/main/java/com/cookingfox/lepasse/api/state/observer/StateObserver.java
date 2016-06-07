@@ -23,4 +23,11 @@ public interface StateObserver<S extends State> {
      */
     void subscribe(OnStateChanged<S> subscriber);
 
+    /**
+     * Remove previously added subscriber.
+     *
+     * @param subscriber The subscriber to remove.
+     */
+    void unsubscribe(OnStateChanged<S> subscriber);
+
 }

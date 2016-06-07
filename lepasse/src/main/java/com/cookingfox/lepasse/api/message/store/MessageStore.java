@@ -21,4 +21,11 @@ public interface MessageStore {
      */
     void subscribe(OnMessageAdded subscriber);
 
+    /**
+     * Remove previously added subscriber.
+     *
+     * @param subscriber The subscriber to remove.
+     */
+    void unsubscribe(OnMessageAdded subscriber);
+
 }

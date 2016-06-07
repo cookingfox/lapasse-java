@@ -35,4 +35,9 @@ public class FixtureStateManager implements StateManager<FixtureState> {
         throw new UnsupportedOperationException("Not implemented");
     }
 
+    @Override
+    public void unsubscribe(OnStateChanged<FixtureState> subscriber) {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
 }

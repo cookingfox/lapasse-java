@@ -1,6 +1,7 @@
 package com.cookingfox.lepasse.impl.state.manager;
 
 import com.cookingfox.lepasse.api.event.Event;
+import com.cookingfox.lepasse.api.exception.NotSubscribedException;
 import com.cookingfox.lepasse.api.state.State;
 import com.cookingfox.lepasse.api.state.manager.StateManager;
 import com.cookingfox.lepasse.api.state.observer.OnStateChanged;
@@ -63,6 +64,17 @@ public class DefaultStateManager<S extends State> implements StateManager<S> {
     @Override
     public void subscribe(OnStateChanged<S> subscriber) {
         subscribers.add(Objects.requireNonNull(subscriber, "Subscriber can not be null"));
+    }
+
+    @Override
+    public void unsubscribe(OnStateChanged<S> subscriber) {
+        Objects.requireNonNull(subscriber, "Subscriber can not be null");
+
+        if (!subscribers.contains(subscriber)) {
+            throw new NotSubscribedException(subscriber, this);
+        }
+
+        subscribers.remove(subscriber);
     }
 
 }

@@ -1,12 +1,14 @@
 package com.cookingfox.lepasse.impl.state.manager;
 
 import com.cookingfox.lepasse.api.event.Event;
+import com.cookingfox.lepasse.api.exception.NotSubscribedException;
 import com.cookingfox.lepasse.api.state.observer.OnStateChanged;
 import fixtures.event.FixtureCountIncremented;
 import fixtures.state.FixtureState;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.Assert.*;
@@ -119,6 +121,43 @@ public class DefaultStateManagerTest {
     @Test(expected = NullPointerException.class)
     public void subscribe_should_throw_if_subscriber_null() throws Exception {
         stateManager.subscribe(null);
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // TESTS: unsubscribe
+    //----------------------------------------------------------------------------------------------
+
+    @Test(expected = NullPointerException.class)
+    public void unsubscribe_should_throw_if_null_message() throws Exception {
+        stateManager.unsubscribe(null);
+    }
+
+    @Test(expected = NotSubscribedException.class)
+    public void unsubscribe_should_throw_if_not_subscribed() throws Exception {
+        stateManager.unsubscribe(new OnStateChanged<FixtureState>() {
+            @Override
+            public void onStateChanged(FixtureState state, Event event) {
+                // ignore
+            }
+        });
+    }
+
+    @Test
+    public void unsubscribe_should_remove_subscriber() throws Exception {
+        final AtomicBoolean called = new AtomicBoolean(false);
+
+        OnStateChanged<FixtureState> subscriber = new OnStateChanged<FixtureState>() {
+            @Override
+            public void onStateChanged(FixtureState state, Event event) {
+                called.set(true);
+            }
+        };
+
+        stateManager.subscribe(subscriber);
+        stateManager.unsubscribe(subscriber);
+        stateManager.handleNewState(new FixtureState(1), new FixtureCountIncremented(1));
+
+        assertFalse(called.get());
     }
 
 }

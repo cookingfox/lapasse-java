@@ -1,5 +1,6 @@
 package com.cookingfox.lepasse.impl.message.store;
 
+import com.cookingfox.lepasse.api.exception.NotSubscribedException;
 import com.cookingfox.lepasse.api.message.Message;
 import com.cookingfox.lepasse.api.message.store.MessageStore;
 import com.cookingfox.lepasse.api.message.store.OnMessageAdded;
@@ -25,6 +26,17 @@ public abstract class AbstractMessageStore implements MessageStore {
     @Override
     public void subscribe(OnMessageAdded subscriber) {
         subscribers.add(Objects.requireNonNull(subscriber, "Subscriber can not be null"));
+    }
+
+    @Override
+    public void unsubscribe(OnMessageAdded subscriber) {
+        Objects.requireNonNull(subscriber, "Subscriber can not be null");
+
+        if (!subscribers.contains(subscriber)) {
+            throw new NotSubscribedException(subscriber, this);
+        }
+
+        subscribers.remove(subscriber);
     }
 
     //----------------------------------------------------------------------------------------------
