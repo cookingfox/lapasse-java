@@ -2,6 +2,7 @@ package com.cookingfox.lepasse.api.command.bus;
 
 import com.cookingfox.lepasse.api.command.Command;
 import com.cookingfox.lepasse.api.command.handler.CommandHandler;
+import com.cookingfox.lepasse.api.command.logging.CommandLoggerAware;
 import com.cookingfox.lepasse.api.event.Event;
 import com.cookingfox.lepasse.api.state.State;
 
@@ -12,7 +13,7 @@ import java.util.concurrent.ExecutorService;
  *
  * @param <S> The concrete type of the state object.
  */
-public interface CommandBus<S extends State> {
+public interface CommandBus<S extends State> extends CommandLoggerAware<S> {
 
     /**
      * Execute the command handler that is mapped to this command type. Throws if no handler is

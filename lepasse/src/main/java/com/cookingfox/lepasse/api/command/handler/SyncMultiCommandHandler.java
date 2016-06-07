@@ -17,11 +17,11 @@ public interface SyncMultiCommandHandler<S extends State, C extends Command, E e
         extends MultiCommandHandler<S, C, E> {
 
     /**
-     * Handle a command synchronously.
+     * Handle a command synchronously and produce multiple events.
      *
      * @param state   The current state object.
      * @param command The command object to handle.
-     * @return The event as a result of the handled command (optional).
+     * @return A collection of events as a result of the handled command (optional).
      */
     Collection<E> handle(S state, C command);
 

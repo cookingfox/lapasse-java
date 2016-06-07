@@ -10,5 +10,8 @@ import com.cookingfox.lepasse.api.state.observer.StateObserver;
  *
  * @param <S> The concrete type of the state object.
  */
-public interface Facade<S extends State> extends CommandBus<S>, EventBus<S>, StateObserver<S> {
+public interface Facade<S extends State> extends
+        CommandBus<S>,
+        EventBus<S>,
+        StateObserver<S> {
 }

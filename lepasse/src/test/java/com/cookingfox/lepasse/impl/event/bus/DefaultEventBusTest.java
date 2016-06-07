@@ -2,6 +2,7 @@ package com.cookingfox.lepasse.impl.event.bus;
 
 import com.cookingfox.lepasse.api.event.exception.EventHandlerReturnedNullException;
 import com.cookingfox.lepasse.api.event.handler.EventHandler;
+import com.cookingfox.lepasse.impl.logging.LePasseLoggers;
 import fixtures.event.FixtureCountIncremented;
 import fixtures.message.FixtureMessage;
 import fixtures.message.store.FixtureMessageStore;
@@ -23,15 +24,17 @@ public class DefaultEventBusTest {
 
     private DefaultEventBus<FixtureState> eventBus;
     private FixtureState initialState;
+    private LePasseLoggers<FixtureState> loggers;
     private FixtureMessageStore messageStore;
     private FixtureStateManager stateManager;
 
     @Before
     public void setUp() throws Exception {
         initialState = new FixtureState(0);
+        loggers = new LePasseLoggers<>();
         messageStore = new FixtureMessageStore();
         stateManager = new FixtureStateManager(initialState);
-        eventBus = new DefaultEventBus<>(messageStore, stateManager);
+        eventBus = new DefaultEventBus<>(messageStore, loggers, stateManager);
     }
 
     //----------------------------------------------------------------------------------------------
@@ -40,12 +43,17 @@ public class DefaultEventBusTest {
 
     @Test(expected = NullPointerException.class)
     public void constructor_should_throw_if_message_store_null() throws Exception {
-        new DefaultEventBus<>(null, stateManager);
+        new DefaultEventBus<>(null, loggers, stateManager);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void constructor_should_throw_if_loggers_null() throws Exception {
+        new DefaultEventBus<>(messageStore, null, stateManager);
     }
 
     @Test(expected = NullPointerException.class)
     public void constructor_should_throw_if_state_manager_null() throws Exception {
-        new DefaultEventBus<>(messageStore, null);
+        new DefaultEventBus<>(messageStore, loggers, null);
     }
 
     //----------------------------------------------------------------------------------------------

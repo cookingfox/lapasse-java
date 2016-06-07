@@ -4,6 +4,7 @@ import com.cookingfox.lepasse.api.command.handler.AsyncCommandHandler;
 import com.cookingfox.lepasse.api.command.handler.AsyncMultiCommandHandler;
 import com.cookingfox.lepasse.api.command.handler.SyncCommandHandler;
 import com.cookingfox.lepasse.api.command.handler.SyncMultiCommandHandler;
+import com.cookingfox.lepasse.impl.logging.LePasseLoggers;
 import fixtures.command.FixtureIncrementCount;
 import fixtures.event.FixtureCountIncremented;
 import fixtures.event.bus.FixtureEventBus;
@@ -33,15 +34,17 @@ public class DefaultCommandBusTest {
 
     private DefaultCommandBus<FixtureState> commandBus;
     private FixtureEventBus eventBus;
+    private LePasseLoggers<FixtureState> loggers;
     private FixtureMessageStore messageStore;
     private FixtureStateManager stateManager;
 
     @Before
     public void setUp() throws Exception {
         eventBus = new FixtureEventBus();
+        loggers = new LePasseLoggers<>();
         messageStore = new FixtureMessageStore();
         stateManager = new FixtureStateManager(new FixtureState(0));
-        commandBus = new DefaultCommandBus<>(messageStore, eventBus, stateManager);
+        commandBus = new DefaultCommandBus<>(messageStore, eventBus, loggers, stateManager);
     }
 
     //----------------------------------------------------------------------------------------------
@@ -50,17 +53,22 @@ public class DefaultCommandBusTest {
 
     @Test(expected = NullPointerException.class)
     public void constructor_should_throw_if_message_store_null() throws Exception {
-        new DefaultCommandBus<>(null, eventBus, stateManager);
+        new DefaultCommandBus<>(null, eventBus, loggers, stateManager);
     }
 
     @Test(expected = NullPointerException.class)
     public void constructor_should_throw_if_event_bus_null() throws Exception {
-        new DefaultCommandBus<>(messageStore, null, stateManager);
+        new DefaultCommandBus<>(messageStore, null, loggers, stateManager);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void constructor_should_throw_if_loggers_null() throws Exception {
+        new DefaultCommandBus<>(messageStore, eventBus, null, stateManager);
     }
 
     @Test(expected = NullPointerException.class)
     public void constructor_should_throw_if_state_manager_null() throws Exception {
-        new DefaultCommandBus<>(messageStore, eventBus, null);
+        new DefaultCommandBus<>(messageStore, eventBus, loggers, null);
     }
 
     //----------------------------------------------------------------------------------------------

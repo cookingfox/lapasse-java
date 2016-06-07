@@ -4,6 +4,8 @@ import com.cookingfox.lepasse.api.event.Event;
 import com.cookingfox.lepasse.api.event.bus.EventBus;
 import com.cookingfox.lepasse.api.event.exception.EventHandlerReturnedNullException;
 import com.cookingfox.lepasse.api.event.handler.EventHandler;
+import com.cookingfox.lepasse.api.event.logging.EventLogger;
+import com.cookingfox.lepasse.api.logging.LoggerCollection;
 import com.cookingfox.lepasse.api.message.Message;
 import com.cookingfox.lepasse.api.message.store.MessageStore;
 import com.cookingfox.lepasse.api.state.State;
@@ -21,21 +23,35 @@ public class DefaultEventBus<S extends State>
         extends AbstractMessageBus<Event, EventHandler<S, Event>>
         implements EventBus<S> {
 
+    /**
+     * Used for logging the event handler operations.
+     */
+    protected final LoggerCollection<S> loggers;
+
+    /**
+     * Provides access to the current state.
+     */
     protected final StateManager<S> stateManager;
 
     //----------------------------------------------------------------------------------------------
     // CONSTRUCTOR
     //----------------------------------------------------------------------------------------------
 
-    public DefaultEventBus(MessageStore messageStore, StateManager<S> stateManager) {
+    public DefaultEventBus(MessageStore messageStore, LoggerCollection<S> loggers, StateManager<S> stateManager) {
         super(messageStore);
 
+        this.loggers = Objects.requireNonNull(loggers, "Loggers can not be null");
         this.stateManager = Objects.requireNonNull(stateManager, "State manager can not be null");
     }
 
     //----------------------------------------------------------------------------------------------
     // PUBLIC METHODS
     //----------------------------------------------------------------------------------------------
+
+    @Override
+    public void addEventLogger(EventLogger<S> logger) {
+        loggers.addEventLogger(logger);
+    }
 
     @Override
     public void handleEvent(Event event) {
@@ -54,7 +70,7 @@ public class DefaultEventBus<S extends State>
 
     @Override
     protected void executeHandler(Event event, EventHandler<S, Event> eventHandler) {
-        S currentState = stateManager.getCurrentState();
+        final S currentState = stateManager.getCurrentState();
         S newState = null;
 
         try {

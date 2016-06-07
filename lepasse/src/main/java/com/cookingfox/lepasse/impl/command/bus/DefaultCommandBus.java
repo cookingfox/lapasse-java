@@ -4,8 +4,10 @@ import com.cookingfox.lepasse.api.command.Command;
 import com.cookingfox.lepasse.api.command.bus.CommandBus;
 import com.cookingfox.lepasse.api.command.exception.UnsupportedCommandHandlerException;
 import com.cookingfox.lepasse.api.command.handler.*;
+import com.cookingfox.lepasse.api.command.logging.CommandLogger;
 import com.cookingfox.lepasse.api.event.Event;
 import com.cookingfox.lepasse.api.event.bus.EventBus;
+import com.cookingfox.lepasse.api.logging.LoggerCollection;
 import com.cookingfox.lepasse.api.message.Message;
 import com.cookingfox.lepasse.api.message.store.MessageStore;
 import com.cookingfox.lepasse.api.state.State;
@@ -38,6 +40,11 @@ public class DefaultCommandBus<S extends State>
     protected final EventBus<S> eventBus;
 
     /**
+     * Used for logging the command handler operations.
+     */
+    protected final LoggerCollection<S> loggers;
+
+    /**
      * Provides access to the current state.
      */
     protected final StateObserver<S> stateObserver;
@@ -46,16 +53,25 @@ public class DefaultCommandBus<S extends State>
     // CONSTRUCTOR
     //----------------------------------------------------------------------------------------------
 
-    public DefaultCommandBus(MessageStore messageStore, EventBus<S> eventBus, StateObserver<S> stateObserver) {
+    public DefaultCommandBus(MessageStore messageStore,
+                             EventBus<S> eventBus,
+                             LoggerCollection<S> loggers,
+                             StateObserver<S> stateObserver) {
         super(messageStore);
 
         this.eventBus = Objects.requireNonNull(eventBus, "Event bus can not be null");
+        this.loggers = Objects.requireNonNull(loggers, "Loggers can not be null");
         this.stateObserver = Objects.requireNonNull(stateObserver, "State observer can not be null");
     }
 
     //----------------------------------------------------------------------------------------------
     // PUBLIC METHODS
     //----------------------------------------------------------------------------------------------
+
+    @Override
+    public void addCommandLogger(CommandLogger<S> logger) {
+        loggers.addCommandLogger(logger);
+    }
 
     @Override
     public void handleCommand(Command command) {
