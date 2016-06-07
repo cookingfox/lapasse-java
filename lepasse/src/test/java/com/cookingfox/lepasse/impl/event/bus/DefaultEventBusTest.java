@@ -1,7 +1,9 @@
 package com.cookingfox.lepasse.impl.event.bus;
 
+import com.cookingfox.lepasse.api.event.Event;
 import com.cookingfox.lepasse.api.event.exception.EventHandlerReturnedNullException;
 import com.cookingfox.lepasse.api.event.handler.EventHandler;
+import com.cookingfox.lepasse.impl.logging.DefaultLogger;
 import com.cookingfox.lepasse.impl.logging.LePasseLoggers;
 import fixtures.event.FixtureCountIncremented;
 import fixtures.message.FixtureMessage;
@@ -10,6 +12,8 @@ import fixtures.state.FixtureState;
 import fixtures.state.manager.FixtureStateManager;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.Assert.*;
 
@@ -23,17 +27,15 @@ public class DefaultEventBusTest {
     //----------------------------------------------------------------------------------------------
 
     private DefaultEventBus<FixtureState> eventBus;
-    private FixtureState initialState;
     private LePasseLoggers<FixtureState> loggers;
     private FixtureMessageStore messageStore;
     private FixtureStateManager stateManager;
 
     @Before
     public void setUp() throws Exception {
-        initialState = new FixtureState(0);
         loggers = new LePasseLoggers<>();
         messageStore = new FixtureMessageStore();
-        stateManager = new FixtureStateManager(initialState);
+        stateManager = new FixtureStateManager(new FixtureState(0));
         eventBus = new DefaultEventBus<>(messageStore, loggers, stateManager);
     }
 
@@ -76,8 +78,21 @@ public class DefaultEventBusTest {
         assertEquals(count, stateManager.getCurrentState().count);
     }
 
-    @Test(expected = EventHandlerReturnedNullException.class)
-    public void executeHandler_should_throw_if_result_null() throws Exception {
+    @Test
+    public void executeHandler_should_log_error_if_handler_returns_null() throws Exception {
+        final AtomicReference<Throwable> calledError = new AtomicReference<>();
+        final AtomicReference<Event> calledEvent = new AtomicReference<>();
+        final AtomicReference<FixtureState> calledNewState = new AtomicReference<>();
+
+        eventBus.addEventLogger(new DefaultLogger<FixtureState>() {
+            @Override
+            public void onEventHandlerError(Throwable error, Event event, FixtureState newState) {
+                calledError.set(error);
+                calledEvent.set(event);
+                calledNewState.set(newState);
+            }
+        });
+
         eventBus.mapEventHandler(FixtureCountIncremented.class, new EventHandler<FixtureState, FixtureCountIncremented>() {
             @Override
             public FixtureState handle(FixtureState previousState, FixtureCountIncremented event) {
@@ -85,7 +100,76 @@ public class DefaultEventBusTest {
             }
         });
 
-        eventBus.handleEvent(new FixtureCountIncremented(1));
+        final Event event = new FixtureCountIncremented(1);
+
+        eventBus.handleEvent(event);
+
+        // noinspection all
+        assertTrue(calledError.get() instanceof EventHandlerReturnedNullException);
+        assertSame(event, calledEvent.get());
+        assertNull(calledNewState.get());
+    }
+
+    @Test
+    public void executeHandler_should_log_error_if_handler_throws() throws Exception {
+        final AtomicReference<Throwable> calledError = new AtomicReference<>();
+        final AtomicReference<Event> calledEvent = new AtomicReference<>();
+        final AtomicReference<FixtureState> calledNewState = new AtomicReference<>();
+
+        final RuntimeException targetException = new RuntimeException("Example error");
+
+        eventBus.addEventLogger(new DefaultLogger<FixtureState>() {
+            @Override
+            public void onEventHandlerError(Throwable error, Event event, FixtureState newState) {
+                calledError.set(error);
+                calledEvent.set(event);
+                calledNewState.set(newState);
+            }
+        });
+
+        eventBus.mapEventHandler(FixtureCountIncremented.class, new EventHandler<FixtureState, FixtureCountIncremented>() {
+            @Override
+            public FixtureState handle(FixtureState previousState, FixtureCountIncremented event) {
+                throw targetException;
+            }
+        });
+
+        final Event event = new FixtureCountIncremented(1);
+
+        eventBus.handleEvent(event);
+
+        // noinspection all
+        assertSame(targetException, calledError.get());
+        assertSame(event, calledEvent.get());
+        assertNull(calledNewState.get());
+    }
+
+    @Test
+    public void executeHandler_should_call_logger_with_result() throws Exception {
+        final AtomicReference<Event> calledEvent = new AtomicReference<>();
+        final AtomicReference<FixtureState> calledNewState = new AtomicReference<>();
+
+        eventBus.addEventLogger(new DefaultLogger<FixtureState>() {
+            @Override
+            public void onEventHandlerResult(Event event, FixtureState newState) {
+                calledEvent.set(event);
+                calledNewState.set(newState);
+            }
+        });
+
+        eventBus.mapEventHandler(FixtureCountIncremented.class, new EventHandler<FixtureState, FixtureCountIncremented>() {
+            @Override
+            public FixtureState handle(FixtureState previousState, FixtureCountIncremented event) {
+                return new FixtureState(previousState.count + event.count);
+            }
+        });
+
+        final FixtureCountIncremented event = new FixtureCountIncremented(123);
+
+        eventBus.handleEvent(event);
+
+        assertSame(event, calledEvent.get());
+        assertEquals(new FixtureState(event.count), calledNewState.get());
     }
 
     //----------------------------------------------------------------------------------------------

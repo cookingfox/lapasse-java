@@ -1,8 +1,10 @@
 package com.cookingfox.lepasse.impl.logging;
 
 import com.cookingfox.lepasse.api.command.Command;
+import com.cookingfox.lepasse.api.command.exception.NoRegisteredCommandErrorHandlerException;
 import com.cookingfox.lepasse.api.command.logging.CommandLogger;
 import com.cookingfox.lepasse.api.event.Event;
+import com.cookingfox.lepasse.api.event.exception.NoRegisteredEventErrorHandlerException;
 import com.cookingfox.lepasse.api.event.logging.EventLogger;
 import fixtures.state.FixtureState;
 import org.junit.Before;
@@ -62,6 +64,15 @@ public class LePasseLoggersTest {
     }
 
     //----------------------------------------------------------------------------------------------
+    // TESTS: onCommandHandlerError
+    //----------------------------------------------------------------------------------------------
+
+    @Test(expected = NoRegisteredCommandErrorHandlerException.class)
+    public void onCommandHandlerError_should_throw_if_no_command_loggers() throws Exception {
+        loggers.onCommandHandlerError(null, null);
+    }
+
+    //----------------------------------------------------------------------------------------------
     // TESTS: addEventLogger
     //----------------------------------------------------------------------------------------------
 
@@ -92,6 +103,15 @@ public class LePasseLoggersTest {
 
         assertTrue(eventErrorCalled.get());
         assertTrue(eventResultCalled.get());
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // TESTS: onEventHandlerError
+    //----------------------------------------------------------------------------------------------
+
+    @Test(expected = NoRegisteredEventErrorHandlerException.class)
+    public void onEventHandlerError_should_throw_if_no_event_loggers() throws Exception {
+        loggers.onEventHandlerError(null, null, null);
     }
 
     //----------------------------------------------------------------------------------------------

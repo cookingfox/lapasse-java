@@ -1,9 +1,12 @@
 package com.cookingfox.lepasse.impl.command.bus;
 
+import com.cookingfox.lepasse.api.command.Command;
 import com.cookingfox.lepasse.api.command.handler.AsyncCommandHandler;
 import com.cookingfox.lepasse.api.command.handler.AsyncMultiCommandHandler;
 import com.cookingfox.lepasse.api.command.handler.SyncCommandHandler;
 import com.cookingfox.lepasse.api.command.handler.SyncMultiCommandHandler;
+import com.cookingfox.lepasse.api.event.Event;
+import com.cookingfox.lepasse.impl.logging.DefaultLogger;
 import com.cookingfox.lepasse.impl.logging.LePasseLoggers;
 import fixtures.command.FixtureIncrementCount;
 import fixtures.event.FixtureCountIncremented;
@@ -20,6 +23,7 @@ import java.util.Collections;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.Assert.*;
 
@@ -155,6 +159,62 @@ public class DefaultCommandBusTest {
         commandBus.handleCommand(new FixtureIncrementCount(count));
 
         assertTrue(eventBus.handleEventCalls.contains(event));
+    }
+
+    @Test
+    public void executeHandler_should_log_command_handler_result_of_single_handler() throws Exception {
+        final AtomicReference<Command> calledCommand = new AtomicReference<>();
+        final AtomicReference<Event[]> calledEvents = new AtomicReference<>();
+
+        commandBus.addCommandLogger(new DefaultLogger<FixtureState>() {
+            @Override
+            public void onCommandHandlerResult(Command command, Event... events) {
+                calledCommand.set(command);
+                calledEvents.set(events);
+            }
+        });
+
+        commandBus.mapCommandHandler(FixtureIncrementCount.class, new SyncCommandHandler<FixtureState, FixtureIncrementCount, FixtureCountIncremented>() {
+            @Override
+            public FixtureCountIncremented handle(FixtureState state, FixtureIncrementCount command) {
+                return new FixtureCountIncremented(command.count);
+            }
+        });
+
+        final FixtureIncrementCount command = new FixtureIncrementCount(123);
+
+        commandBus.handleCommand(command);
+
+        assertSame(command, calledCommand.get());
+        assertArrayEquals(new Event[]{new FixtureCountIncremented(command.count)}, calledEvents.get());
+    }
+
+    @Test
+    public void executeHandler_should_log_command_handler_result_of_multi_handler() throws Exception {
+        final AtomicReference<Command> calledCommand = new AtomicReference<>();
+        final AtomicReference<Event[]> calledEvents = new AtomicReference<>();
+
+        commandBus.addCommandLogger(new DefaultLogger<FixtureState>() {
+            @Override
+            public void onCommandHandlerResult(Command command, Event... events) {
+                calledCommand.set(command);
+                calledEvents.set(events);
+            }
+        });
+
+        commandBus.mapCommandHandler(FixtureIncrementCount.class, new SyncMultiCommandHandler<FixtureState, FixtureIncrementCount, FixtureCountIncremented>() {
+            @Override
+            public Collection<FixtureCountIncremented> handle(FixtureState state, FixtureIncrementCount command) {
+                return Collections.singletonList(new FixtureCountIncremented(command.count));
+            }
+        });
+
+        final FixtureIncrementCount command = new FixtureIncrementCount(123);
+
+        commandBus.handleCommand(command);
+
+        assertSame(command, calledCommand.get());
+        assertArrayEquals(new Event[]{new FixtureCountIncremented(command.count)}, calledEvents.get());
     }
 
     //----------------------------------------------------------------------------------------------

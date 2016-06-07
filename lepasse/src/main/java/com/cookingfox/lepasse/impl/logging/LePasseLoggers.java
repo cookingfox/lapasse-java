@@ -1,8 +1,10 @@
 package com.cookingfox.lepasse.impl.logging;
 
 import com.cookingfox.lepasse.api.command.Command;
+import com.cookingfox.lepasse.api.command.exception.NoRegisteredCommandErrorHandlerException;
 import com.cookingfox.lepasse.api.command.logging.CommandLogger;
 import com.cookingfox.lepasse.api.event.Event;
+import com.cookingfox.lepasse.api.event.exception.NoRegisteredEventErrorHandlerException;
 import com.cookingfox.lepasse.api.event.logging.EventLogger;
 import com.cookingfox.lepasse.api.logging.LoggerCollection;
 import com.cookingfox.lepasse.api.state.State;
@@ -18,7 +20,14 @@ import java.util.Set;
  */
 public class LePasseLoggers<S extends State> implements LoggerCollection<S> {
 
+    /**
+     * Set of unique command logger instances.
+     */
     protected final Set<CommandLogger<S>> commandLoggers = new LinkedHashSet<>();
+
+    /**
+     * Set of unique event logger instances.
+     */
     protected final Set<EventLogger<S>> eventLoggers = new LinkedHashSet<>();
 
     //----------------------------------------------------------------------------------------------
@@ -32,6 +41,10 @@ public class LePasseLoggers<S extends State> implements LoggerCollection<S> {
 
     @Override
     public void onCommandHandlerError(Throwable error, Command command, Event... events) {
+        if (commandLoggers.isEmpty()) {
+            throw new NoRegisteredCommandErrorHandlerException(error, command);
+        }
+
         for (CommandLogger<S> logger : commandLoggers) {
             logger.onCommandHandlerError(error, command, events);
         }
@@ -55,6 +68,10 @@ public class LePasseLoggers<S extends State> implements LoggerCollection<S> {
 
     @Override
     public void onEventHandlerError(Throwable error, Event event, S newState) {
+        if (eventLoggers.isEmpty()) {
+            throw new NoRegisteredEventErrorHandlerException(error, event);
+        }
+
         for (EventLogger<S> logger : eventLoggers) {
             logger.onEventHandlerError(error, event, newState);
         }

@@ -70,22 +70,26 @@ public class DefaultEventBus<S extends State>
 
     @Override
     protected void executeHandler(Event event, EventHandler<S, Event> eventHandler) {
-        final S currentState = stateManager.getCurrentState();
-        S newState = null;
+        S newState;
 
         try {
-            newState = eventHandler.handle(currentState, event);
+            // attempt to create a new state by applying the event to the current state
+            newState = eventHandler.handle(stateManager.getCurrentState(), event);
         } catch (Exception e) {
-            e.printStackTrace();
-            // FIXME: 06/06/16 Handle event handler exception - introduce logger & error handler
-        }
-
-        if (newState != null) {
-            stateManager.handleNewState(newState, event);
+            loggers.onEventHandlerError(e, event, null);
             return;
         }
 
-        throw new EventHandlerReturnedNullException(event);
+        // log handler result
+        loggers.onEventHandlerResult(event, newState);
+
+        if (newState == null) {
+            // handler returned null: log error
+            loggers.onEventHandlerError(new EventHandlerReturnedNullException(event), event, null);
+        } else {
+            // handler returned new state: pass to state manager
+            stateManager.handleNewState(newState, event);
+        }
     }
 
     @Override

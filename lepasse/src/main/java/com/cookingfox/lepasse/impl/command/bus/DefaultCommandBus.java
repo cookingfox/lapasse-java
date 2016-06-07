@@ -141,7 +141,10 @@ public class DefaultCommandBus<S extends State>
         } catch (Exception e) {
             e.printStackTrace();
             // FIXME: 06/06/16 Handle command handler exception - introduce logger & error handler
+            return;
         }
+
+        loggers.onCommandHandlerResult(command, event);
 
         if (event != null) {
             eventBus.handleEvent(event);
@@ -170,9 +173,14 @@ public class DefaultCommandBus<S extends State>
         } catch (Exception e) {
             e.printStackTrace();
             // FIXME: 06/06/16 Handle command handler exception - introduce logger & error handler
+            return;
         }
 
-        if (events != null) {
+        if (events == null) {
+            loggers.onCommandHandlerResult(command);
+        } else {
+            loggers.onCommandHandlerResult(command, events.toArray(new Event[]{}));
+
             for (Event event : events) {
                 eventBus.handleEvent(event);
             }
