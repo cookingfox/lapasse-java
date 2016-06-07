@@ -6,16 +6,16 @@
 
     <!-- Maven info -->
     <groupId>com.cookingfox</groupId>
-    <artifactId>lepasse-parent</artifactId>
+    <artifactId>lapasse-parent</artifactId>
     <version>0.1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>LePasse (Parent)</name>
+    <name>LaPasse (Parent)</name>
     <description>CQRS and Redux inspired library for Java.</description>
-    <url>https://github.com/cookingfox/lepasse-java</url>
+    <url>https://github.com/cookingfox/lapasse-java</url>
 
     <!-- Modules -->
     <modules>
-        <module>lepasse</module>
+        <module>lapasse</module>
     </modules>
 
     <!-- Properties -->
@@ -33,10 +33,10 @@
 
     <!-- Source Control Management -->
     <scm>
-        <url>http://github.com/cookingfox/lepasse-java</url>
-        <connection>scm:git:git://github.com/cookingfox/lepasse-java.git</connection>
+        <url>http://github.com/cookingfox/lapasse-java</url>
+        <connection>scm:git:git://github.com/cookingfox/lapasse-java.git</connection>
         <developerConnection>
-            scm:git:ssh://git@github.com/cookingfox/lepasse-java.git
+            scm:git:ssh://git@github.com/cookingfox/lapasse-java.git
         </developerConnection>
         <tag>HEAD</tag>
     </scm>
@@ -44,15 +44,15 @@
     <!-- Issue management -->
     <issueManagement>
         <system>GitHub Issues</system>
-        <url>https://github.com/cookingfox/lepasse-java/issues</url>
+        <url>https://github.com/cookingfox/lapasse-java/issues</url>
     </issueManagement>
 
     <!-- Distribution management -->
     <distributionManagement>
         <repository>
             <id>bintray</id>
-            <name>cookingfox/lepasse-java</name>
-            <url>https://api.bintray.com/maven/cookingfox/maven/lepasse-java</url>
+            <name>cookingfox/lapasse-java</name>
+            <url>https://api.bintray.com/maven/cookingfox/maven/lapasse-java</url>
         </repository>
     </distributionManagement>
 
