@@ -1,34 +1,31 @@
 package fixtures.message.store;
 
 import com.cookingfox.lepasse.api.message.Message;
-import com.cookingfox.lepasse.api.message.store.MessageStore;
 import com.cookingfox.lepasse.api.message.store.OnMessageAdded;
+import com.cookingfox.lepasse.impl.message.store.AbstractMessageStore;
 
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 /**
- * Minimal implementation of {@link MessageStore} that tracks added messages and immediately calls
- * subscribers.
+ * Minimal implementation of {@link AbstractMessageStore} that tracks added messages and immediately
+ * calls subscribers.
  */
-public class FixtureMessageStore implements MessageStore {
+public class FixtureMessageStore extends AbstractMessageStore {
 
     public final List<Message> addedMessages = new LinkedList<>();
-    public final List<OnMessageAdded> subscribers = new LinkedList<>();
 
     @Override
     public void addMessage(Message message) {
         addedMessages.add(Objects.requireNonNull(message));
 
-        for (OnMessageAdded subscriber : subscribers) {
-            subscriber.onMessageAdded(message);
-        }
+        notifyMessageAdded(message);
     }
 
-    @Override
-    public void subscribe(OnMessageAdded subscriber) {
-        subscribers.add(Objects.requireNonNull(subscriber));
+    public Set<OnMessageAdded> getSubscribers() {
+        return subscribers;
     }
 
 }

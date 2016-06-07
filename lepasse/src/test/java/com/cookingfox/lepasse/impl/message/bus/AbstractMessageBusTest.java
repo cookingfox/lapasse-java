@@ -36,7 +36,7 @@ public class AbstractMessageBusTest {
 
     @Test
     public void constructor_should_subscribe_to_store() throws Exception {
-        assertEquals(1, messageStore.subscribers.size());
+        assertEquals(1, messageStore.getSubscribers().size());
     }
 
     //----------------------------------------------------------------------------------------------
