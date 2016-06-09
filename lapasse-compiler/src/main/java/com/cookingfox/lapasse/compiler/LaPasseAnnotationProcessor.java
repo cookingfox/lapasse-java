@@ -26,7 +26,8 @@ import java.util.*;
  */
 public class LaPasseAnnotationProcessor extends AbstractProcessor {
 
-    private static final String CLASS_SUFFIX = "$$LaPasseGenerated";
+    public static final String CLASS_SUFFIX = "$$LaPasseGenerated";
+
     private static final String FIELD_PREFIX = "_";
     private static final String METHOD_HANDLE = "handle";
     private static final String VAR_COMMAND = "command";
@@ -281,8 +282,7 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
                         .build();
 
                 // write file
-                // FIXME: 09/06/16 Write to filer
-                javaFile.writeTo(System.out);
+                javaFile.writeTo(filer);
             } catch (IOException e) {
                 error(origin, "Unable to generate handlers for %s: %s", origin, e.getMessage());
             }
