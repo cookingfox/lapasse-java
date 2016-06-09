@@ -1,6 +1,6 @@
-package com.cookingfox.lapasse.compiler;
+package com.cookingfox.lapasse.compiler.event;
 
-import com.cookingfox.lapasse.api.command.Command;
+import com.cookingfox.lapasse.api.state.State;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
@@ -8,22 +8,24 @@ import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 import java.util.List;
 
+import static com.cookingfox.lapasse.compiler.utils.TypeUtils.isSubtype;
+
 /**
  * Created by abeldebeer on 09/06/16.
  */
-public class HandleCommandSecondParam extends AbstractHandleCommand {
+public class HandleEventFirstParam extends AbstractHandleEvent {
 
     protected ExecutableElement executableElement;
-    protected TypeMirror secondParam;
+    protected TypeMirror firstParam;
 
     protected boolean exists = false;
-    protected boolean extendsCommand = false;
+    protected boolean extendsState = false;
 
     //----------------------------------------------------------------------------------------------
     // CONSTRUCTOR
     //----------------------------------------------------------------------------------------------
 
-    public HandleCommandSecondParam(Element element) {
+    public HandleEventFirstParam(Element element) {
         super(element);
     }
 
@@ -33,14 +35,14 @@ public class HandleCommandSecondParam extends AbstractHandleCommand {
 
     @Override
     public String getError() {
-        String prefix = String.format("Second parameter of @%s annotated method", ANNOTATION);
+        String prefix = String.format("First parameter of @%s annotated method", ANNOTATION);
 
         if (isValid()) {
             return String.format("%s is valid", prefix);
         }
 
-        if (!exists || !extendsCommand) {
-            return String.format("%s must be a subtype of `%s`", prefix, Command.class.getName());
+        if (!exists || !extendsState) {
+            return String.format("%s must be a subtype of `%s`", prefix, State.class.getName());
         }
 
         return String.format("%s is invalid", prefix);
@@ -48,7 +50,7 @@ public class HandleCommandSecondParam extends AbstractHandleCommand {
 
     @Override
     public boolean isValid() {
-        return exists && extendsCommand;
+        return exists && extendsState;
     }
 
     public void setExecutableElement(ExecutableElement executableElement) {
@@ -61,15 +63,15 @@ public class HandleCommandSecondParam extends AbstractHandleCommand {
     @Override
     protected void doProcess() {
         if (exists = validateParamExists()) {
-            extendsCommand = validateParamExtendsCommand();
+            extendsState = validateParamExtendsState();
         }
     }
 
     private boolean validateParamExists() {
         List<? extends VariableElement> parameters = executableElement.getParameters();
 
-        if (parameters.size() > 1) {
-            secondParam = parameters.get(1).asType();
+        if (parameters.size() > 0) {
+            firstParam = parameters.get(0).asType();
 
             return true;
         }
@@ -77,8 +79,8 @@ public class HandleCommandSecondParam extends AbstractHandleCommand {
         return false;
     }
 
-    private boolean validateParamExtendsCommand() {
-        return TypeUtils.isSubtype(secondParam, Command.class);
+    private boolean validateParamExtendsState() {
+        return isSubtype(firstParam, State.class);
     }
 
     //----------------------------------------------------------------------------------------------
@@ -87,9 +89,9 @@ public class HandleCommandSecondParam extends AbstractHandleCommand {
 
     @Override
     public String toString() {
-        return "HandleCommandSecondParam{" +
+        return "HandleEventFirstParam{" +
                 "exists=" + exists +
-                ", extendsCommand=" + extendsCommand +
+                ", extendsState=" + extendsState +
                 '}';
     }
 

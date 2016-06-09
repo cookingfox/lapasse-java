@@ -1,4 +1,4 @@
-package com.cookingfox.lapasse.compiler;
+package com.cookingfox.lapasse.compiler.command;
 
 import com.cookingfox.lapasse.api.event.Event;
 
@@ -10,7 +10,8 @@ import javax.lang.model.type.TypeMirror;
 import java.util.Collection;
 import java.util.concurrent.Callable;
 
-import static com.cookingfox.lapasse.compiler.TypeUtils.firstArgIsSubType;
+import static com.cookingfox.lapasse.compiler.utils.TypeUtils.firstArgIsSubType;
+import static com.cookingfox.lapasse.compiler.utils.TypeUtils.isSubtype;
 
 /**
  * Created by abeldebeer on 09/06/16.
@@ -107,15 +108,15 @@ public class HandleCommandReturns extends AbstractHandleCommand {
     }
 
     private void validateDeclaredReturnType() {
-        if (TypeUtils.isSubtype(returnType, Event.class)) {
+        if (isSubtype(returnType, Event.class)) {
             returnsEvent = true;
 
             // event is valid return type: no further inspection necessary
             return;
-        } else if (TypeUtils.isSubtype(returnType, Collection.class)) {
+        } else if (isSubtype(returnType, Collection.class)) {
             // is collection, need to inspect generic
             returnsCollection = true;
-        } else if (TypeUtils.isSubtype(returnType, Callable.class)) {
+        } else if (isSubtype(returnType, Callable.class)) {
             // is callable, need to inspect generic
             returnsCallable = true;
         } else {

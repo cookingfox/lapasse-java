@@ -2,6 +2,8 @@ package com.cookingfox.lapasse.compiler;
 
 import com.cookingfox.lapasse.annotation.HandleCommand;
 import com.cookingfox.lapasse.annotation.HandleEvent;
+import com.cookingfox.lapasse.compiler.command.HandleCommandInfo;
+import com.cookingfox.lapasse.compiler.event.HandleEventInfo;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Messager;

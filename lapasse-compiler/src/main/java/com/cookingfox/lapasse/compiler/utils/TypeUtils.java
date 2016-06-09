@@ -1,4 +1,4 @@
-package com.cookingfox.lapasse.compiler;
+package com.cookingfox.lapasse.compiler.utils;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;

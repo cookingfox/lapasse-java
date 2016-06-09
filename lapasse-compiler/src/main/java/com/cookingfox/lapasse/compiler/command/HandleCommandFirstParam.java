@@ -1,29 +1,31 @@
-package com.cookingfox.lapasse.compiler;
+package com.cookingfox.lapasse.compiler.command;
 
 import com.cookingfox.lapasse.api.state.State;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.type.DeclaredType;
-import javax.lang.model.type.TypeKind;
+import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
+import java.util.List;
+
+import static com.cookingfox.lapasse.compiler.utils.TypeUtils.isSubtype;
 
 /**
  * Created by abeldebeer on 09/06/16.
  */
-public class HandleEventReturns extends AbstractHandleEvent {
+public class HandleCommandFirstParam extends AbstractHandleCommand {
 
     protected ExecutableElement executableElement;
-    protected DeclaredType returnType;
+    protected TypeMirror firstParam;
 
-    protected boolean isDeclaredType = false;
-    protected boolean returnsState = false;
+    protected boolean exists = false;
+    protected boolean extendsState = false;
 
     //----------------------------------------------------------------------------------------------
     // CONSTRUCTOR
     //----------------------------------------------------------------------------------------------
 
-    public HandleEventReturns(Element element) {
+    public HandleCommandFirstParam(Element element) {
         super(element);
     }
 
@@ -33,14 +35,14 @@ public class HandleEventReturns extends AbstractHandleEvent {
 
     @Override
     public String getError() {
-        String prefix = String.format("Return type of @%s annotated method", ANNOTATION);
+        String prefix = String.format("First parameter of @%s annotated method", ANNOTATION);
 
         if (isValid()) {
             return String.format("%s is valid", prefix);
         }
 
-        if (!isDeclaredType || !returnsState) {
-            return String.format("%s must extend `%s`", prefix, State.class.getName());
+        if (!exists || !extendsState) {
+            return String.format("%s must be a subtype of `%s`", prefix, State.class.getName());
         }
 
         return String.format("%s is invalid", prefix);
@@ -48,38 +50,37 @@ public class HandleEventReturns extends AbstractHandleEvent {
 
     @Override
     public boolean isValid() {
-        return isDeclaredType && returnsState;
+        return exists && extendsState;
     }
 
     public void setExecutableElement(ExecutableElement executableElement) {
         this.executableElement = executableElement;
     }
-
     //----------------------------------------------------------------------------------------------
     // PROTECTED METHODS
     //----------------------------------------------------------------------------------------------
 
     @Override
     protected void doProcess() {
-        if (isDeclaredType = validateDeclaredType()) {
-            returnsState = validateReturnsState();
+        if (exists = validateParamExists()) {
+            extendsState = validateParamExtendsState();
         }
     }
 
-    private boolean validateReturnsState() {
-        return TypeUtils.isSubtype(returnType, State.class);
-    }
+    private boolean validateParamExists() {
+        List<? extends VariableElement> parameters = executableElement.getParameters();
 
-    protected boolean validateDeclaredType() {
-        TypeMirror mirrorReturnType = executableElement.getReturnType();
+        if (parameters.size() > 0) {
+            firstParam = parameters.get(0).asType();
 
-        if (mirrorReturnType.getKind() != TypeKind.DECLARED) {
-            return false;
+            return true;
         }
 
-        returnType = (DeclaredType) mirrorReturnType;
+        return false;
+    }
 
-        return true;
+    private boolean validateParamExtendsState() {
+        return isSubtype(firstParam, State.class);
     }
 
     //----------------------------------------------------------------------------------------------
@@ -88,9 +89,9 @@ public class HandleEventReturns extends AbstractHandleEvent {
 
     @Override
     public String toString() {
-        return "HandleEventReturns{" +
-                "isDeclaredType=" + isDeclaredType +
-                ", returnsState=" + returnsState +
+        return "HandleCommandFirstParam{" +
+                "exists=" + exists +
+                ", extendsState=" + extendsState +
                 '}';
     }
 

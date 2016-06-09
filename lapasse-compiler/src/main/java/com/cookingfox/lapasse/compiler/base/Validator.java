@@ -1,4 +1,4 @@
-package com.cookingfox.lapasse.compiler;
+package com.cookingfox.lapasse.compiler.base;
 
 /**
  * Created by abeldebeer on 09/06/16.

@@ -1,6 +1,6 @@
-package com.cookingfox.lapasse.compiler;
+package com.cookingfox.lapasse.compiler.command;
 
-import com.cookingfox.lapasse.api.event.Event;
+import com.cookingfox.lapasse.api.command.Command;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
@@ -8,22 +8,24 @@ import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 import java.util.List;
 
+import static com.cookingfox.lapasse.compiler.utils.TypeUtils.isSubtype;
+
 /**
  * Created by abeldebeer on 09/06/16.
  */
-public class HandleEventSecondParam extends AbstractHandleEvent {
+public class HandleCommandSecondParam extends AbstractHandleCommand {
 
     protected ExecutableElement executableElement;
     protected TypeMirror secondParam;
 
     protected boolean exists = false;
-    protected boolean extendsEvent = false;
+    protected boolean extendsCommand = false;
 
     //----------------------------------------------------------------------------------------------
     // CONSTRUCTOR
     //----------------------------------------------------------------------------------------------
 
-    public HandleEventSecondParam(Element element) {
+    public HandleCommandSecondParam(Element element) {
         super(element);
     }
 
@@ -39,8 +41,8 @@ public class HandleEventSecondParam extends AbstractHandleEvent {
             return String.format("%s is valid", prefix);
         }
 
-        if (!exists || !extendsEvent) {
-            return String.format("%s must be a subtype of `%s`", prefix, Event.class.getName());
+        if (!exists || !extendsCommand) {
+            return String.format("%s must be a subtype of `%s`", prefix, Command.class.getName());
         }
 
         return String.format("%s is invalid", prefix);
@@ -48,7 +50,7 @@ public class HandleEventSecondParam extends AbstractHandleEvent {
 
     @Override
     public boolean isValid() {
-        return exists && extendsEvent;
+        return exists && extendsCommand;
     }
 
     public void setExecutableElement(ExecutableElement executableElement) {
@@ -61,7 +63,7 @@ public class HandleEventSecondParam extends AbstractHandleEvent {
     @Override
     protected void doProcess() {
         if (exists = validateParamExists()) {
-            extendsEvent = validateParamExtendsEvent();
+            extendsCommand = validateParamExtendsCommand();
         }
     }
 
@@ -77,8 +79,8 @@ public class HandleEventSecondParam extends AbstractHandleEvent {
         return false;
     }
 
-    private boolean validateParamExtendsEvent() {
-        return TypeUtils.isSubtype(secondParam, Event.class);
+    private boolean validateParamExtendsCommand() {
+        return isSubtype(secondParam, Command.class);
     }
 
     //----------------------------------------------------------------------------------------------
@@ -87,9 +89,9 @@ public class HandleEventSecondParam extends AbstractHandleEvent {
 
     @Override
     public String toString() {
-        return "HandleEventSecondParam{" +
+        return "HandleCommandSecondParam{" +
                 "exists=" + exists +
-                ", extendsEvent=" + extendsEvent +
+                ", extendsCommand=" + extendsCommand +
                 '}';
     }
 
