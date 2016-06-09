@@ -1,6 +1,7 @@
 package com.cookingfox.lapasse.compiler.command;
 
 import com.cookingfox.lapasse.api.event.Event;
+import com.squareup.javapoet.TypeName;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
@@ -8,6 +9,7 @@ import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.Callable;
 
 import static com.cookingfox.lapasse.compiler.utils.TypeUtils.firstArgIsSubType;
@@ -18,6 +20,7 @@ import static com.cookingfox.lapasse.compiler.utils.TypeUtils.isSubtype;
  */
 public class HandleCommandReturns extends AbstractHandleCommand {
 
+    protected TypeMirror eventType;
     protected ExecutableElement executableElement;
     protected DeclaredType returnType;
 
@@ -61,6 +64,18 @@ public class HandleCommandReturns extends AbstractHandleCommand {
                 Callable.class.getSimpleName());
     }
 
+    public TypeName getEventName() {
+        return TypeName.get(eventType);
+    }
+
+    public TypeName getMethodReturnTypeName() {
+        if (returnsVoid) {
+            return TypeName.VOID;
+        }
+
+        return TypeName.get(returnType);
+    }
+
     @Override
     public boolean isValid() {
         if (returnsVoid) {
@@ -74,6 +89,22 @@ public class HandleCommandReturns extends AbstractHandleCommand {
                 returnsEventCallable ||
                 returnsEventCollection ||
                 returnsEventCollectionCallable;
+    }
+
+    public boolean returnsEventCallable() {
+        return returnsEventCallable;
+    }
+
+    public boolean returnsEventCollection() {
+        return returnsEventCollection;
+    }
+
+    public boolean returnsEventCollectionCallable() {
+        return returnsEventCollectionCallable;
+    }
+
+    public boolean returnsVoid() {
+        return returnsVoid;
     }
 
     public void setExecutableElement(ExecutableElement executableElement) {
@@ -110,6 +141,7 @@ public class HandleCommandReturns extends AbstractHandleCommand {
     private void validateDeclaredReturnType() {
         if (isSubtype(returnType, Event.class)) {
             returnsEvent = true;
+            setEventTypeWith(returnType);
 
             // event is valid return type: no further inspection necessary
             return;
@@ -124,15 +156,28 @@ public class HandleCommandReturns extends AbstractHandleCommand {
             return;
         }
 
+        List<? extends TypeMirror> typeArguments = returnType.getTypeArguments();
+
         // check whether the generic type of the first argument is `Event`
         if (firstArgIsSubType(returnType, Event.class)) {
             returnsEventCallable = returnsCallable;
             returnsEventCollection = returnsCollection;
-        } else if (returnsCallable) {
+
+            setEventTypeWith(typeArguments.get(0));
+        } else if (returnsCallable && typeArguments.size() == 1) {
+            DeclaredType firstArg = (DeclaredType) typeArguments.get(0);
+
             // check whether the generic type of the callable is `Collection<Event>`
-            TypeMirror firstArg = returnType.getTypeArguments().get(0);
-            returnsEventCollectionCallable = firstArgIsSubType(firstArg, Event.class);
+            if (firstArgIsSubType(firstArg, Event.class)) {
+                returnsEventCollectionCallable = true;
+
+                setEventTypeWith(firstArg.getTypeArguments().get(0));
+            }
         }
+    }
+
+    private void setEventTypeWith(TypeMirror type) {
+        eventType = type;
     }
 
     private boolean validateReturnsVoid() {

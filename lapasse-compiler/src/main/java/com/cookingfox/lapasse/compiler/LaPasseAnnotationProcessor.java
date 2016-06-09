@@ -2,6 +2,7 @@ package com.cookingfox.lapasse.compiler;
 
 import com.cookingfox.lapasse.annotation.HandleCommand;
 import com.cookingfox.lapasse.annotation.HandleEvent;
+import com.cookingfox.lapasse.api.command.handler.*;
 import com.cookingfox.lapasse.api.event.handler.EventHandler;
 import com.cookingfox.lapasse.api.facade.Facade;
 import com.cookingfox.lapasse.compiler.command.HandleCommandInfo;
@@ -93,13 +94,22 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
             TypeElement origin = entry.getKey();
             Registry registry = entry.getValue();
 
+            // get original package and class name
             String packageName = elements.getPackageOf(origin).getQualifiedName().toString();
             String originClassName = getClassName(origin, packageName);
 
+            // create new class name
             ClassName className = ClassName.get(packageName, originClassName + CLASS_SUFFIX);
 
-            TypeVariableName originGeneric = TypeVariableName.get("T", ClassName.get(packageName, originClassName));
+            //--------------------------------------------------------------------------------------
+            // CREATE CLASS SPECIFICATION
+            //--------------------------------------------------------------------------------------
 
+            // create generic type parameter for origin
+            TypeVariableName originGeneric = TypeVariableName.get("T",
+                    ClassName.get(packageName, originClassName));
+
+            // create constructor
             MethodSpec constructor = MethodSpec.constructorBuilder()
                     .addModifiers(Modifier.PUBLIC)
                     .addParameter(originGeneric, VAR_ORIGIN)
@@ -108,6 +118,7 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
                     .addStatement("this.$N = $N", VAR_FACADE, VAR_FACADE)
                     .build();
 
+            // create class (builder)
             TypeSpec.Builder typeSpecBuilder = TypeSpec.classBuilder(className)
                     .addModifiers(Modifier.PUBLIC)
                     .addTypeVariable(originGeneric)
@@ -116,28 +127,110 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
                     .addField(Facade.class, VAR_FACADE, Modifier.FINAL)
                     .addMethod(constructor);
 
+            // create HandlerMapper (builder)
             MethodSpec.Builder mapHandlersBuilder = MethodSpec.methodBuilder("mapHandlers")
                     .addModifiers(Modifier.PUBLIC)
                     .addAnnotation(Override.class);
 
             int fieldNameCounter = 0;
 
+            //--------------------------------------------------------------------------------------
+            // PROCESS COMMAND HANDLERS
+            //--------------------------------------------------------------------------------------
+
             for (HandleCommandInfo info : registry.getHandleCommands()) {
                 String fieldName = FIELD_PREFIX + (++fieldNameCounter);
 
-                typeSpecBuilder.addField(String.class, fieldName);
+                // collect handler specific parameters
+                Name methodName = info.getMethodName();
+                TypeName stateName = info.getStateName();
+                TypeName commandName = info.getCommandName();
+                TypeName returnTypeName = info.getMethodReturnTypeName();
+
+                // parameterized name for handler
+                ParameterizedTypeName handlerType;
+
+                // build handler method implementation
+                MethodSpec.Builder handlerImplBuilder = MethodSpec.methodBuilder(METHOD_HANDLE)
+                        .addAnnotation(Override.class)
+                        .addModifiers(Modifier.PUBLIC)
+                        .addParameter(stateName, VAR_STATE)
+                        .addParameter(commandName, VAR_COMMAND)
+                        .returns(returnTypeName);
+
+                String handleStatement = "$N.$N($N, $N)";
+
+                if (info.returnsVoid()) {
+                    handlerType = ParameterizedTypeName.get(ClassName.get(VoidCommandHandler.class),
+                            stateName, commandName);
+                } else {
+                    TypeName eventName = info.getEventName();
+
+                    Class<? extends CommandHandler> commandHandlerClass = SyncCommandHandler.class;
+
+                    if (info.returnsEventCollection()) {
+                        commandHandlerClass = SyncMultiCommandHandler.class;
+                    } else if (info.returnsEventCallable()) {
+                        commandHandlerClass = AsyncCommandHandler.class;
+                    } else if (info.returnsEventCollectionCallable()) {
+                        commandHandlerClass = AsyncMultiCommandHandler.class;
+                    }
+
+                    handlerType = ParameterizedTypeName.get(ClassName.get(commandHandlerClass),
+                            stateName, commandName, eventName);
+
+                    handleStatement = "return " + handleStatement;
+                }
+
+                handlerImplBuilder.addStatement(
+                        handleStatement,
+                        VAR_ORIGIN,
+                        methodName,
+                        VAR_STATE,
+                        VAR_COMMAND
+                );
+
+                // add handler implementation
+                TypeSpec handlerImpl = TypeSpec.anonymousClassBuilder("")
+                        .addSuperinterface(handlerType)
+                        .addMethod(handlerImplBuilder.build())
+                        .build();
+
+                // create field for handler
+                FieldSpec handlerField = FieldSpec.builder(handlerType, fieldName)
+                        .addModifiers(Modifier.FINAL)
+                        .initializer("$L", handlerImpl)
+                        .build();
+
+                // add field to class
+                typeSpecBuilder.addField(handlerField);
+
+                // add handler mapping to HandlerMapper
+                mapHandlersBuilder.addStatement(
+                        "$N.mapCommandHandler($T.class, $N)",
+                        VAR_FACADE,
+                        commandName,
+                        fieldName
+                );
             }
+
+            //--------------------------------------------------------------------------------------
+            // PROCESS EVENT HANDLERS
+            //--------------------------------------------------------------------------------------
 
             for (HandleEventInfo info : registry.getHandleEvents()) {
                 String fieldName = FIELD_PREFIX + (++fieldNameCounter);
 
+                // collect handler specific parameters
                 Name methodName = info.getMethodName();
                 TypeName stateName = info.getStateName();
                 TypeName eventName = info.getEventName();
 
+                // create parameterized name for handler
                 ParameterizedTypeName handlerType = ParameterizedTypeName.get(
                         ClassName.get(EventHandler.class), stateName, eventName);
 
+                // create anonymous handler implementation
                 TypeSpec handlerImpl = TypeSpec.anonymousClassBuilder("")
                         .addSuperinterface(handlerType)
                         .addMethod(MethodSpec.methodBuilder(METHOD_HANDLE)
@@ -156,13 +249,16 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
                                 .build())
                         .build();
 
+                // create field for handler
                 FieldSpec handlerField = FieldSpec.builder(handlerType, fieldName)
                         .addModifiers(Modifier.FINAL)
                         .initializer("$L", handlerImpl)
                         .build();
 
+                // add field to class
                 typeSpecBuilder.addField(handlerField);
 
+                // add handler mapping to HandlerMapper
                 mapHandlersBuilder.addStatement(
                         "$N.mapEventHandler($T.class, $N)",
                         VAR_FACADE,
@@ -171,13 +267,20 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
                 );
             }
 
+            //--------------------------------------------------------------------------------------
+            // BUILD JAVA FILE
+            //--------------------------------------------------------------------------------------
+
+            // add populated HandlerMapper method to class
             typeSpecBuilder.addMethod(mapHandlersBuilder.build());
 
             try {
+                // create java file from type spec
                 JavaFile javaFile = JavaFile.builder(packageName, typeSpecBuilder.build())
                         .addFileComment("Generated code from LaPasse - do not modify!")
                         .build();
 
+                // write file
                 // FIXME: 09/06/16 Write to filer
                 javaFile.writeTo(System.out);
             } catch (IOException e) {

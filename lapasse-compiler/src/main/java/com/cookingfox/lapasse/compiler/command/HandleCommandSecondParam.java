@@ -1,6 +1,7 @@
 package com.cookingfox.lapasse.compiler.command;
 
 import com.cookingfox.lapasse.api.command.Command;
+import com.squareup.javapoet.TypeName;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
@@ -51,6 +52,10 @@ public class HandleCommandSecondParam extends AbstractHandleCommand {
     @Override
     public boolean isValid() {
         return exists && extendsCommand;
+    }
+
+    public TypeName getParamName() {
+        return TypeName.get(secondParam);
     }
 
     public void setExecutableElement(ExecutableElement executableElement) {

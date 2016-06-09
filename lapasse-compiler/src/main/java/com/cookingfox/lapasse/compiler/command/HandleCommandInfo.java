@@ -1,13 +1,17 @@
 package com.cookingfox.lapasse.compiler.command;
 
+import com.squareup.javapoet.TypeName;
+
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.Name;
 
 /**
  * Created by abeldebeer on 09/06/16.
  */
 public class HandleCommandInfo extends AbstractHandleCommand {
 
+    protected ExecutableElement executableElement;
     protected final HandleCommandFirstParam firstParam;
     protected final HandleCommandGeneral general;
     protected final HandleCommandReturns returns;
@@ -46,20 +50,27 @@ public class HandleCommandInfo extends AbstractHandleCommand {
         return "No error";
     }
 
-    public HandleCommandFirstParam getFirstParam() {
-        return firstParam;
+    public TypeName getCommandName() {
+        return secondParam.getParamName();
     }
 
-    public HandleCommandGeneral getGeneral() {
-        return general;
+    /**
+     * WARNING: this will throw if the return type is void.
+     */
+    public TypeName getEventName() {
+        return returns.getEventName();
     }
 
-    public HandleCommandReturns getReturns() {
-        return returns;
+    public Name getMethodName() {
+        return executableElement.getSimpleName();
     }
 
-    public HandleCommandSecondParam getSecondParam() {
-        return secondParam;
+    public TypeName getMethodReturnTypeName() {
+        return returns.getMethodReturnTypeName();
+    }
+
+    public TypeName getStateName() {
+        return firstParam.getParamName();
     }
 
     @Override
@@ -68,6 +79,22 @@ public class HandleCommandInfo extends AbstractHandleCommand {
                 firstParam.isValid() &&
                 secondParam.isValid() &&
                 returns.isValid();
+    }
+
+    public boolean returnsEventCallable() {
+        return returns.returnsEventCallable();
+    }
+
+    public boolean returnsEventCollection() {
+        return returns.returnsEventCollection();
+    }
+
+    public boolean returnsEventCollectionCallable() {
+        return returns.returnsEventCollectionCallable();
+    }
+
+    public boolean returnsVoid() {
+        return returns.returnsVoid();
     }
 
     //----------------------------------------------------------------------------------------------
@@ -80,7 +107,7 @@ public class HandleCommandInfo extends AbstractHandleCommand {
 
         if (general.isValid()) {
             // get and set executable element
-            ExecutableElement executableElement = general.getExecutableElement();
+            executableElement = general.getExecutableElement();
             firstParam.setExecutableElement(executableElement);
             secondParam.setExecutableElement(executableElement);
             returns.setExecutableElement(executableElement);
