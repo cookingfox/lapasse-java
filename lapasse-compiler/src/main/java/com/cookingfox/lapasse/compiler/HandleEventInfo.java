@@ -6,24 +6,24 @@ import javax.lang.model.element.ExecutableElement;
 /**
  * Created by abeldebeer on 09/06/16.
  */
-public class HandleCommandInfo extends AbstractHandleCommand {
+public class HandleEventInfo extends AbstractHandleEvent {
 
-    protected final HandleCommandFirstParam firstParam;
-    protected final HandleCommandGeneral general;
-    protected final HandleCommandReturns returns;
-    protected final HandleCommandSecondParam secondParam;
+    protected final HandleEventFirstParam firstParam;
+    protected final HandleEventGeneral general;
+    protected final HandleEventReturns returns;
+    protected final HandleEventSecondParam secondParam;
 
     //----------------------------------------------------------------------------------------------
     // CONSTRUCTOR
     //----------------------------------------------------------------------------------------------
 
-    public HandleCommandInfo(Element element) {
+    public HandleEventInfo(Element element) {
         super(element);
 
-        firstParam = new HandleCommandFirstParam(element);
-        general = new HandleCommandGeneral(element);
-        returns = new HandleCommandReturns(element);
-        secondParam = new HandleCommandSecondParam(element);
+        firstParam = new HandleEventFirstParam(element);
+        general = new HandleEventGeneral(element);
+        returns = new HandleEventReturns(element);
+        secondParam = new HandleEventSecondParam(element);
     }
 
     //----------------------------------------------------------------------------------------------
@@ -46,19 +46,19 @@ public class HandleCommandInfo extends AbstractHandleCommand {
         return "No error";
     }
 
-    public HandleCommandFirstParam getFirstParam() {
+    public HandleEventFirstParam getFirstParam() {
         return firstParam;
     }
 
-    public HandleCommandGeneral getGeneral() {
+    public HandleEventGeneral getGeneral() {
         return general;
     }
 
-    public HandleCommandReturns getReturns() {
+    public HandleEventReturns getReturns() {
         return returns;
     }
 
-    public HandleCommandSecondParam getSecondParam() {
+    public HandleEventSecondParam getSecondParam() {
         return secondParam;
     }
 
@@ -103,7 +103,7 @@ public class HandleCommandInfo extends AbstractHandleCommand {
 
     @Override
     public String toString() {
-        return "HandleCommandInfo{\n\t" +
+        return "HandleEventInfo{\n\t" +
                 "general=" + general +
                 ",\n\tfirstParam=" + firstParam +
                 ",\n\tsecondParam=" + secondParam +

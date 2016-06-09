@@ -64,7 +64,16 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
         }
 
         for (Element element : roundEnv.getElementsAnnotatedWith(HandleEvent.class)) {
-//            System.out.println(element);
+            HandleEventInfo info = new HandleEventInfo(element);
+            info.process();
+
+            System.out.println(info);
+
+            if (info.isValid()) {
+                System.out.println("HANDLE EVENT IS VALID!");
+            } else {
+                error(element, info.getError());
+            }
         }
 
         return false;
