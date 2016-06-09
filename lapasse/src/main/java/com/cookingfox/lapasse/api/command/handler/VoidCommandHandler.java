@@ -9,13 +9,12 @@ import com.cookingfox.lapasse.api.state.State;
  *
  * @param <S> The concrete type of the state object.
  * @param <C> The concrete command type that this handler will handle.
- * @param <E> The concrete event type that this handler will produce.
  */
-public interface VoidCommandHandler<S extends State, C extends Command, E extends Event>
-        extends CommandHandler<S, C, E> {
+public interface VoidCommandHandler<S extends State, C extends Command>
+        extends CommandHandler<S, C, Event> {
 
     /**
-     * Handle a command synchronously.
+     * Handle a command without returning an event.
      *
      * @param state   The current state object.
      * @param command The command object to handle.

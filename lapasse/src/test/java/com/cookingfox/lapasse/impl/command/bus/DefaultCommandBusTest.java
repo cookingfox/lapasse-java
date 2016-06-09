@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.Assert.*;
@@ -305,6 +306,22 @@ public class DefaultCommandBusTest {
         } catch (NoRegisteredCommandErrorHandlerException e) {
             assertTrue(e.getCause() instanceof UnsupportedCommandHandlerException);
         }
+    }
+
+    @Test
+    public void executeHandler_should_support_void_handler() throws Exception {
+        final AtomicBoolean called = new AtomicBoolean(false);
+
+        commandBus.mapCommandHandler(FixtureIncrementCount.class, new VoidCommandHandler<FixtureState, FixtureIncrementCount>() {
+            @Override
+            public void handle(FixtureState state, FixtureIncrementCount command) {
+                called.set(true);
+            }
+        });
+
+        commandBus.handleCommand(new FixtureIncrementCount(1));
+
+        assertTrue(called.get());
     }
 
     //----------------------------------------------------------------------------------------------

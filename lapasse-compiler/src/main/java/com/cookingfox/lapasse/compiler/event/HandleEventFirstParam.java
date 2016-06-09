@@ -1,6 +1,7 @@
 package com.cookingfox.lapasse.compiler.event;
 
 import com.cookingfox.lapasse.api.state.State;
+import com.squareup.javapoet.TypeName;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
@@ -51,6 +52,10 @@ public class HandleEventFirstParam extends AbstractHandleEvent {
     @Override
     public boolean isValid() {
         return exists && extendsState;
+    }
+
+    public TypeName getParamName() {
+        return TypeName.get(firstParam);
     }
 
     public void setExecutableElement(ExecutableElement executableElement) {

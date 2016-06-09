@@ -1,6 +1,7 @@
 package com.cookingfox.lapasse.compiler.event;
 
 import com.cookingfox.lapasse.api.event.Event;
+import com.squareup.javapoet.TypeName;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
@@ -46,6 +47,10 @@ public class HandleEventSecondParam extends AbstractHandleEvent {
         }
 
         return String.format("%s is invalid", prefix);
+    }
+
+    public TypeName getParamName() {
+        return TypeName.get(secondParam);
     }
 
     @Override

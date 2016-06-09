@@ -130,7 +130,9 @@ public class DefaultCommandBus<S extends State>
         Event event = null;
 
         try {
-            if (handler instanceof SyncCommandHandler) {
+            if (handler instanceof VoidCommandHandler) {
+                ((VoidCommandHandler<S, Command>) handler).handle(state, command);
+            } else if (handler instanceof SyncCommandHandler) {
                 event = ((SyncCommandHandler<S, Command, Event>) handler).handle(state, command);
             } else if (handler instanceof AsyncCommandHandler) {
                 Callable<Event> callable = ((AsyncCommandHandler<S, Command, Event>) handler).handle(state, command);

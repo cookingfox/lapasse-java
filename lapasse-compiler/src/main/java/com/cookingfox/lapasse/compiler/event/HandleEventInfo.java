@@ -1,13 +1,17 @@
 package com.cookingfox.lapasse.compiler.event;
 
+import com.squareup.javapoet.TypeName;
+
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.Name;
 
 /**
  * Created by abeldebeer on 09/06/16.
  */
 public class HandleEventInfo extends AbstractHandleEvent {
 
+    protected ExecutableElement executableElement;
     protected final HandleEventFirstParam firstParam;
     protected final HandleEventGeneral general;
     protected final HandleEventReturns returns;
@@ -30,7 +34,6 @@ public class HandleEventInfo extends AbstractHandleEvent {
     // PUBLIC METHODS
     //----------------------------------------------------------------------------------------------
 
-
     @Override
     public String getError() {
         if (!general.isValid()) {
@@ -46,20 +49,16 @@ public class HandleEventInfo extends AbstractHandleEvent {
         return "No error";
     }
 
-    public HandleEventFirstParam getFirstParam() {
-        return firstParam;
+    public TypeName getEventName() {
+        return secondParam.getParamName();
     }
 
-    public HandleEventGeneral getGeneral() {
-        return general;
+    public Name getMethodName() {
+        return executableElement.getSimpleName();
     }
 
-    public HandleEventReturns getReturns() {
-        return returns;
-    }
-
-    public HandleEventSecondParam getSecondParam() {
-        return secondParam;
+    public TypeName getStateName() {
+        return firstParam.getParamName();
     }
 
     @Override
@@ -80,7 +79,7 @@ public class HandleEventInfo extends AbstractHandleEvent {
 
         if (general.isValid()) {
             // get and set executable element
-            ExecutableElement executableElement = general.getExecutableElement();
+            executableElement = general.getExecutableElement();
             firstParam.setExecutableElement(executableElement);
             secondParam.setExecutableElement(executableElement);
             returns.setExecutableElement(executableElement);
