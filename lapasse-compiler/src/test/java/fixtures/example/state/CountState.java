@@ -3,9 +3,9 @@ package fixtures.example.state;
 import com.cookingfox.lapasse.api.state.State;
 
 /**
- * Created by abeldebeer on 08/06/16.
+ * Fixture state: count.
  */
-public final class CountState implements State{
+public final class CountState implements State {
     private final int count;
 
     public CountState(int count) {

@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.util.*;
 
 /**
- * Created by abeldebeer on 08/06/16.
+ * Processes the annotations from the LaPasse library and generates Java code.
  */
 public class LaPasseAnnotationProcessor extends AbstractProcessor {
 
@@ -39,6 +39,10 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
     private Elements elements;
     private Filer filer;
     private Messager messager;
+
+    //----------------------------------------------------------------------------------------------
+    // PUBLIC METHODS
+    //----------------------------------------------------------------------------------------------
 
     @Override
     public synchronized void init(ProcessingEnvironment processingEnv) {
@@ -291,6 +295,17 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
         return false;
     }
 
+    //----------------------------------------------------------------------------------------------
+    // PRIVATE METHODS
+    //----------------------------------------------------------------------------------------------
+
+    /**
+     * Returns the registry for the provided type and creates a new one if it doesn't exist yet.
+     *
+     * @param map              The map containing the registries.
+     * @param enclosingElement The element to return the registry for.
+     * @return The registry.
+     */
     private Registry getRegistry(Map<TypeElement, Registry> map, TypeElement enclosingElement) {
         Registry registry = map.get(enclosingElement);
 
@@ -302,14 +317,29 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
         return registry;
     }
 
+    /**
+     * Generates a class name using the provided type and package name.
+     *
+     * @param type        The type element to extract the class name from.
+     * @param packageName The name of the type's package.
+     * @return The class name.
+     */
     private String getClassName(TypeElement type, String packageName) {
-        int packageLen = packageName.length() + 1;
-        return type.getQualifiedName().toString().substring(packageLen).replace('.', '$');
+        return type.getQualifiedName()
+                .toString()
+                .substring(packageName.length() + 1)
+                .replace('.', '$');
     }
 
+    /**
+     * Print an error message.
+     *
+     * @param element The element that could not be processed.
+     * @param msg     The error message.
+     * @param args    Arguments to parse in the message.
+     */
     private void error(Element element, String msg, Object... args) {
         messager.printMessage(Diagnostic.Kind.ERROR, String.format(msg, args), element);
     }
-
 
 }

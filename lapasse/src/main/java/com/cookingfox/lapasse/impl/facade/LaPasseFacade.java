@@ -9,6 +9,7 @@ import com.cookingfox.lapasse.api.event.bus.EventBus;
 import com.cookingfox.lapasse.api.event.handler.EventHandler;
 import com.cookingfox.lapasse.api.event.logging.EventLogger;
 import com.cookingfox.lapasse.api.facade.Facade;
+import com.cookingfox.lapasse.api.logging.CombinedLogger;
 import com.cookingfox.lapasse.api.logging.LoggerCollection;
 import com.cookingfox.lapasse.api.message.store.MessageStore;
 import com.cookingfox.lapasse.api.state.State;
@@ -29,10 +30,11 @@ import java.util.concurrent.ExecutorService;
  *
  * @param <S> The concrete type of the state object.
  */
-public final class LaPasseFacade<S extends State> implements Facade<S> {
+public class LaPasseFacade<S extends State> implements Facade<S> {
 
     protected final CommandBus<S> commandBus;
     protected final EventBus<S> eventBus;
+    protected final LoggerCollection<S> loggers;
     protected final StateObserver<S> stateObserver;
 
     //----------------------------------------------------------------------------------------------
@@ -41,10 +43,21 @@ public final class LaPasseFacade<S extends State> implements Facade<S> {
 
     public LaPasseFacade(CommandBus<S> commandBus,
                          EventBus<S> eventBus,
+                         LoggerCollection<S> loggers,
                          StateObserver<S> stateObserver) {
         this.commandBus = Objects.requireNonNull(commandBus, "Command bus can not be null");
         this.eventBus = Objects.requireNonNull(eventBus, "Event bus can not be null");
+        this.loggers = Objects.requireNonNull(loggers, "Loggers can not be null");
         this.stateObserver = Objects.requireNonNull(stateObserver, "State observer can not be null");
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // COMBINED LOGGER AWARE
+    //----------------------------------------------------------------------------------------------
+
+    @Override
+    public void addLogger(CombinedLogger<S> logger) {
+        loggers.addLogger(logger);
     }
 
     //----------------------------------------------------------------------------------------------
@@ -188,7 +201,7 @@ public final class LaPasseFacade<S extends State> implements Facade<S> {
                 _commandBus = new DefaultCommandBus<>(_messageStore, _eventBus, _loggers, _stateManager);
             }
 
-            return new LaPasseFacade<>(_commandBus, _eventBus, _stateManager);
+            return new LaPasseFacade<>(_commandBus, _eventBus, _loggers, _stateManager);
         }
 
         //------------------------------------------------------------------------------------------

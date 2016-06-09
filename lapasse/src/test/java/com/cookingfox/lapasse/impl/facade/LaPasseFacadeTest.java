@@ -47,6 +47,10 @@ public class LaPasseFacadeTest {
 
         LaPasseFacade<FixtureState> facade = LaPasseFacade.builder(new FixtureState(0)).build();
 
+        /* COMBINED LOGGER */
+
+        facade.addLogger(logger);
+
         /* COMMAND */
 
         facade.addCommandLogger(logger);
@@ -87,6 +91,7 @@ public class LaPasseFacadeTest {
 
         assertTrue(facade.commandBus instanceof DefaultCommandBus);
         assertTrue(facade.eventBus instanceof DefaultEventBus);
+        assertTrue(facade.loggers instanceof LaPasseLoggers);
         assertTrue(facade.stateObserver instanceof DefaultStateManager);
     }
 
@@ -109,6 +114,7 @@ public class LaPasseFacadeTest {
 
         assertSame(commandBus, facade.commandBus);
         assertSame(eventBus, facade.eventBus);
+        assertSame(loggers, facade.loggers);
         assertSame(stateManager, facade.stateObserver);
     }
 

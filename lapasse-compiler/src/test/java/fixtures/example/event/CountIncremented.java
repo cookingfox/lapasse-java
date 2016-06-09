@@ -3,7 +3,7 @@ package fixtures.example.event;
 import com.cookingfox.lapasse.api.event.Event;
 
 /**
- * Created by abeldebeer on 08/06/16.
+ * Fixture event: count incremented.
  */
 public final class CountIncremented implements Event {
     private final int count;

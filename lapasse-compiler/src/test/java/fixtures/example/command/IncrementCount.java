@@ -3,7 +3,7 @@ package fixtures.example.command;
 import com.cookingfox.lapasse.api.command.Command;
 
 /**
- * Created by abeldebeer on 08/06/16.
+ * Fixture command: increment count.
  */
 public final class IncrementCount implements Command {
     private final int count;

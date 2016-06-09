@@ -9,7 +9,7 @@ import static com.google.common.truth.Truth.assertAbout;
 import static com.google.testing.compile.JavaSourceSubjectFactory.javaSource;
 
 /**
- * Created by abeldebeer on 08/06/16.
+ * Unit tests for {@link LaPasseAnnotationProcessor}.
  */
 public class LaPasseAnnotationProcessorTest {
 
