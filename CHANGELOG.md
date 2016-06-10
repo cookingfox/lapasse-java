@@ -5,6 +5,7 @@
 - Introduces Rx extension!
 - Renames `LaPasseLoggers` to `LoggersHelper`.
 - Replaces `CommandLogger` vararg event array with collection.
+- Removes `LaPasseFacade.builder()`: use `new LaPasseFacade.Builder<>()` instead.
 
 ## [0.2.1](../../tree/lapasse-parent-0.2.1) (2016-06-10)
 
