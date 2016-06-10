@@ -6,6 +6,7 @@ import com.cookingfox.lapasse.api.command.logging.CommandLogger;
 import com.cookingfox.lapasse.api.event.Event;
 import com.cookingfox.lapasse.api.event.exception.NoRegisteredEventErrorHandlerException;
 import com.cookingfox.lapasse.api.event.logging.EventLogger;
+import com.cookingfox.lapasse.api.logging.CombinedLogger;
 import com.cookingfox.lapasse.api.logging.LoggerCollection;
 import com.cookingfox.lapasse.api.state.State;
 
@@ -89,7 +90,7 @@ public class LaPasseLoggers<S extends State> implements LoggerCollection<S> {
     //----------------------------------------------------------------------------------------------
 
     @Override
-    public <L extends CommandLogger<S> & EventLogger<S>> void addLogger(L logger) {
+    public void addLogger(CombinedLogger<S> logger) {
         addCommandLogger(logger);
         addEventLogger(logger);
     }

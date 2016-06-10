@@ -7,12 +7,12 @@ import com.cookingfox.lapasse.api.command.handler.*;
 import com.cookingfox.lapasse.api.event.Event;
 import com.cookingfox.lapasse.impl.logging.DefaultLogger;
 import com.cookingfox.lapasse.impl.logging.LaPasseLoggers;
-import fixtures.command.FixtureIncrementCount;
-import fixtures.event.FixtureCountIncremented;
+import fixtures.command.IncrementCount;
+import fixtures.event.CountIncremented;
 import fixtures.event.bus.FixtureEventBus;
 import fixtures.message.FixtureMessage;
 import fixtures.message.store.FixtureMessageStore;
-import fixtures.state.FixtureState;
+import fixtures.state.CountState;
 import fixtures.state.manager.FixtureStateManager;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.Assert.*;
@@ -35,9 +36,9 @@ public class DefaultCommandBusTest {
     // TEST SETUP
     //----------------------------------------------------------------------------------------------
 
-    private DefaultCommandBus<FixtureState> commandBus;
+    private DefaultCommandBus<CountState> commandBus;
     private FixtureEventBus eventBus;
-    private LaPasseLoggers<FixtureState> loggers;
+    private LaPasseLoggers<CountState> loggers;
     private FixtureMessageStore messageStore;
     private FixtureStateManager stateManager;
 
@@ -46,7 +47,7 @@ public class DefaultCommandBusTest {
         eventBus = new FixtureEventBus();
         loggers = new LaPasseLoggers<>();
         messageStore = new FixtureMessageStore();
-        stateManager = new FixtureStateManager(new FixtureState(0));
+        stateManager = new FixtureStateManager(new CountState(0));
         commandBus = new DefaultCommandBus<>(messageStore, eventBus, loggers, stateManager);
     }
 
@@ -81,17 +82,17 @@ public class DefaultCommandBusTest {
     @Test
     public void executeHandler_should_pass_event_from_sync_handler() throws Exception {
         final int count = 1;
-        final FixtureCountIncremented event = new FixtureCountIncremented(count);
+        final CountIncremented event = new CountIncremented(count);
 
-        commandBus.mapCommandHandler(FixtureIncrementCount.class,
-                new SyncCommandHandler<FixtureState, FixtureIncrementCount, FixtureCountIncremented>() {
+        commandBus.mapCommandHandler(IncrementCount.class,
+                new SyncCommandHandler<CountState, IncrementCount, CountIncremented>() {
                     @Override
-                    public FixtureCountIncremented handle(FixtureState state, FixtureIncrementCount command) {
+                    public CountIncremented handle(CountState state, IncrementCount command) {
                         return event;
                     }
                 });
 
-        commandBus.handleCommand(new FixtureIncrementCount(count));
+        commandBus.handleCommand(new IncrementCount(count));
 
         assertTrue(eventBus.handleEventCalls.contains(event));
     }
@@ -99,17 +100,17 @@ public class DefaultCommandBusTest {
     @Test
     public void executeHandler_should_pass_events_from_sync_multi_handler() throws Exception {
         final int count = 1;
-        final FixtureCountIncremented event = new FixtureCountIncremented(count);
+        final CountIncremented event = new CountIncremented(count);
 
-        commandBus.mapCommandHandler(FixtureIncrementCount.class,
-                new SyncMultiCommandHandler<FixtureState, FixtureIncrementCount, FixtureCountIncremented>() {
+        commandBus.mapCommandHandler(IncrementCount.class,
+                new SyncMultiCommandHandler<CountState, IncrementCount, CountIncremented>() {
                     @Override
-                    public Collection<FixtureCountIncremented> handle(FixtureState state, FixtureIncrementCount command) {
+                    public Collection<CountIncremented> handle(CountState state, IncrementCount command) {
                         return Collections.singletonList(event);
                     }
                 });
 
-        commandBus.handleCommand(new FixtureIncrementCount(count));
+        commandBus.handleCommand(new IncrementCount(count));
 
         assertTrue(eventBus.handleEventCalls.contains(event));
     }
@@ -117,22 +118,22 @@ public class DefaultCommandBusTest {
     @Test
     public void executeHandler_should_pass_event_from_async_handler() throws Exception {
         final int count = 1;
-        final FixtureCountIncremented event = new FixtureCountIncremented(count);
+        final CountIncremented event = new CountIncremented(count);
 
-        commandBus.mapCommandHandler(FixtureIncrementCount.class,
-                new AsyncCommandHandler<FixtureState, FixtureIncrementCount, FixtureCountIncremented>() {
+        commandBus.mapCommandHandler(IncrementCount.class,
+                new AsyncCommandHandler<CountState, IncrementCount, CountIncremented>() {
                     @Override
-                    public Callable<FixtureCountIncremented> handle(FixtureState state, FixtureIncrementCount command) {
-                        return new Callable<FixtureCountIncremented>() {
+                    public Callable<CountIncremented> handle(CountState state, IncrementCount command) {
+                        return new Callable<CountIncremented>() {
                             @Override
-                            public FixtureCountIncremented call() throws Exception {
+                            public CountIncremented call() throws Exception {
                                 return event;
                             }
                         };
                     }
                 });
 
-        commandBus.handleCommand(new FixtureIncrementCount(count));
+        commandBus.handleCommand(new IncrementCount(count));
 
         assertTrue(eventBus.handleEventCalls.contains(event));
     }
@@ -140,22 +141,22 @@ public class DefaultCommandBusTest {
     @Test
     public void executeHandler_should_pass_events_from_async_multi_handler() throws Exception {
         final int count = 1;
-        final FixtureCountIncremented event = new FixtureCountIncremented(count);
+        final CountIncremented event = new CountIncremented(count);
 
-        commandBus.mapCommandHandler(FixtureIncrementCount.class,
-                new AsyncMultiCommandHandler<FixtureState, FixtureIncrementCount, FixtureCountIncremented>() {
+        commandBus.mapCommandHandler(IncrementCount.class,
+                new AsyncMultiCommandHandler<CountState, IncrementCount, CountIncremented>() {
                     @Override
-                    public Callable<Collection<FixtureCountIncremented>> handle(FixtureState state, FixtureIncrementCount command) {
-                        return new Callable<Collection<FixtureCountIncremented>>() {
+                    public Callable<Collection<CountIncremented>> handle(CountState state, IncrementCount command) {
+                        return new Callable<Collection<CountIncremented>>() {
                             @Override
-                            public Collection<FixtureCountIncremented> call() throws Exception {
+                            public Collection<CountIncremented> call() throws Exception {
                                 return Collections.singletonList(event);
                             }
                         };
                     }
                 });
 
-        commandBus.handleCommand(new FixtureIncrementCount(count));
+        commandBus.handleCommand(new IncrementCount(count));
 
         assertTrue(eventBus.handleEventCalls.contains(event));
     }
@@ -165,7 +166,7 @@ public class DefaultCommandBusTest {
         final AtomicReference<Command> calledCommand = new AtomicReference<>();
         final AtomicReference<Event[]> calledEvents = new AtomicReference<>();
 
-        commandBus.addCommandLogger(new DefaultLogger<FixtureState>() {
+        commandBus.addCommandLogger(new DefaultLogger<CountState>() {
             @Override
             public void onCommandHandlerResult(Command command, Event... events) {
                 calledCommand.set(command);
@@ -173,19 +174,19 @@ public class DefaultCommandBusTest {
             }
         });
 
-        commandBus.mapCommandHandler(FixtureIncrementCount.class, new SyncCommandHandler<FixtureState, FixtureIncrementCount, FixtureCountIncremented>() {
+        commandBus.mapCommandHandler(IncrementCount.class, new SyncCommandHandler<CountState, IncrementCount, CountIncremented>() {
             @Override
-            public FixtureCountIncremented handle(FixtureState state, FixtureIncrementCount command) {
-                return new FixtureCountIncremented(command.count);
+            public CountIncremented handle(CountState state, IncrementCount command) {
+                return new CountIncremented(command.count);
             }
         });
 
-        final FixtureIncrementCount command = new FixtureIncrementCount(123);
+        final IncrementCount command = new IncrementCount(123);
 
         commandBus.handleCommand(command);
 
         assertSame(command, calledCommand.get());
-        assertArrayEquals(new Event[]{new FixtureCountIncremented(command.count)}, calledEvents.get());
+        assertArrayEquals(new Event[]{new CountIncremented(command.count)}, calledEvents.get());
     }
 
     @Test
@@ -196,7 +197,7 @@ public class DefaultCommandBusTest {
 
         final RuntimeException targetException = new RuntimeException("Example error");
 
-        commandBus.addCommandLogger(new DefaultLogger<FixtureState>() {
+        commandBus.addCommandLogger(new DefaultLogger<CountState>() {
             @Override
             public void onCommandHandlerError(Throwable error, Command command, Event... events) {
                 calledError.set(error);
@@ -205,14 +206,14 @@ public class DefaultCommandBusTest {
             }
         });
 
-        commandBus.mapCommandHandler(FixtureIncrementCount.class, new SyncCommandHandler<FixtureState, FixtureIncrementCount, FixtureCountIncremented>() {
+        commandBus.mapCommandHandler(IncrementCount.class, new SyncCommandHandler<CountState, IncrementCount, CountIncremented>() {
             @Override
-            public FixtureCountIncremented handle(FixtureState state, FixtureIncrementCount command) {
+            public CountIncremented handle(CountState state, IncrementCount command) {
                 throw targetException;
             }
         });
 
-        final FixtureIncrementCount command = new FixtureIncrementCount(123);
+        final IncrementCount command = new IncrementCount(123);
 
         commandBus.handleCommand(command);
 
@@ -226,7 +227,7 @@ public class DefaultCommandBusTest {
         final AtomicReference<Command> calledCommand = new AtomicReference<>();
         final AtomicReference<Event[]> calledEvents = new AtomicReference<>();
 
-        commandBus.addCommandLogger(new DefaultLogger<FixtureState>() {
+        commandBus.addCommandLogger(new DefaultLogger<CountState>() {
             @Override
             public void onCommandHandlerResult(Command command, Event... events) {
                 calledCommand.set(command);
@@ -234,15 +235,15 @@ public class DefaultCommandBusTest {
             }
         });
 
-        commandBus.mapCommandHandler(FixtureIncrementCount.class, new SyncMultiCommandHandler<FixtureState, FixtureIncrementCount, FixtureCountIncremented>() {
+        commandBus.mapCommandHandler(IncrementCount.class, new SyncMultiCommandHandler<CountState, IncrementCount, CountIncremented>() {
             @Override
-            public Collection<FixtureCountIncremented> handle(FixtureState state, FixtureIncrementCount command) {
+            public Collection<CountIncremented> handle(CountState state, IncrementCount command) {
                 // explicitly return null: this is a command handler valid result
                 return null;
             }
         });
 
-        final FixtureIncrementCount command = new FixtureIncrementCount(0);
+        final IncrementCount command = new IncrementCount(0);
 
         commandBus.handleCommand(command);
 
@@ -258,7 +259,7 @@ public class DefaultCommandBusTest {
 
         final RuntimeException targetException = new RuntimeException("Example error");
 
-        commandBus.addCommandLogger(new DefaultLogger<FixtureState>() {
+        commandBus.addCommandLogger(new DefaultLogger<CountState>() {
             @Override
             public void onCommandHandlerError(Throwable error, Command command, Event... events) {
                 calledError.set(error);
@@ -267,14 +268,14 @@ public class DefaultCommandBusTest {
             }
         });
 
-        commandBus.mapCommandHandler(FixtureIncrementCount.class, new SyncMultiCommandHandler<FixtureState, FixtureIncrementCount, FixtureCountIncremented>() {
+        commandBus.mapCommandHandler(IncrementCount.class, new SyncMultiCommandHandler<CountState, IncrementCount, CountIncremented>() {
             @Override
-            public Collection<FixtureCountIncremented> handle(FixtureState state, FixtureIncrementCount command) {
+            public Collection<CountIncremented> handle(CountState state, IncrementCount command) {
                 throw targetException;
             }
         });
 
-        final FixtureIncrementCount command = new FixtureIncrementCount(123);
+        final IncrementCount command = new IncrementCount(123);
 
         commandBus.handleCommand(command);
 
@@ -286,7 +287,7 @@ public class DefaultCommandBusTest {
     @Test
     public void executeHandler_should_throw_for_unsupported_single_handler_implementation() throws Exception {
         try {
-            commandBus.executeHandler(new FixtureIncrementCount(1), new CommandHandler<FixtureState, Command, Event>() {
+            commandBus.executeHandler(new IncrementCount(1), new CommandHandler<CountState, Command, Event>() {
             });
 
             fail("Expected exception");
@@ -298,13 +299,29 @@ public class DefaultCommandBusTest {
     @Test
     public void executeHandler_should_throw_for_unsupported_multi_handler_implementation() throws Exception {
         try {
-            commandBus.executeHandler(new FixtureIncrementCount(1), new MultiCommandHandler<FixtureState, Command, Event>() {
+            commandBus.executeHandler(new IncrementCount(1), new MultiCommandHandler<CountState, Command, Event>() {
             });
 
             fail("Expected exception");
         } catch (NoRegisteredCommandErrorHandlerException e) {
             assertTrue(e.getCause() instanceof UnsupportedCommandHandlerException);
         }
+    }
+
+    @Test
+    public void executeHandler_should_support_void_handler() throws Exception {
+        final AtomicBoolean called = new AtomicBoolean(false);
+
+        commandBus.mapCommandHandler(IncrementCount.class, new VoidCommandHandler<CountState, IncrementCount>() {
+            @Override
+            public void handle(CountState state, IncrementCount command) {
+                called.set(true);
+            }
+        });
+
+        commandBus.handleCommand(new IncrementCount(1));
+
+        assertTrue(called.get());
     }
 
     //----------------------------------------------------------------------------------------------
@@ -346,7 +363,7 @@ public class DefaultCommandBusTest {
 
     @Test
     public void shouldHandleMessageType_should_return_true_for_command() throws Exception {
-        boolean result = commandBus.shouldHandleMessageType(new FixtureIncrementCount(1));
+        boolean result = commandBus.shouldHandleMessageType(new IncrementCount(1));
 
         assertTrue(result);
     }

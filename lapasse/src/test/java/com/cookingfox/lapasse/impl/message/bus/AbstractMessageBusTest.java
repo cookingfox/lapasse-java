@@ -1,7 +1,7 @@
 package com.cookingfox.lapasse.impl.message.bus;
 
 import com.cookingfox.lapasse.api.message.exception.NoMessageHandlersException;
-import fixtures.event.FixtureCountIncremented;
+import fixtures.event.CountIncremented;
 import fixtures.message.ExtendedFixtureMessage;
 import fixtures.message.FixtureMessage;
 import fixtures.message.bus.FixtureMessageBus;
@@ -148,7 +148,7 @@ public class AbstractMessageBusTest {
     public void getMessageHandlers_should_throw_for_no_matching_super_type_handlers() throws Exception {
         messageBus.mapMessageHandler(FixtureMessage.class, new FixtureMessageHandler());
 
-        messageBus.getMessageHandlers(FixtureCountIncremented.class);
+        messageBus.getMessageHandlers(CountIncremented.class);
     }
 
     //----------------------------------------------------------------------------------------------
@@ -157,7 +157,7 @@ public class AbstractMessageBusTest {
 
     @Test
     public void onMessageAddedToStore_should_not_throw_for_unsupported_message_type() throws Exception {
-        messageBus.onMessageAddedToStore.onMessageAdded(new FixtureCountIncremented(123));
+        messageBus.onMessageAddedToStore.onMessageAdded(new CountIncremented(123));
     }
 
 }

@@ -15,9 +15,9 @@ import com.cookingfox.lapasse.impl.logging.DefaultLogger;
 import com.cookingfox.lapasse.impl.logging.LaPasseLoggers;
 import com.cookingfox.lapasse.impl.message.store.NoStorageMessageStore;
 import com.cookingfox.lapasse.impl.state.manager.DefaultStateManager;
-import fixtures.command.FixtureIncrementCount;
-import fixtures.event.FixtureCountIncremented;
-import fixtures.state.FixtureState;
+import fixtures.command.IncrementCount;
+import fixtures.event.CountIncremented;
+import fixtures.state.CountState;
 import org.junit.Test;
 
 import java.util.concurrent.Executors;
@@ -36,39 +36,43 @@ public class LaPasseFacadeTest {
 
     @Test
     public void methods_should_not_throw() throws Exception {
-        DefaultLogger<FixtureState> logger = new DefaultLogger<>();
+        DefaultLogger<CountState> logger = new DefaultLogger<>();
 
-        OnStateChanged<FixtureState> onStateChanged = new OnStateChanged<FixtureState>() {
+        OnStateChanged<CountState> onStateChanged = new OnStateChanged<CountState>() {
             @Override
-            public void onStateChanged(FixtureState state, Event event) {
+            public void onStateChanged(CountState state, Event event) {
                 // ignore
             }
         };
 
-        LaPasseFacade<FixtureState> facade = LaPasseFacade.builder(new FixtureState(0)).build();
+        LaPasseFacade<CountState> facade = LaPasseFacade.builder(new CountState(0)).build();
+
+        /* COMBINED LOGGER */
+
+        facade.addLogger(logger);
 
         /* COMMAND */
 
         facade.addCommandLogger(logger);
-        facade.mapCommandHandler(FixtureIncrementCount.class, new SyncCommandHandler<FixtureState, FixtureIncrementCount, FixtureCountIncremented>() {
+        facade.mapCommandHandler(IncrementCount.class, new SyncCommandHandler<CountState, IncrementCount, CountIncremented>() {
             @Override
-            public FixtureCountIncremented handle(FixtureState state, FixtureIncrementCount command) {
+            public CountIncremented handle(CountState state, IncrementCount command) {
                 return null;
             }
         });
-        facade.handleCommand(new FixtureIncrementCount(1));
+        facade.handleCommand(new IncrementCount(1));
         facade.setCommandHandlerExecutor(Executors.newSingleThreadExecutor());
 
         /* EVENT */
 
         facade.addEventLogger(logger);
-        facade.mapEventHandler(FixtureCountIncremented.class, new EventHandler<FixtureState, FixtureCountIncremented>() {
+        facade.mapEventHandler(CountIncremented.class, new EventHandler<CountState, CountIncremented>() {
             @Override
-            public FixtureState handle(FixtureState previousState, FixtureCountIncremented event) {
-                return new FixtureState(previousState.count + event.count);
+            public CountState handle(CountState previousState, CountIncremented event) {
+                return new CountState(previousState.count + event.count);
             }
         });
-        facade.handleEvent(new FixtureCountIncremented(1));
+        facade.handleEvent(new CountIncremented(1));
 
         /* STATE */
 
@@ -83,23 +87,24 @@ public class LaPasseFacadeTest {
 
     @Test
     public void builder_should_set_correct_defaults() throws Exception {
-        LaPasseFacade<FixtureState> facade = LaPasseFacade.builder(new FixtureState(0)).build();
+        LaPasseFacade<CountState> facade = LaPasseFacade.builder(new CountState(0)).build();
 
         assertTrue(facade.commandBus instanceof DefaultCommandBus);
         assertTrue(facade.eventBus instanceof DefaultEventBus);
+        assertTrue(facade.loggers instanceof LaPasseLoggers);
         assertTrue(facade.stateObserver instanceof DefaultStateManager);
     }
 
     @Test
     public void builder_should_apply_custom_settings() throws Exception {
-        FixtureState initialState = new FixtureState(0);
-        LoggerCollection<FixtureState> loggers = new LaPasseLoggers<>();
+        CountState initialState = new CountState(0);
+        LoggerCollection<CountState> loggers = new LaPasseLoggers<>();
         MessageStore messageStore = new NoStorageMessageStore();
-        StateManager<FixtureState> stateManager = new DefaultStateManager<>(initialState);
-        EventBus<FixtureState> eventBus = new DefaultEventBus<>(messageStore, loggers, stateManager);
-        CommandBus<FixtureState> commandBus = new DefaultCommandBus<>(messageStore, eventBus, loggers, stateManager);
+        StateManager<CountState> stateManager = new DefaultStateManager<>(initialState);
+        EventBus<CountState> eventBus = new DefaultEventBus<>(messageStore, loggers, stateManager);
+        CommandBus<CountState> commandBus = new DefaultCommandBus<>(messageStore, eventBus, loggers, stateManager);
 
-        LaPasseFacade<FixtureState> facade = LaPasseFacade.builder(initialState)
+        LaPasseFacade<CountState> facade = LaPasseFacade.builder(initialState)
                 .setCommandBus(commandBus)
                 .setEventBus(eventBus)
                 .setLoggers(loggers)
@@ -109,6 +114,7 @@ public class LaPasseFacadeTest {
 
         assertSame(commandBus, facade.commandBus);
         assertSame(eventBus, facade.eventBus);
+        assertSame(loggers, facade.loggers);
         assertSame(stateManager, facade.stateObserver);
     }
 

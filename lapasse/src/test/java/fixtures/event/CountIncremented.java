@@ -1,15 +1,15 @@
-package fixtures.state;
+package fixtures.event;
 
-import com.cookingfox.lapasse.api.state.State;
+import com.cookingfox.lapasse.api.event.Event;
 
 /**
- * Fixture state object.
+ * Fixture event: count incremented.
  */
-public final class FixtureState implements State {
+public class CountIncremented implements Event {
 
     public final int count;
 
-    public FixtureState(int count) {
+    public CountIncremented(int count) {
         this.count = count;
     }
 
@@ -18,7 +18,7 @@ public final class FixtureState implements State {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        FixtureState that = (FixtureState) o;
+        CountIncremented that = (CountIncremented) o;
 
         return count == that.count;
     }
@@ -30,7 +30,7 @@ public final class FixtureState implements State {
 
     @Override
     public String toString() {
-        return "FixtureState{" +
+        return "CountIncremented{" +
                 "count=" + count +
                 '}';
     }

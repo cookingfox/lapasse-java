@@ -5,10 +5,10 @@ import com.cookingfox.lapasse.api.event.exception.EventHandlerReturnedNullExcept
 import com.cookingfox.lapasse.api.event.handler.EventHandler;
 import com.cookingfox.lapasse.impl.logging.DefaultLogger;
 import com.cookingfox.lapasse.impl.logging.LaPasseLoggers;
-import fixtures.event.FixtureCountIncremented;
+import fixtures.event.CountIncremented;
 import fixtures.message.FixtureMessage;
 import fixtures.message.store.FixtureMessageStore;
-import fixtures.state.FixtureState;
+import fixtures.state.CountState;
 import fixtures.state.manager.FixtureStateManager;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,8 +26,8 @@ public class DefaultEventBusTest {
     // TEST SETUP
     //----------------------------------------------------------------------------------------------
 
-    private DefaultEventBus<FixtureState> eventBus;
-    private LaPasseLoggers<FixtureState> loggers;
+    private DefaultEventBus<CountState> eventBus;
+    private LaPasseLoggers<CountState> loggers;
     private FixtureMessageStore messageStore;
     private FixtureStateManager stateManager;
 
@@ -35,7 +35,7 @@ public class DefaultEventBusTest {
     public void setUp() throws Exception {
         loggers = new LaPasseLoggers<>();
         messageStore = new FixtureMessageStore();
-        stateManager = new FixtureStateManager(new FixtureState(0));
+        stateManager = new FixtureStateManager(new CountState(0));
         eventBus = new DefaultEventBus<>(messageStore, loggers, stateManager);
     }
 
@@ -64,16 +64,16 @@ public class DefaultEventBusTest {
 
     @Test
     public void executeHandler_should_apply_event_to_state() throws Exception {
-        eventBus.mapEventHandler(FixtureCountIncremented.class, new EventHandler<FixtureState, FixtureCountIncremented>() {
+        eventBus.mapEventHandler(CountIncremented.class, new EventHandler<CountState, CountIncremented>() {
             @Override
-            public FixtureState handle(FixtureState previousState, FixtureCountIncremented event) {
-                return new FixtureState(event.count);
+            public CountState handle(CountState previousState, CountIncremented event) {
+                return new CountState(event.count);
             }
         });
 
         final int count = 123;
 
-        eventBus.handleEvent(new FixtureCountIncremented(count));
+        eventBus.handleEvent(new CountIncremented(count));
 
         assertEquals(count, stateManager.getCurrentState().count);
     }
@@ -82,25 +82,25 @@ public class DefaultEventBusTest {
     public void executeHandler_should_log_error_if_handler_returns_null() throws Exception {
         final AtomicReference<Throwable> calledError = new AtomicReference<>();
         final AtomicReference<Event> calledEvent = new AtomicReference<>();
-        final AtomicReference<FixtureState> calledNewState = new AtomicReference<>();
+        final AtomicReference<CountState> calledNewState = new AtomicReference<>();
 
-        eventBus.addEventLogger(new DefaultLogger<FixtureState>() {
+        eventBus.addEventLogger(new DefaultLogger<CountState>() {
             @Override
-            public void onEventHandlerError(Throwable error, Event event, FixtureState newState) {
+            public void onEventHandlerError(Throwable error, Event event, CountState newState) {
                 calledError.set(error);
                 calledEvent.set(event);
                 calledNewState.set(newState);
             }
         });
 
-        eventBus.mapEventHandler(FixtureCountIncremented.class, new EventHandler<FixtureState, FixtureCountIncremented>() {
+        eventBus.mapEventHandler(CountIncremented.class, new EventHandler<CountState, CountIncremented>() {
             @Override
-            public FixtureState handle(FixtureState previousState, FixtureCountIncremented event) {
+            public CountState handle(CountState previousState, CountIncremented event) {
                 return null;
             }
         });
 
-        final Event event = new FixtureCountIncremented(1);
+        final Event event = new CountIncremented(1);
 
         eventBus.handleEvent(event);
 
@@ -114,27 +114,27 @@ public class DefaultEventBusTest {
     public void executeHandler_should_log_error_if_handler_throws() throws Exception {
         final AtomicReference<Throwable> calledError = new AtomicReference<>();
         final AtomicReference<Event> calledEvent = new AtomicReference<>();
-        final AtomicReference<FixtureState> calledNewState = new AtomicReference<>();
+        final AtomicReference<CountState> calledNewState = new AtomicReference<>();
 
         final RuntimeException targetException = new RuntimeException("Example error");
 
-        eventBus.addEventLogger(new DefaultLogger<FixtureState>() {
+        eventBus.addEventLogger(new DefaultLogger<CountState>() {
             @Override
-            public void onEventHandlerError(Throwable error, Event event, FixtureState newState) {
+            public void onEventHandlerError(Throwable error, Event event, CountState newState) {
                 calledError.set(error);
                 calledEvent.set(event);
                 calledNewState.set(newState);
             }
         });
 
-        eventBus.mapEventHandler(FixtureCountIncremented.class, new EventHandler<FixtureState, FixtureCountIncremented>() {
+        eventBus.mapEventHandler(CountIncremented.class, new EventHandler<CountState, CountIncremented>() {
             @Override
-            public FixtureState handle(FixtureState previousState, FixtureCountIncremented event) {
+            public CountState handle(CountState previousState, CountIncremented event) {
                 throw targetException;
             }
         });
 
-        final Event event = new FixtureCountIncremented(1);
+        final Event event = new CountIncremented(1);
 
         eventBus.handleEvent(event);
 
@@ -147,29 +147,29 @@ public class DefaultEventBusTest {
     @Test
     public void executeHandler_should_call_logger_with_result() throws Exception {
         final AtomicReference<Event> calledEvent = new AtomicReference<>();
-        final AtomicReference<FixtureState> calledNewState = new AtomicReference<>();
+        final AtomicReference<CountState> calledNewState = new AtomicReference<>();
 
-        eventBus.addEventLogger(new DefaultLogger<FixtureState>() {
+        eventBus.addEventLogger(new DefaultLogger<CountState>() {
             @Override
-            public void onEventHandlerResult(Event event, FixtureState newState) {
+            public void onEventHandlerResult(Event event, CountState newState) {
                 calledEvent.set(event);
                 calledNewState.set(newState);
             }
         });
 
-        eventBus.mapEventHandler(FixtureCountIncremented.class, new EventHandler<FixtureState, FixtureCountIncremented>() {
+        eventBus.mapEventHandler(CountIncremented.class, new EventHandler<CountState, CountIncremented>() {
             @Override
-            public FixtureState handle(FixtureState previousState, FixtureCountIncremented event) {
-                return new FixtureState(previousState.count + event.count);
+            public CountState handle(CountState previousState, CountIncremented event) {
+                return new CountState(previousState.count + event.count);
             }
         });
 
-        final FixtureCountIncremented event = new FixtureCountIncremented(123);
+        final CountIncremented event = new CountIncremented(123);
 
         eventBus.handleEvent(event);
 
         assertSame(event, calledEvent.get());
-        assertEquals(new FixtureState(event.count), calledNewState.get());
+        assertEquals(new CountState(event.count), calledNewState.get());
     }
 
     //----------------------------------------------------------------------------------------------
@@ -178,7 +178,7 @@ public class DefaultEventBusTest {
 
     @Test
     public void shouldHandleMessageType_should_return_true_for_event() throws Exception {
-        boolean result = eventBus.shouldHandleMessageType(new FixtureCountIncremented(1));
+        boolean result = eventBus.shouldHandleMessageType(new CountIncremented(1));
 
         assertTrue(result);
     }
