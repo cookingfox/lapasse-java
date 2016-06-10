@@ -3,6 +3,7 @@ package com.cookingfox.lapasse.compiler.command;
 import com.cookingfox.lapasse.annotation.HandleCommand;
 import com.cookingfox.lapasse.api.event.Event;
 import com.squareup.javapoet.TypeName;
+import rx.Observable;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
@@ -32,6 +33,9 @@ public class HandleCommandReturnType extends AbstractHandleCommand {
     protected boolean returnsEventCallable = false;
     protected boolean returnsEventCollection = false;
     protected boolean returnsEventCollectionCallable = false;
+    protected boolean returnsEventCollectionObservable = false;
+    protected boolean returnsEventObservable = false;
+    protected boolean returnsObservable = false;
     protected boolean returnsVoid = false;
 
     //----------------------------------------------------------------------------------------------
@@ -58,11 +62,19 @@ public class HandleCommandReturnType extends AbstractHandleCommand {
             return String.format("%s is not declared", prefix);
         }
 
-        return String.format("%1$s is expected to be one of the following: `void`, `%2$s`, " +
-                        "`%3$s<%2$s>`, `%4$s<%2$s>`, `%4$s<%3$s<%2$s>>`", prefix,
+        return String.format("%1$s is expected to be one of the following: " +
+                        "`void`, " +
+                        "`%2$s`, " +
+                        "`%3$s<%2$s>`, " +
+                        "`%4$s<%2$s>`, " +
+                        "`%4$s<%3$s<%2$s>>`, " +
+                        "`%5$s<%2$s>`, " +
+                        "`%5$s<%3$s<%2$s>>`",
+                prefix,
                 Event.class.getSimpleName(),
                 Collection.class.getSimpleName(),
-                Callable.class.getSimpleName());
+                Callable.class.getSimpleName(),
+                Observable.class.getName());
     }
 
     public TypeName getEventName() {
@@ -87,9 +99,11 @@ public class HandleCommandReturnType extends AbstractHandleCommand {
         }
 
         return returnsEvent ||
-                returnsEventCallable ||
                 returnsEventCollection ||
-                returnsEventCollectionCallable;
+                returnsEventCallable ||
+                returnsEventObservable ||
+                returnsEventCollectionCallable ||
+                returnsEventCollectionObservable;
     }
 
     public boolean returnsEventCallable() {
@@ -102,6 +116,14 @@ public class HandleCommandReturnType extends AbstractHandleCommand {
 
     public boolean returnsEventCollectionCallable() {
         return returnsEventCollectionCallable;
+    }
+
+    public boolean returnsEventCollectionObservable() {
+        return returnsEventCollectionObservable;
+    }
+
+    public boolean returnsEventObservable() {
+        return returnsEventObservable;
     }
 
     public boolean returnsVoid() {
@@ -152,6 +174,9 @@ public class HandleCommandReturnType extends AbstractHandleCommand {
         } else if (isSubtype(returnType, Callable.class)) {
             // is callable, need to inspect generic
             returnsCallable = true;
+        } else if (isSubtype(returnType, Observable.class)) {
+            // is observable, need to inspect generic
+            returnsObservable = true;
         } else {
             // no valid return type
             return;
@@ -163,14 +188,16 @@ public class HandleCommandReturnType extends AbstractHandleCommand {
         if (firstArgIsSubType(returnType, Event.class)) {
             returnsEventCallable = returnsCallable;
             returnsEventCollection = returnsCollection;
+            returnsEventObservable = returnsObservable;
 
             setEventTypeWith(typeArguments.get(0));
-        } else if (returnsCallable && typeArguments.size() == 1) {
+        } else if (typeArguments.size() == 1 && (returnsCallable || returnsObservable)) {
             DeclaredType firstArg = (DeclaredType) typeArguments.get(0);
 
             // check whether the generic type of the callable is `Collection<Event>`
             if (firstArgIsSubType(firstArg, Event.class)) {
-                returnsEventCollectionCallable = true;
+                returnsEventCollectionCallable = returnsCallable;
+                returnsEventCollectionObservable = returnsObservable;
 
                 setEventTypeWith(firstArg.getTypeArguments().get(0));
             }
@@ -193,11 +220,14 @@ public class HandleCommandReturnType extends AbstractHandleCommand {
     public String toString() {
         return "HandleCommandReturnType{" +
                 "isDeclaredType=" + isDeclaredType +
+                ", returnType=" + returnType +
                 ", returnsVoid=" + returnsVoid +
                 ", returnsEvent=" + returnsEvent +
-                ", returnsEventCallable=" + returnsEventCallable +
                 ", returnsEventCollection=" + returnsEventCollection +
+                ", returnsEventCallable=" + returnsEventCallable +
+                ", returnsEventObservable=" + returnsEventObservable +
                 ", returnsEventCollectionCallable=" + returnsEventCollectionCallable +
+                ", returnsEventCollectionObservable=" + returnsEventCollectionObservable +
                 '}';
     }
 

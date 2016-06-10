@@ -2,10 +2,14 @@ package com.cookingfox.lapasse.compiler;
 
 import com.cookingfox.lapasse.impl.helper.LaPasseHelper;
 import com.google.testing.compile.JavaFileObjects;
+import fixtures.example.event.CountIncremented;
 import org.junit.Test;
 import rx.Observable;
 
 import javax.tools.JavaFileObject;
+
+import java.util.Arrays;
+import java.util.Collection;
 
 import static com.google.common.truth.Truth.assertAbout;
 import static com.google.testing.compile.JavaSourceSubjectFactory.javaSource;
@@ -393,12 +397,7 @@ public class LaPasseAnnotationProcessorTest {
                 "public class Test {",
                 "    @HandleCommand",
                 "    public Observable<CountIncremented> handle(CountState state, final IncrementCount command) {",
-                "        return new Callable<CountIncremented>() {",
-                "            @Override",
-                "            public CountIncremented call() throws Exception {",
-                "                return Observable.just(command.getCount());",
-                "            }",
-                "        };",
+                "        return Observable.just(new CountIncremented(command.getCount()));",
                 "    }",
                 "}"
         );
@@ -470,7 +469,7 @@ public class LaPasseAnnotationProcessorTest {
                 "public class Test {",
                 "    @HandleCommand",
                 "    public Observable<Collection<CountIncremented>> handle(CountState state, final IncrementCount command) {",
-                "        return Observable.just(Arrays.asList(new CountIncremented(command.getCount())));",
+                "        return Observable.just((Collection<CountIncremented>)Arrays.asList(new CountIncremented(command.getCount())));",
                 "    }",
                 "}"
         );

@@ -15,7 +15,7 @@ public class HandleCommandInfo extends AbstractHandleCommand {
     protected ExecutableElement executableElement;
     protected final HandleCommandFirstParam firstParam;
     protected final HandleCommandGeneral general;
-    protected final HandleCommandReturnType returns;
+    protected final HandleCommandReturnType returnType;
     protected final HandleCommandSecondParam secondParam;
 
     //----------------------------------------------------------------------------------------------
@@ -27,7 +27,7 @@ public class HandleCommandInfo extends AbstractHandleCommand {
 
         firstParam = new HandleCommandFirstParam(element);
         general = new HandleCommandGeneral(element);
-        returns = new HandleCommandReturnType(element);
+        returnType = new HandleCommandReturnType(element);
         secondParam = new HandleCommandSecondParam(element);
     }
 
@@ -43,8 +43,8 @@ public class HandleCommandInfo extends AbstractHandleCommand {
             return firstParam.getError();
         } else if (!secondParam.isValid()) {
             return secondParam.getError();
-        } else if (!returns.isValid()) {
-            return returns.getError();
+        } else if (!returnType.isValid()) {
+            return returnType.getError();
         }
 
         return "No error";
@@ -60,7 +60,7 @@ public class HandleCommandInfo extends AbstractHandleCommand {
      * @return The event name.
      */
     public TypeName getEventName() {
-        return returns.getEventName();
+        return returnType.getEventName();
     }
 
     public Name getMethodName() {
@@ -68,7 +68,11 @@ public class HandleCommandInfo extends AbstractHandleCommand {
     }
 
     public TypeName getMethodReturnTypeName() {
-        return returns.getMethodReturnTypeName();
+        return returnType.getMethodReturnTypeName();
+    }
+
+    public HandleCommandReturnType getReturnType() {
+        return returnType;
     }
 
     public TypeName getStateName() {
@@ -80,23 +84,7 @@ public class HandleCommandInfo extends AbstractHandleCommand {
         return general.isValid() &&
                 firstParam.isValid() &&
                 secondParam.isValid() &&
-                returns.isValid();
-    }
-
-    public boolean returnsEventCallable() {
-        return returns.returnsEventCallable();
-    }
-
-    public boolean returnsEventCollection() {
-        return returns.returnsEventCollection();
-    }
-
-    public boolean returnsEventCollectionCallable() {
-        return returns.returnsEventCollectionCallable();
-    }
-
-    public boolean returnsVoid() {
-        return returns.returnsVoid();
+                returnType.isValid();
     }
 
     //----------------------------------------------------------------------------------------------
@@ -112,7 +100,7 @@ public class HandleCommandInfo extends AbstractHandleCommand {
             executableElement = general.getExecutableElement();
             firstParam.setExecutableElement(executableElement);
             secondParam.setExecutableElement(executableElement);
-            returns.setExecutableElement(executableElement);
+            returnType.setExecutableElement(executableElement);
 
             firstParam.process();
         }
@@ -122,7 +110,7 @@ public class HandleCommandInfo extends AbstractHandleCommand {
         }
 
         if (secondParam.isValid()) {
-            returns.process();
+            returnType.process();
         }
     }
 
@@ -136,7 +124,7 @@ public class HandleCommandInfo extends AbstractHandleCommand {
                 "general=" + general +
                 ",\n\tfirstParam=" + firstParam +
                 ",\n\tsecondParam=" + secondParam +
-                ",\n\treturns=" + returns +
+                ",\n\treturnType=" + returnType +
                 "\n}";
     }
 

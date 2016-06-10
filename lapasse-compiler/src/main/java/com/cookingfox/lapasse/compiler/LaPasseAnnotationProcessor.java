@@ -6,6 +6,7 @@ import com.cookingfox.lapasse.api.command.handler.*;
 import com.cookingfox.lapasse.api.event.handler.EventHandler;
 import com.cookingfox.lapasse.api.facade.Facade;
 import com.cookingfox.lapasse.compiler.command.HandleCommandInfo;
+import com.cookingfox.lapasse.compiler.command.HandleCommandReturnType;
 import com.cookingfox.lapasse.compiler.event.HandleEventInfo;
 import com.cookingfox.lapasse.impl.helper.LaPasseHelper;
 import com.cookingfox.lapasse.impl.internal.HandlerMapper;
@@ -172,21 +173,26 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
                         .returns(returnTypeName);
 
                 String handleStatement = "$N.$N($N, $N)";
+                HandleCommandReturnType returnType = info.getReturnType();
 
-                if (info.returnsVoid()) {
+                if (returnType.returnsVoid()) {
                     handlerType = ParameterizedTypeName.get(ClassName.get(VoidCommandHandler.class),
                             stateName, commandName);
                 } else {
-                    TypeName eventName = info.getEventName();
+                    TypeName eventName = returnType.getEventName();
 
                     Class<? extends CommandHandler> commandHandlerClass = SyncCommandHandler.class;
 
-                    if (info.returnsEventCollection()) {
+                    if (returnType.returnsEventCollection()) {
                         commandHandlerClass = SyncMultiCommandHandler.class;
-                    } else if (info.returnsEventCallable()) {
+                    } else if (returnType.returnsEventCallable()) {
                         commandHandlerClass = AsyncCommandHandler.class;
-                    } else if (info.returnsEventCollectionCallable()) {
+                    } else if (returnType.returnsEventCollectionCallable()) {
                         commandHandlerClass = AsyncMultiCommandHandler.class;
+                    } else if (returnType.returnsEventObservable()) {
+                        commandHandlerClass = RxCommandHandler.class;
+                    } else if (returnType.returnsEventCollectionObservable()) {
+                        commandHandlerClass = RxMultiCommandHandler.class;
                     }
 
                     handlerType = ParameterizedTypeName.get(ClassName.get(commandHandlerClass),
