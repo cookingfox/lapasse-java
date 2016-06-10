@@ -10,24 +10,25 @@ import fixtures.example.state.CountState;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Collection;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.Assert.assertTrue;
 
 /**
- * Unit tests for {@link LaPasseLoggers}.
+ * Unit tests for {@link LoggersHelper}.
  */
-public class LaPasseLoggersTest {
+public class LoggersHelperTest {
 
     //----------------------------------------------------------------------------------------------
     // TEST SETUP
     //----------------------------------------------------------------------------------------------
 
-    private LaPasseLoggers<CountState> loggers;
+    private LoggersHelper<CountState> loggers;
 
     @Before
     public void setUp() throws Exception {
-        loggers = new LaPasseLoggers<>();
+        loggers = new LoggersHelper<>();
     }
 
     //----------------------------------------------------------------------------------------------
@@ -46,18 +47,18 @@ public class LaPasseLoggersTest {
 
         loggers.addCommandLogger(new CommandLogger() {
             @Override
-            public void onCommandHandlerError(Throwable error, Command command, Event... events) {
+            public void onCommandHandlerError(Throwable error, Command command, Collection<Event> events) {
                 commandErrorCalled.set(true);
             }
 
             @Override
-            public void onCommandHandlerResult(Command command, Event... events) {
+            public void onCommandHandlerResult(Command command, Collection<Event> events) {
                 commandResultCalled.set(true);
             }
         });
 
-        loggers.onCommandHandlerError(null, null);
-        loggers.onCommandHandlerResult(null);
+        loggers.onCommandHandlerError(null, null, null);
+        loggers.onCommandHandlerResult(null, null);
 
         assertTrue(commandErrorCalled.get());
         assertTrue(commandResultCalled.get());
@@ -69,7 +70,7 @@ public class LaPasseLoggersTest {
 
     @Test(expected = NoRegisteredCommandErrorHandlerException.class)
     public void onCommandHandlerError_should_throw_if_no_command_loggers() throws Exception {
-        loggers.onCommandHandlerError(null, null);
+        loggers.onCommandHandlerError(null, null, null);
     }
 
     //----------------------------------------------------------------------------------------------
@@ -132,12 +133,12 @@ public class LaPasseLoggersTest {
 
         loggers.addLogger(new DefaultLogger<CountState>() {
             @Override
-            public void onCommandHandlerError(Throwable error, Command command, Event... events) {
+            public void onCommandHandlerError(Throwable error, Command command, Collection<Event> events) {
                 commandErrorCalled.set(true);
             }
 
             @Override
-            public void onCommandHandlerResult(Command command, Event... events) {
+            public void onCommandHandlerResult(Command command, Collection<Event> events) {
                 commandResultCalled.set(true);
             }
 
@@ -152,8 +153,8 @@ public class LaPasseLoggersTest {
             }
         });
 
-        loggers.onCommandHandlerError(null, null);
-        loggers.onCommandHandlerResult(null);
+        loggers.onCommandHandlerError(null, null, null);
+        loggers.onCommandHandlerResult(null, null);
         loggers.onEventHandlerError(null, null, null);
         loggers.onEventHandlerResult(null, null);
 

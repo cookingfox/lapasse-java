@@ -5,6 +5,8 @@ import com.cookingfox.lapasse.api.event.Event;
 import com.cookingfox.lapasse.api.logging.CombinedLogger;
 import com.cookingfox.lapasse.api.state.State;
 
+import java.util.Collection;
+
 /**
  * Implementation of multiple logger interfaces.
  *
@@ -13,12 +15,12 @@ import com.cookingfox.lapasse.api.state.State;
 public class DefaultLogger<S extends State> implements CombinedLogger<S> {
 
     @Override
-    public void onCommandHandlerError(Throwable error, Command command, Event... events) {
+    public void onCommandHandlerError(Throwable error, Command command, Collection<Event> events) {
         // override in subclass
     }
 
     @Override
-    public void onCommandHandlerResult(Command command, Event... events) {
+    public void onCommandHandlerResult(Command command, Collection<Event> events) {
         // override in subclass
     }
 

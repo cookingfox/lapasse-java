@@ -14,7 +14,7 @@ import com.cookingfox.lapasse.api.state.manager.RxStateManager;
 import com.cookingfox.lapasse.api.state.observer.StateChanged;
 import com.cookingfox.lapasse.impl.event.bus.DefaultEventBus;
 import com.cookingfox.lapasse.impl.logging.DefaultLogger;
-import com.cookingfox.lapasse.impl.logging.LaPasseLoggers;
+import com.cookingfox.lapasse.impl.logging.LoggersHelper;
 import com.cookingfox.lapasse.impl.message.store.NoStorageMessageStore;
 import com.cookingfox.lapasse.impl.state.manager.DefaultRxStateManager;
 import fixtures.example.command.IncrementCount;
@@ -48,7 +48,7 @@ public class DefaultRxCommandBusTest {
 
     @Before
     public void setUp() throws Exception {
-        loggers = new LaPasseLoggers<>();
+        loggers = new LoggersHelper<>();
         MessageStore messageStore = new NoStorageMessageStore();
         stateManager = new DefaultRxStateManager<>(new CountState(0));
         eventBus = new DefaultEventBus<>(messageStore, loggers, stateManager);
@@ -112,7 +112,7 @@ public class DefaultRxCommandBusTest {
 
         loggers.addLogger(new DefaultLogger<CountState>() {
             @Override
-            public void onCommandHandlerError(Throwable error, Command command, Event... events) {
+            public void onCommandHandlerError(Throwable error, Command command, Collection<Event> events) {
                 calledError.set(error);
             }
         });
@@ -139,7 +139,7 @@ public class DefaultRxCommandBusTest {
 
         loggers.addLogger(new DefaultLogger<CountState>() {
             @Override
-            public void onCommandHandlerError(Throwable error, Command command, Event... events) {
+            public void onCommandHandlerError(Throwable error, Command command, Collection<Event> events) {
                 calledError.set(error);
             }
         });
@@ -209,7 +209,7 @@ public class DefaultRxCommandBusTest {
 
         loggers.addLogger(new DefaultLogger<CountState>() {
             @Override
-            public void onCommandHandlerError(Throwable error, Command command, Event... events) {
+            public void onCommandHandlerError(Throwable error, Command command, Collection<Event> events) {
                 calledError.set(error);
             }
         });
@@ -236,7 +236,7 @@ public class DefaultRxCommandBusTest {
 
         loggers.addLogger(new DefaultLogger<CountState>() {
             @Override
-            public void onCommandHandlerError(Throwable error, Command command, Event... events) {
+            public void onCommandHandlerError(Throwable error, Command command, Collection<Event> events) {
                 calledError.set(error);
             }
         });

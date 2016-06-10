@@ -10,6 +10,7 @@ import com.cookingfox.lapasse.api.logging.CombinedLogger;
 import com.cookingfox.lapasse.api.logging.LoggerCollection;
 import com.cookingfox.lapasse.api.state.State;
 
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -19,7 +20,7 @@ import java.util.Set;
  *
  * @param <S> The concrete type of the state object.
  */
-public class LaPasseLoggers<S extends State> implements LoggerCollection<S> {
+public class LoggersHelper<S extends State> implements LoggerCollection<S> {
 
     /**
      * Set of unique command logger instances.
@@ -41,7 +42,7 @@ public class LaPasseLoggers<S extends State> implements LoggerCollection<S> {
     }
 
     @Override
-    public void onCommandHandlerError(Throwable error, Command command, Event... events) {
+    public void onCommandHandlerError(Throwable error, Command command, Collection<Event> events) {
         if (commandLoggers.isEmpty()) {
             throw new NoRegisteredCommandErrorHandlerException(error, command);
         }
@@ -52,7 +53,7 @@ public class LaPasseLoggers<S extends State> implements LoggerCollection<S> {
     }
 
     @Override
-    public void onCommandHandlerResult(Command command, Event... events) {
+    public void onCommandHandlerResult(Command command, Collection<Event> events) {
         for (CommandLogger logger : commandLoggers) {
             logger.onCommandHandlerResult(command, events);
         }

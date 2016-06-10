@@ -112,16 +112,16 @@ public class DefaultRxCommandBus<S extends State>
                     .subscribe(new Action1<Event>() {
                         @Override
                         public void call(Event event) {
-                            handleCommandHandlerResult(null, command, event);
+                            handleResult(null, command, event);
                         }
                     }, new Action1<Throwable>() {
                         @Override
                         public void call(Throwable error) {
-                            handleCommandHandlerResult(error, command, null);
+                            handleResult(error, command, null);
                         }
                     });
         } catch (Throwable error) {
-            handleCommandHandlerResult(error, command, null);
+            handleResult(error, command, null);
         }
     }
 
@@ -140,16 +140,16 @@ public class DefaultRxCommandBus<S extends State>
                     .subscribe(new Action1<Collection<Event>>() {
                         @Override
                         public void call(Collection<Event> events) {
-                            handleMultiCommandHandlerResult(null, command, events);
+                            handleMultiResult(null, command, events);
                         }
                     }, new Action1<Throwable>() {
                         @Override
                         public void call(Throwable error) {
-                            handleMultiCommandHandlerResult(error, command, null);
+                            handleMultiResult(error, command, null);
                         }
                     });
         } catch (Throwable error) {
-            handleCommandHandlerResult(error, command, null);
+            handleMultiResult(error, command, null);
         }
     }
 

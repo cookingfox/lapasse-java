@@ -14,10 +14,7 @@ import com.cookingfox.lapasse.api.state.State;
 import com.cookingfox.lapasse.api.state.observer.StateObserver;
 import com.cookingfox.lapasse.impl.message.bus.AbstractMessageBus;
 
-import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -158,21 +155,25 @@ public class DefaultCommandBus<S extends State>
 
         try {
             if (handler instanceof VoidCommandHandler) {
+                // doesn't return anything
                 ((VoidCommandHandler<S, Command>) handler).handle(state, command);
             } else if (handler instanceof SyncCommandHandler) {
+                // returns an event or null
                 event = ((SyncCommandHandler<S, Command, Event>) handler).handle(state, command);
             } else if (handler instanceof AsyncCommandHandler) {
+                // returns a callable that is submitted to the executor service (async).
                 Callable<Event> callable = ((AsyncCommandHandler<S, Command, Event>) handler).handle(state, command);
                 event = getCommandHandlerExecutor().submit(callable).get();
             } else {
+                // unsupported implementation
                 throw new UnsupportedCommandHandlerException(handler);
             }
         } catch (Exception e) {
-            handleCommandHandlerResult(e, command, null);
+            handleResult(e, command, null);
             return;
         }
 
-        handleCommandHandlerResult(null, command, event);
+        handleResult(null, command, event);
     }
 
     /**
@@ -187,19 +188,22 @@ public class DefaultCommandBus<S extends State>
 
         try {
             if (handler instanceof SyncMultiCommandHandler) {
+                // returns a collection of events
                 events = ((SyncMultiCommandHandler<S, Command, Event>) handler).handle(state, command);
             } else if (handler instanceof AsyncMultiCommandHandler) {
+                // returns a callable that is submitted to the executor service (async).
                 Callable<Collection<Event>> callable = ((AsyncMultiCommandHandler<S, Command, Event>) handler).handle(state, command);
                 events = getCommandHandlerExecutor().submit(callable).get();
             } else {
+                // unsupported implementation
                 throw new UnsupportedCommandHandlerException(handler);
             }
         } catch (Exception e) {
-            handleMultiCommandHandlerResult(e, command, null);
+            handleMultiResult(e, command, null);
             return;
         }
 
-        handleMultiCommandHandlerResult(null, command, events);
+        handleMultiResult(null, command, events);
     }
 
     /**
@@ -216,30 +220,37 @@ public class DefaultCommandBus<S extends State>
         return commandHandlerExecutor;
     }
 
-    protected void handleCommandHandlerResult(Throwable error, Command command, Event event) {
-        if (error != null) {
-            loggers.onCommandHandlerError(error, command);
-            return;
-        }
-
-        loggers.onCommandHandlerResult(command, event);
-
-        if (event != null) {
-            eventBus.handleEvent(event);
+    /**
+     * Handle result from a 'single' command handler.
+     *
+     * @param error   (Optional) An error that occurred.
+     * @param command The command that was handled.
+     * @param event   (Optional) The event that was produced by the command handler.
+     */
+    protected void handleResult(Throwable error, Command command, Event event) {
+        if (event == null) {
+            handleMultiResult(error, command, null);
+        } else {
+            handleMultiResult(error, command, Collections.singleton(event));
         }
     }
 
-    protected void handleMultiCommandHandlerResult(Throwable error, Command command, Collection<Event> events) {
+    /**
+     * Handle result from a 'multi' command handler.
+     *
+     * @param error   (Optional) An error that occurred.
+     * @param command The command that was handled.
+     * @param events  (Optional) The events that were produced by the command handler.
+     */
+    protected void handleMultiResult(Throwable error, Command command, Collection<Event> events) {
         if (error != null) {
-            loggers.onCommandHandlerError(error, command);
+            loggers.onCommandHandlerError(error, command, events);
             return;
         }
 
-        if (events == null) {
-            loggers.onCommandHandlerResult(command);
-        } else {
-            loggers.onCommandHandlerResult(command, events.toArray(new Event[]{}));
+        loggers.onCommandHandlerResult(command, events);
 
+        if (events != null) {
             for (Event event : events) {
                 eventBus.handleEvent(event);
             }

@@ -18,7 +18,7 @@ import com.cookingfox.lapasse.api.state.observer.OnStateChanged;
 import com.cookingfox.lapasse.api.state.observer.StateObserver;
 import com.cookingfox.lapasse.impl.command.bus.DefaultCommandBus;
 import com.cookingfox.lapasse.impl.event.bus.DefaultEventBus;
-import com.cookingfox.lapasse.impl.logging.LaPasseLoggers;
+import com.cookingfox.lapasse.impl.logging.LoggersHelper;
 import com.cookingfox.lapasse.impl.message.store.NoStorageMessageStore;
 import com.cookingfox.lapasse.impl.state.manager.DefaultStateManager;
 
@@ -207,7 +207,7 @@ public class LaPasseFacade<S extends State> implements Facade<S> {
         }
 
         protected LoggerCollection<S> createDefaultLoggers() {
-            return new LaPasseLoggers<>();
+            return new LoggersHelper<>();
         }
 
         protected MessageStore createDefaultMessageStore() {

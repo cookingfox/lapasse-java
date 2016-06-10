@@ -4,7 +4,7 @@ import com.cookingfox.lapasse.api.event.Event;
 import com.cookingfox.lapasse.api.event.exception.EventHandlerReturnedNullException;
 import com.cookingfox.lapasse.api.event.handler.EventHandler;
 import com.cookingfox.lapasse.impl.logging.DefaultLogger;
-import com.cookingfox.lapasse.impl.logging.LaPasseLoggers;
+import com.cookingfox.lapasse.impl.logging.LoggersHelper;
 import fixtures.example.event.CountIncremented;
 import fixtures.example.state.CountState;
 import fixtures.message.FixtureMessage;
@@ -27,13 +27,13 @@ public class DefaultEventBusTest {
     //----------------------------------------------------------------------------------------------
 
     private DefaultEventBus<CountState> eventBus;
-    private LaPasseLoggers<CountState> loggers;
+    private LoggersHelper<CountState> loggers;
     private FixtureMessageStore messageStore;
     private FixtureStateManager stateManager;
 
     @Before
     public void setUp() throws Exception {
-        loggers = new LaPasseLoggers<>();
+        loggers = new LoggersHelper<>();
         messageStore = new FixtureMessageStore();
         stateManager = new FixtureStateManager(new CountState(0));
         eventBus = new DefaultEventBus<>(messageStore, loggers, stateManager);

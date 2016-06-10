@@ -12,7 +12,7 @@ import com.cookingfox.lapasse.api.state.observer.OnStateChanged;
 import com.cookingfox.lapasse.impl.command.bus.DefaultCommandBus;
 import com.cookingfox.lapasse.impl.event.bus.DefaultEventBus;
 import com.cookingfox.lapasse.impl.logging.DefaultLogger;
-import com.cookingfox.lapasse.impl.logging.LaPasseLoggers;
+import com.cookingfox.lapasse.impl.logging.LoggersHelper;
 import com.cookingfox.lapasse.impl.message.store.NoStorageMessageStore;
 import com.cookingfox.lapasse.impl.state.manager.DefaultStateManager;
 import fixtures.example.command.IncrementCount;
@@ -91,14 +91,14 @@ public class LaPasseFacadeTest {
 
         assertTrue(facade.commandBus instanceof DefaultCommandBus);
         assertTrue(facade.eventBus instanceof DefaultEventBus);
-        assertTrue(facade.loggers instanceof LaPasseLoggers);
+        assertTrue(facade.loggers instanceof LoggersHelper);
         assertTrue(facade.stateObserver instanceof DefaultStateManager);
     }
 
     @Test
     public void builder_should_apply_custom_settings() throws Exception {
         CountState initialState = new CountState(0);
-        LoggerCollection<CountState> loggers = new LaPasseLoggers<>();
+        LoggerCollection<CountState> loggers = new LoggersHelper<>();
         MessageStore messageStore = new NoStorageMessageStore();
         StateManager<CountState> stateManager = new DefaultStateManager<>(initialState);
         EventBus<CountState> eventBus = new DefaultEventBus<>(messageStore, loggers, stateManager);

@@ -6,7 +6,7 @@ import com.cookingfox.lapasse.api.command.exception.UnsupportedCommandHandlerExc
 import com.cookingfox.lapasse.api.command.handler.*;
 import com.cookingfox.lapasse.api.event.Event;
 import com.cookingfox.lapasse.impl.logging.DefaultLogger;
-import com.cookingfox.lapasse.impl.logging.LaPasseLoggers;
+import com.cookingfox.lapasse.impl.logging.LoggersHelper;
 import fixtures.event.bus.FixtureEventBus;
 import fixtures.example.command.IncrementCount;
 import fixtures.example.event.CountIncremented;
@@ -38,14 +38,14 @@ public class DefaultCommandBusTest {
 
     private DefaultCommandBus<CountState> commandBus;
     private FixtureEventBus eventBus;
-    private LaPasseLoggers<CountState> loggers;
+    private LoggersHelper<CountState> loggers;
     private FixtureMessageStore messageStore;
     private FixtureStateManager stateManager;
 
     @Before
     public void setUp() throws Exception {
         eventBus = new FixtureEventBus();
-        loggers = new LaPasseLoggers<>();
+        loggers = new LoggersHelper<>();
         messageStore = new FixtureMessageStore();
         stateManager = new FixtureStateManager(new CountState(0));
         commandBus = new DefaultCommandBus<>(messageStore, eventBus, loggers, stateManager);
@@ -164,11 +164,11 @@ public class DefaultCommandBusTest {
     @Test
     public void executeHandler_should_log_command_handler_result_of_single_handler() throws Exception {
         final AtomicReference<Command> calledCommand = new AtomicReference<>();
-        final AtomicReference<Event[]> calledEvents = new AtomicReference<>();
+        final AtomicReference<Collection<Event>> calledEvents = new AtomicReference<>();
 
         commandBus.addCommandLogger(new DefaultLogger<CountState>() {
             @Override
-            public void onCommandHandlerResult(Command command, Event... events) {
+            public void onCommandHandlerResult(Command command, Collection<Event> events) {
                 calledCommand.set(command);
                 calledEvents.set(events);
             }
@@ -186,20 +186,20 @@ public class DefaultCommandBusTest {
         commandBus.handleCommand(command);
 
         assertSame(command, calledCommand.get());
-        assertArrayEquals(new Event[]{new CountIncremented(command.getCount())}, calledEvents.get());
+        assertEquals(Collections.singleton(new CountIncremented(command.getCount())), calledEvents.get());
     }
 
     @Test
     public void executeHandler_should_log_error_of_throwing_single_handler() throws Exception {
         final AtomicReference<Throwable> calledError = new AtomicReference<>();
         final AtomicReference<Command> calledCommand = new AtomicReference<>();
-        final AtomicReference<Event[]> calledEvents = new AtomicReference<>();
+        final AtomicReference<Collection<Event>> calledEvents = new AtomicReference<>();
 
         final RuntimeException targetException = new RuntimeException("Example error");
 
         commandBus.addCommandLogger(new DefaultLogger<CountState>() {
             @Override
-            public void onCommandHandlerError(Throwable error, Command command, Event... events) {
+            public void onCommandHandlerError(Throwable error, Command command, Collection<Event> events) {
                 calledError.set(error);
                 calledCommand.set(command);
                 calledEvents.set(events);
@@ -219,17 +219,17 @@ public class DefaultCommandBusTest {
 
         assertSame(targetException, calledError.get());
         assertSame(command, calledCommand.get());
-        assertArrayEquals(new Event[]{}, calledEvents.get());
+        assertNull(calledEvents.get());
     }
 
     @Test
     public void executeHandler_should_log_command_handler_result_of_multi_handler() throws Exception {
         final AtomicReference<Command> calledCommand = new AtomicReference<>();
-        final AtomicReference<Event[]> calledEvents = new AtomicReference<>();
+        final AtomicReference<Collection<Event>> calledEvents = new AtomicReference<>();
 
         commandBus.addCommandLogger(new DefaultLogger<CountState>() {
             @Override
-            public void onCommandHandlerResult(Command command, Event... events) {
+            public void onCommandHandlerResult(Command command, Collection<Event> events) {
                 calledCommand.set(command);
                 calledEvents.set(events);
             }
@@ -248,20 +248,20 @@ public class DefaultCommandBusTest {
         commandBus.handleCommand(command);
 
         assertSame(command, calledCommand.get());
-        assertArrayEquals(new Event[]{}, calledEvents.get());
+        assertNull(calledEvents.get());
     }
 
     @Test
     public void executeHandler_should_log_error_of_throwing_multi_handler() throws Exception {
         final AtomicReference<Throwable> calledError = new AtomicReference<>();
         final AtomicReference<Command> calledCommand = new AtomicReference<>();
-        final AtomicReference<Event[]> calledEvents = new AtomicReference<>();
+        final AtomicReference<Collection<Event>> calledEvents = new AtomicReference<>();
 
         final RuntimeException targetException = new RuntimeException("Example error");
 
         commandBus.addCommandLogger(new DefaultLogger<CountState>() {
             @Override
-            public void onCommandHandlerError(Throwable error, Command command, Event... events) {
+            public void onCommandHandlerError(Throwable error, Command command, Collection<Event> events) {
                 calledError.set(error);
                 calledCommand.set(command);
                 calledEvents.set(events);
@@ -281,7 +281,7 @@ public class DefaultCommandBusTest {
 
         assertSame(targetException, calledError.get());
         assertSame(command, calledCommand.get());
-        assertArrayEquals(new Event[]{}, calledEvents.get());
+        assertNull(calledEvents.get());
     }
 
     @Test
