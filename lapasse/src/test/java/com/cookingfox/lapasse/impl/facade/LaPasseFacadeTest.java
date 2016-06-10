@@ -15,9 +15,9 @@ import com.cookingfox.lapasse.impl.logging.DefaultLogger;
 import com.cookingfox.lapasse.impl.logging.LaPasseLoggers;
 import com.cookingfox.lapasse.impl.message.store.NoStorageMessageStore;
 import com.cookingfox.lapasse.impl.state.manager.DefaultStateManager;
-import fixtures.command.IncrementCount;
-import fixtures.event.CountIncremented;
-import fixtures.state.CountState;
+import fixtures.example.command.IncrementCount;
+import fixtures.example.event.CountIncremented;
+import fixtures.example.state.CountState;
 import org.junit.Test;
 
 import java.util.concurrent.Executors;
@@ -69,7 +69,7 @@ public class LaPasseFacadeTest {
         facade.mapEventHandler(CountIncremented.class, new EventHandler<CountState, CountIncremented>() {
             @Override
             public CountState handle(CountState previousState, CountIncremented event) {
-                return new CountState(previousState.count + event.count);
+                return new CountState(previousState.getCount() + event.getCount());
             }
         });
         facade.handleEvent(new CountIncremented(1));

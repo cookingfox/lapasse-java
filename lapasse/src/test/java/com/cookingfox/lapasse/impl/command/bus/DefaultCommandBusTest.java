@@ -7,17 +7,16 @@ import com.cookingfox.lapasse.api.command.handler.*;
 import com.cookingfox.lapasse.api.event.Event;
 import com.cookingfox.lapasse.impl.logging.DefaultLogger;
 import com.cookingfox.lapasse.impl.logging.LaPasseLoggers;
-import fixtures.command.IncrementCount;
-import fixtures.event.CountIncremented;
 import fixtures.event.bus.FixtureEventBus;
+import fixtures.example.command.IncrementCount;
+import fixtures.example.event.CountIncremented;
+import fixtures.example.state.CountState;
 import fixtures.message.FixtureMessage;
 import fixtures.message.store.FixtureMessageStore;
-import fixtures.state.CountState;
 import fixtures.state.manager.FixtureStateManager;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.Callable;
@@ -178,7 +177,7 @@ public class DefaultCommandBusTest {
         commandBus.mapCommandHandler(IncrementCount.class, new SyncCommandHandler<CountState, IncrementCount, CountIncremented>() {
             @Override
             public CountIncremented handle(CountState state, IncrementCount command) {
-                return new CountIncremented(command.count);
+                return new CountIncremented(command.getCount());
             }
         });
 
@@ -187,7 +186,7 @@ public class DefaultCommandBusTest {
         commandBus.handleCommand(command);
 
         assertSame(command, calledCommand.get());
-        assertArrayEquals(new Event[]{new CountIncremented(command.count)}, calledEvents.get());
+        assertArrayEquals(new Event[]{new CountIncremented(command.getCount())}, calledEvents.get());
     }
 
     @Test

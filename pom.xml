@@ -93,6 +93,8 @@
 
         <pluginManagement>
             <plugins>
+
+                <!-- Compiler configuration -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
@@ -104,11 +106,13 @@
                         <compilerArgument>-proc:none</compilerArgument>
                     </configuration>
                 </plugin>
+
             </plugins>
         </pluginManagement>
 
         <plugins>
 
+            <!-- Versioning and release -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
@@ -118,6 +122,7 @@
                 </configuration>
             </plugin>
 
+            <!-- Javadocs -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
@@ -133,12 +138,14 @@
                 </executions>
             </plugin>
 
+            <!-- Source -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
                 <version>3.0.0</version>
             </plugin>
 
+            <!-- Deploy -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>

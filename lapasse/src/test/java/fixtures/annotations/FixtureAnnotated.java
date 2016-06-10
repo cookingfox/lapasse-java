@@ -4,9 +4,9 @@ import com.cookingfox.lapasse.annotation.HandleCommand;
 import com.cookingfox.lapasse.annotation.HandleEvent;
 import com.cookingfox.lapasse.api.facade.Facade;
 import com.cookingfox.lapasse.impl.helper.LaPasseHelper;
-import fixtures.command.IncrementCount;
-import fixtures.event.CountIncremented;
-import fixtures.state.CountState;
+import fixtures.example.command.IncrementCount;
+import fixtures.example.event.CountIncremented;
+import fixtures.example.state.CountState;
 
 /**
  * Fixture class with annotations.
@@ -25,12 +25,12 @@ public class FixtureAnnotated {
 
     @HandleCommand
     public CountIncremented handleIncrementCount(CountState state, IncrementCount command) {
-        return new CountIncremented(command.count);
+        return new CountIncremented(command.getCount());
     }
 
     @HandleEvent
     public CountState handleCountIncremented(CountState state, CountIncremented event) {
-        return new CountState(state.count + event.count);
+        return new CountState(state.getCount() + event.getCount());
     }
 
 }

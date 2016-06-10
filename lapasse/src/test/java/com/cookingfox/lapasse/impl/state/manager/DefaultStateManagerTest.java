@@ -3,8 +3,8 @@ package com.cookingfox.lapasse.impl.state.manager;
 import com.cookingfox.lapasse.api.event.Event;
 import com.cookingfox.lapasse.api.exception.NotSubscribedException;
 import com.cookingfox.lapasse.api.state.observer.OnStateChanged;
-import fixtures.event.CountIncremented;
-import fixtures.state.CountState;
+import fixtures.example.event.CountIncremented;
+import fixtures.example.state.CountState;
 import org.junit.Before;
 import org.junit.Test;
 

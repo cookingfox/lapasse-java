@@ -10,9 +10,9 @@ import com.cookingfox.lapasse.impl.internal.HandlerMapper;
 import fixtures.annotations.FixtureAnnotated;
 import fixtures.annotations.MissingConstructor$$LaPassGenerated;
 import fixtures.annotations.ThrowingConstructor$$LaPasseGenerated;
-import fixtures.command.IncrementCount;
-import fixtures.event.CountIncremented;
-import fixtures.state.CountState;
+import fixtures.example.command.IncrementCount;
+import fixtures.example.event.CountIncremented;
+import fixtures.example.state.CountState;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -100,7 +100,7 @@ public class LaPasseHelperTest {
 
         facade.handleCommand(new IncrementCount(incrementValue));
 
-        assertEquals(incrementValue, calledStateRef.get().count);
+        assertEquals(incrementValue, calledStateRef.get().getCount());
         assertTrue(calledEventRef.get() instanceof CountIncremented);
     }
 

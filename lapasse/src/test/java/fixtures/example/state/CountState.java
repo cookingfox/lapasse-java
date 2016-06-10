@@ -1,26 +1,24 @@
-package fixtures.state;
+package fixtures.example.state;
 
 import com.cookingfox.lapasse.api.state.State;
 
 /**
- * Fixture state: count value.
+ * Fixture state: count.
  */
 public final class CountState implements State {
-
-    public final int count;
+    private final int count;
 
     public CountState(int count) {
         this.count = count;
     }
 
+    public int getCount() {
+        return count;
+    }
+
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        CountState that = (CountState) o;
-
-        return count == that.count;
+        return o instanceof CountState && ((CountState) o).count == count;
     }
 
     @Override
@@ -34,5 +32,4 @@ public final class CountState implements State {
                 "count=" + count +
                 '}';
     }
-
 }

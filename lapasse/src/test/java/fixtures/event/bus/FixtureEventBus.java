@@ -4,7 +4,7 @@ import com.cookingfox.lapasse.api.event.Event;
 import com.cookingfox.lapasse.api.event.bus.EventBus;
 import com.cookingfox.lapasse.api.event.handler.EventHandler;
 import com.cookingfox.lapasse.api.event.logging.EventLogger;
-import fixtures.state.CountState;
+import fixtures.example.state.CountState;
 
 import java.util.LinkedList;
 import java.util.List;

@@ -4,9 +4,9 @@ import com.cookingfox.lapasse.api.command.handler.SyncCommandHandler;
 import com.cookingfox.lapasse.api.event.handler.EventHandler;
 import com.cookingfox.lapasse.api.facade.Facade;
 import com.cookingfox.lapasse.impl.internal.HandlerMapper;
-import fixtures.command.IncrementCount;
-import fixtures.event.CountIncremented;
-import fixtures.state.CountState;
+import fixtures.example.command.IncrementCount;
+import fixtures.example.event.CountIncremented;
+import fixtures.example.state.CountState;
 
 /**
  * Fixture class with annotations.

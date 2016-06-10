@@ -1,7 +1,7 @@
 package com.cookingfox.lapasse.impl.message.bus;
 
 import com.cookingfox.lapasse.api.message.exception.NoMessageHandlersException;
-import fixtures.event.CountIncremented;
+import fixtures.example.event.CountIncremented;
 import fixtures.message.ExtendedFixtureMessage;
 import fixtures.message.FixtureMessage;
 import fixtures.message.bus.FixtureMessageBus;

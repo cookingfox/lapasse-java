@@ -5,10 +5,10 @@ import com.cookingfox.lapasse.api.event.exception.EventHandlerReturnedNullExcept
 import com.cookingfox.lapasse.api.event.handler.EventHandler;
 import com.cookingfox.lapasse.impl.logging.DefaultLogger;
 import com.cookingfox.lapasse.impl.logging.LaPasseLoggers;
-import fixtures.event.CountIncremented;
+import fixtures.example.event.CountIncremented;
+import fixtures.example.state.CountState;
 import fixtures.message.FixtureMessage;
 import fixtures.message.store.FixtureMessageStore;
-import fixtures.state.CountState;
 import fixtures.state.manager.FixtureStateManager;
 import org.junit.Before;
 import org.junit.Test;
@@ -67,7 +67,7 @@ public class DefaultEventBusTest {
         eventBus.mapEventHandler(CountIncremented.class, new EventHandler<CountState, CountIncremented>() {
             @Override
             public CountState handle(CountState previousState, CountIncremented event) {
-                return new CountState(event.count);
+                return new CountState(event.getCount());
             }
         });
 
@@ -75,7 +75,7 @@ public class DefaultEventBusTest {
 
         eventBus.handleEvent(new CountIncremented(count));
 
-        assertEquals(count, stateManager.getCurrentState().count);
+        assertEquals(count, stateManager.getCurrentState().getCount());
     }
 
     @Test
@@ -160,7 +160,7 @@ public class DefaultEventBusTest {
         eventBus.mapEventHandler(CountIncremented.class, new EventHandler<CountState, CountIncremented>() {
             @Override
             public CountState handle(CountState previousState, CountIncremented event) {
-                return new CountState(previousState.count + event.count);
+                return new CountState(previousState.getCount() + event.getCount());
             }
         });
 
@@ -169,7 +169,7 @@ public class DefaultEventBusTest {
         eventBus.handleEvent(event);
 
         assertSame(event, calledEvent.get());
-        assertEquals(new CountState(event.count), calledNewState.get());
+        assertEquals(new CountState(event.getCount()), calledNewState.get());
     }
 
     //----------------------------------------------------------------------------------------------

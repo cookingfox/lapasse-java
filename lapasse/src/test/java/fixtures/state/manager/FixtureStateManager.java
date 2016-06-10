@@ -3,7 +3,7 @@ package fixtures.state.manager;
 import com.cookingfox.lapasse.api.event.Event;
 import com.cookingfox.lapasse.api.state.manager.StateManager;
 import com.cookingfox.lapasse.api.state.observer.OnStateChanged;
-import fixtures.state.CountState;
+import fixtures.example.state.CountState;
 
 import java.util.Objects;
 

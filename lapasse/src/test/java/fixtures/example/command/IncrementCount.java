@@ -17,6 +17,16 @@ public final class IncrementCount implements Command {
     }
 
     @Override
+    public boolean equals(Object o) {
+        return o instanceof IncrementCount && ((IncrementCount) o).count == count;
+    }
+
+    @Override
+    public int hashCode() {
+        return count;
+    }
+
+    @Override
     public String toString() {
         return "IncrementCount{" +
                 "count=" + count +

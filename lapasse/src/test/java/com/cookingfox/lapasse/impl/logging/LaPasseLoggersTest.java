@@ -6,7 +6,7 @@ import com.cookingfox.lapasse.api.command.logging.CommandLogger;
 import com.cookingfox.lapasse.api.event.Event;
 import com.cookingfox.lapasse.api.event.exception.NoRegisteredEventErrorHandlerException;
 import com.cookingfox.lapasse.api.event.logging.EventLogger;
-import fixtures.state.CountState;
+import fixtures.example.state.CountState;
 import org.junit.Before;
 import org.junit.Test;
 
