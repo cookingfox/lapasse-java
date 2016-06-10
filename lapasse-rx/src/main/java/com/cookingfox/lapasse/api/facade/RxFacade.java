@@ -4,7 +4,7 @@ import com.cookingfox.lapasse.api.state.State;
 import com.cookingfox.lapasse.api.state.observer.RxStateObserver;
 
 /**
- * Provides access to the core functionality.
+ * Extends the facade with Rx functionality.
  *
  * @param <S> The concrete type of the state object.
  */

@@ -12,5 +12,6 @@ import com.cookingfox.lapasse.api.state.State;
  * @param <C> The concrete command type that this handler will handle.
  * @param <E> The concrete event type that this handler will produce.
  */
-public interface CommandHandler<S extends State, C extends Command, E extends Event> extends MessageHandler<C> {
+public interface CommandHandler<S extends State, C extends Command, E extends Event>
+        extends MessageHandler<C> {
 }

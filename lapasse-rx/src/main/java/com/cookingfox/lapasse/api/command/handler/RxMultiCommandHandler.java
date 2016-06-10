@@ -8,7 +8,7 @@ import rx.Observable;
 import java.util.Collection;
 
 /**
- * Command handler that handles its command asynchronously and produces multiple events.
+ * Command handler that returns an Rx Observable for a collection of events.
  *
  * @param <S> The concrete type of the state object.
  * @param <C> The concrete command type that this handler will handle.
@@ -18,11 +18,11 @@ public interface RxMultiCommandHandler<S extends State, C extends Command, E ext
         extends MultiCommandHandler<S, C, E> {
 
     /**
-     * Handle a command asynchronously.
+     * Handle a command and return an Rx Observable.
      *
      * @param state   The current state object.
      * @param command The command object to handle.
-     * @return The event as a result of the handled command (optional).
+     * @return An Rx Observable for a collection of events.
      */
     Observable<Collection<E>> handle(S state, C command);
 

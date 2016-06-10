@@ -5,7 +5,7 @@ import com.cookingfox.lapasse.api.event.Event;
 import com.cookingfox.lapasse.api.state.State;
 
 /**
- * Command handler that handles its command synchronously.
+ * Command handler that handles its command synchronously and produces zero or one event.
  *
  * @param <S> The concrete type of the state object.
  * @param <C> The concrete command type that this handler will handle.

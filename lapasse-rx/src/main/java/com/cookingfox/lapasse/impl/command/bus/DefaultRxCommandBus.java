@@ -1,7 +1,6 @@
 package com.cookingfox.lapasse.impl.command.bus;
 
 import com.cookingfox.lapasse.api.command.Command;
-import com.cookingfox.lapasse.api.command.bus.CommandBus;
 import com.cookingfox.lapasse.api.command.bus.RxCommandBus;
 import com.cookingfox.lapasse.api.command.handler.CommandHandler;
 import com.cookingfox.lapasse.api.command.handler.MultiCommandHandler;
@@ -22,7 +21,7 @@ import java.util.Collection;
 import java.util.Objects;
 
 /**
- * Default implementation of {@link CommandBus}.
+ * Default implementation of {@link RxCommandBus}.
  *
  * @param <S> The concrete type of the state object.
  */
@@ -81,6 +80,12 @@ public class DefaultRxCommandBus<S extends State>
     // PROTECTED METHODS
     //----------------------------------------------------------------------------------------------
 
+    /**
+     * Apply `observeOn` and `subscribeOn` schedulers to observable.
+     *
+     * @param <T> The value type that the observable will emit.
+     * @return Observable with the schedulers applied.
+     */
     protected <T> Observable.Transformer<T, T> applySchedulers() {
         return new Observable.Transformer<T, T>() {
             @Override
@@ -95,6 +100,7 @@ public class DefaultRxCommandBus<S extends State>
     @Override
     protected void executeCommandHandler(S state, final Command command,
                                          CommandHandler<S, Command, Event> handler) {
+        // not an Rx implementation: use default functionality
         if (!(handler instanceof RxCommandHandler)) {
             super.executeCommandHandler(state, command, handler);
             return;
@@ -122,6 +128,7 @@ public class DefaultRxCommandBus<S extends State>
     @Override
     protected void executeMultiCommandHandler(S state, final Command command,
                                               MultiCommandHandler<S, Command, Event> handler) {
+        // not an Rx implementation: use default functionality
         if (!(handler instanceof RxMultiCommandHandler)) {
             super.executeMultiCommandHandler(state, command, handler);
             return;
@@ -146,6 +153,11 @@ public class DefaultRxCommandBus<S extends State>
         }
     }
 
+    /**
+     * Returns the `observeOn` scheduler. Sets it to {@link Schedulers#immediate()} if it is null.
+     *
+     * @return The `observeOn` scheduler.
+     */
     protected Scheduler getObserveOnScheduler() {
         if (observeOnScheduler == null) {
             observeOnScheduler = Schedulers.immediate();
@@ -154,6 +166,11 @@ public class DefaultRxCommandBus<S extends State>
         return observeOnScheduler;
     }
 
+    /**
+     * Returns the `subscribeOn` scheduler. Sets it to {@link Schedulers#immediate()} if it is null.
+     *
+     * @return The `subscribeOn` scheduler.
+     */
     protected Scheduler getSubscribeOnScheduler() {
         if (subscribeOnScheduler == null) {
             subscribeOnScheduler = Schedulers.immediate();

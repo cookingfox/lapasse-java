@@ -6,7 +6,7 @@ import com.cookingfox.lapasse.api.state.State;
 import rx.Observable;
 
 /**
- * Command handler that handles its command asynchronously.
+ * Command handler that returns an Rx Observable for the event it produces.
  *
  * @param <S> The concrete type of the state object.
  * @param <C> The concrete command type that this handler will handle.
@@ -16,11 +16,11 @@ public interface RxCommandHandler<S extends State, C extends Command, E extends 
         extends CommandHandler<S, C, E> {
 
     /**
-     * Handle a command asynchronously.
+     * Handle a command and return an Rx Observable.
      *
      * @param state   The current state object.
      * @param command The command object to handle.
-     * @return The event as a result of the handled command (optional).
+     * @return An Rx Observable for the event.
      */
     Observable<E> handle(S state, C command);
 

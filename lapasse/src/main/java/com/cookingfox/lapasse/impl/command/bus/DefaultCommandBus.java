@@ -249,9 +249,10 @@ public class DefaultCommandBus<S extends State>
     /**
      * Checks whether this command handler implementation is supported.
      *
-     * @param commandHandler
-     * @param <C>
-     * @param <E>
+     * @param commandHandler The command handler to check.
+     * @param <C>            Concrete type of the command.
+     * @param <E>            Concrete type of the event.
+     * @throws UnsupportedCommandHandlerException if the implementation is not supported.
      */
     protected <C extends Command, E extends Event> void isCommandHandlerSupported(
             CommandHandler<S, C, E> commandHandler) {

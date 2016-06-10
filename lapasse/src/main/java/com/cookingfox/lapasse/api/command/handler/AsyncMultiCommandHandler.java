@@ -18,11 +18,11 @@ public interface AsyncMultiCommandHandler<S extends State, C extends Command, E 
         extends MultiCommandHandler<S, C, E> {
 
     /**
-     * Handle a command asynchronously.
+     * Handle a command asynchronously and produce multiple events
      *
      * @param state   The current state object.
      * @param command The command object to handle.
-     * @return The event as a result of the handled command (optional).
+     * @return A callable for a collection of events as a result of the handled command (optional).
      */
     Callable<Collection<E>> handle(S state, C command);
 

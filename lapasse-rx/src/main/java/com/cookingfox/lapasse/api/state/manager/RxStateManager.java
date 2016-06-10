@@ -4,10 +4,9 @@ import com.cookingfox.lapasse.api.state.State;
 import com.cookingfox.lapasse.api.state.observer.RxStateObserver;
 
 /**
- * Manages the state object.
+ * Extends the state manager with Rx functionality.
  *
  * @param <S> The concrete type of the state object.
  */
 public interface RxStateManager<S extends State> extends RxStateObserver<S>, StateManager<S> {
-
 }

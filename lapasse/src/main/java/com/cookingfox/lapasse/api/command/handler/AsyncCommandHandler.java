@@ -7,7 +7,7 @@ import com.cookingfox.lapasse.api.state.State;
 import java.util.concurrent.Callable;
 
 /**
- * Command handler that handles its command asynchronously.
+ * Command handler that handles its command asynchronously and produces zero or one event.
  *
  * @param <S> The concrete type of the state object.
  * @param <C> The concrete command type that this handler will handle.

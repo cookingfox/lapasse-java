@@ -3,7 +3,6 @@ package com.cookingfox.lapasse.impl.facade;
 import com.cookingfox.lapasse.api.command.bus.CommandBus;
 import com.cookingfox.lapasse.api.command.bus.RxCommandBus;
 import com.cookingfox.lapasse.api.event.bus.EventBus;
-import com.cookingfox.lapasse.api.facade.Facade;
 import com.cookingfox.lapasse.api.facade.RxFacade;
 import com.cookingfox.lapasse.api.logging.LoggerCollection;
 import com.cookingfox.lapasse.api.message.store.MessageStore;
@@ -17,7 +16,7 @@ import com.cookingfox.lapasse.impl.state.manager.DefaultRxStateManager;
 import rx.Observable;
 
 /**
- * Implementation of {@link Facade}, containing a Builder class.
+ * Implementation of {@link RxFacade}, containing a Builder class.
  *
  * @param <S> The concrete type of the state object.
  */
@@ -47,6 +46,9 @@ public class LaPasseRxFacade<S extends State> extends LaPasseFacade<S> implement
     // PROTECTED METHODS
     //----------------------------------------------------------------------------------------------
 
+    /**
+     * @return The state observer as Rx state observer.
+     */
     protected RxStateObserver<S> getRxStateObserver() {
         return (RxStateObserver<S>) stateObserver;
     }

@@ -53,6 +53,14 @@ public class DefaultRxStateManager<S extends State>
                             public S getState() {
                                 return state;
                             }
+
+                            @Override
+                            public String toString() {
+                                return "StateChanged{" +
+                                        "state=" + state +
+                                        ", event=" + event +
+                                        '}';
+                            }
                         });
                     }
                 };
