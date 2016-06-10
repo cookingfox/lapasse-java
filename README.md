@@ -11,7 +11,7 @@ LaPasse requires at minimum Java 7.
 ## Download
 
 [![Download](https://api.bintray.com/packages/cookingfox/maven/lapasse-java/images/download.svg)](https://bintray.com/cookingfox/maven/lapasse-java/_latestVersion)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.cookingfox/lapasse-java/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.cookingfox/lapasse-java)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.cookingfox/lapasse/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.cookingfox/lapasse)
 
 The distribution is hosted on [Bintray](https://bintray.com/cookingfox/maven/lapasse-java/view).
 To include the package in your projects, you can add the jCenter repository.
