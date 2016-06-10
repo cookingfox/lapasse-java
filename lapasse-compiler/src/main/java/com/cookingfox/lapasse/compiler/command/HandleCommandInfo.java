@@ -56,6 +56,8 @@ public class HandleCommandInfo extends AbstractHandleCommand {
 
     /**
      * WARNING: this will throw if the return type is void.
+     *
+     * @return The event name.
      */
     public TypeName getEventName() {
         return returns.getEventName();

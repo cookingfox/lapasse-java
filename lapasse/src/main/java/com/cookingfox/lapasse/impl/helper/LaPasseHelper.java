@@ -41,9 +41,11 @@ public final class LaPasseHelper {
      * @param origin The class containing the annotations.
      * @param facade The LaPasse facade to map handlers to.
      * @param <T>    Indicates the origin type.
-     * @throws NoGeneratedClassException
-     * @throws GeneratedConstructorNotFoundException
-     * @throws HandlerMapperInstantiationException
+     * @throws NoGeneratedClassException             when no generated class exists for this origin.
+     * @throws GeneratedConstructorNotFoundException when the expected generated constructor was not
+     *                                               found.
+     * @throws HandlerMapperInstantiationException   when an error occurs during the instantiation
+     *                                               of the HandlerMapper.
      */
     public static <T> void mapHandlers(T origin, Facade<? extends State> facade) {
         Objects.requireNonNull(origin, "Origin can not be null");
@@ -73,7 +75,8 @@ public final class LaPasseHelper {
      * @param origin      The annotated class to pass to the constructor.
      * @param facade      The facade to pass to the constructor.
      * @return A HandlerMapper instance.
-     * @throws HandlerMapperInstantiationException
+     * @throws HandlerMapperInstantiationException when an error occurs during the instantiation of
+     *                                             the HandlerMapper.
      */
     protected static HandlerMapper createHandlerMapperInstance(
             Constructor<? extends HandlerMapper> constructor, Object origin, Facade facade) {
@@ -89,7 +92,7 @@ public final class LaPasseHelper {
      *
      * @param fqcn Fully-Qualified Class Name.
      * @return The handler mapper class.
-     * @throws NoGeneratedClassException
+     * @throws NoGeneratedClassException when no generated class exists for this FQCN.
      */
     protected static Class<? extends HandlerMapper> getHandlerMapperClass(String fqcn) {
         try {
@@ -106,7 +109,8 @@ public final class LaPasseHelper {
      * @param handlerMapperClass HandlerMapper class.
      * @param originClass        The class containing the annotations.
      * @return The generated HandlerMapper constructor.
-     * @throws HandlerMapperInstantiationException
+     * @throws GeneratedConstructorNotFoundException when the expected generated constructor was not
+     *                                               found.
      */
     protected static Constructor<? extends HandlerMapper> getHandlerMapperConstructor(
             Class<? extends HandlerMapper> handlerMapperClass, Class<?> originClass) {

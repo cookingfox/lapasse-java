@@ -102,7 +102,7 @@ public abstract class AbstractMessageBus<M extends Message, H extends MessageHan
      *
      * @param messageClass The message class to get handlers for.
      * @return The handlers for this message class.
-     * @throws NoMessageHandlersException
+     * @throws NoMessageHandlersException when no handlers are mapped for this message.
      */
     protected Set<H> getMessageHandlers(Class<? extends Message> messageClass) {
         // noinspection SuspiciousMethodCalls
