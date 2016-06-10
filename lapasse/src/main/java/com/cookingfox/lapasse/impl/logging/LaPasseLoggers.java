@@ -24,7 +24,7 @@ public class LaPasseLoggers<S extends State> implements LoggerCollection<S> {
     /**
      * Set of unique command logger instances.
      */
-    protected final Set<CommandLogger<S>> commandLoggers = new LinkedHashSet<>();
+    protected final Set<CommandLogger> commandLoggers = new LinkedHashSet<>();
 
     /**
      * Set of unique event logger instances.
@@ -36,7 +36,7 @@ public class LaPasseLoggers<S extends State> implements LoggerCollection<S> {
     //----------------------------------------------------------------------------------------------
 
     @Override
-    public void addCommandLogger(CommandLogger<S> logger) {
+    public void addCommandLogger(CommandLogger logger) {
         commandLoggers.add(Objects.requireNonNull(logger, "Logger can not be null"));
     }
 
@@ -46,14 +46,14 @@ public class LaPasseLoggers<S extends State> implements LoggerCollection<S> {
             throw new NoRegisteredCommandErrorHandlerException(error, command);
         }
 
-        for (CommandLogger<S> logger : commandLoggers) {
+        for (CommandLogger logger : commandLoggers) {
             logger.onCommandHandlerError(error, command, events);
         }
     }
 
     @Override
     public void onCommandHandlerResult(Command command, Event... events) {
-        for (CommandLogger<S> logger : commandLoggers) {
+        for (CommandLogger logger : commandLoggers) {
             logger.onCommandHandlerResult(command, events);
         }
     }

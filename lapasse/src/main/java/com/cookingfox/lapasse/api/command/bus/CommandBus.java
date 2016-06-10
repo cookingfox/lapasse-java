@@ -13,7 +13,7 @@ import java.util.concurrent.ExecutorService;
  *
  * @param <S> The concrete type of the state object.
  */
-public interface CommandBus<S extends State> extends CommandLoggerAware<S> {
+public interface CommandBus<S extends State> extends CommandLoggerAware {
 
     /**
      * Execute the command handler that is mapped to this command type. Throws if no handler is

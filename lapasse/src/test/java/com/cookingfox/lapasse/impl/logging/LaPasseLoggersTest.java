@@ -44,7 +44,7 @@ public class LaPasseLoggersTest {
         final AtomicBoolean commandErrorCalled = new AtomicBoolean(false);
         final AtomicBoolean commandResultCalled = new AtomicBoolean(false);
 
-        loggers.addCommandLogger(new CommandLogger<CountState>() {
+        loggers.addCommandLogger(new CommandLogger() {
             @Override
             public void onCommandHandlerError(Throwable error, Command command, Event... events) {
                 commandErrorCalled.set(true);

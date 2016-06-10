@@ -2,14 +2,11 @@ package com.cookingfox.lapasse.api.command.logging;
 
 import com.cookingfox.lapasse.api.command.Command;
 import com.cookingfox.lapasse.api.event.Event;
-import com.cookingfox.lapasse.api.state.State;
 
 /**
  * Contains methods for logging command handling.
- *
- * @param <S> The concrete type of the state object.
  */
-public interface CommandLogger<S extends State> {
+public interface CommandLogger {
 
     /**
      * Called when an error occurs during the handling of a command.

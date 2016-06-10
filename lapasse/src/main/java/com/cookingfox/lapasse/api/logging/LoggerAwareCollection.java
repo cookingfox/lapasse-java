@@ -10,5 +10,5 @@ import com.cookingfox.lapasse.api.state.State;
  * @param <S> The concrete type of the state object.
  */
 public interface LoggerAwareCollection<S extends State> extends
-        CombinedLoggerAware<S>, CommandLoggerAware<S>, EventLoggerAware<S> {
+        CombinedLoggerAware<S>, CommandLoggerAware, EventLoggerAware<S> {
 }

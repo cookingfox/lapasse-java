@@ -9,5 +9,5 @@ import com.cookingfox.lapasse.api.state.State;
  *
  * @param <S> The concrete type of the state object.
  */
-public interface CombinedLogger<S extends State> extends CommandLogger<S>, EventLogger<S> {
+public interface CombinedLogger<S extends State> extends CommandLogger, EventLogger<S> {
 }

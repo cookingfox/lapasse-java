@@ -93,7 +93,7 @@ public class DefaultCommandBus<S extends State>
     //----------------------------------------------------------------------------------------------
 
     @Override
-    public void addCommandLogger(CommandLogger<S> logger) {
+    public void addCommandLogger(CommandLogger logger) {
         loggers.addCommandLogger(logger);
     }
 

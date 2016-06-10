@@ -65,7 +65,7 @@ public class LaPasseFacade<S extends State> implements Facade<S> {
     //----------------------------------------------------------------------------------------------
 
     @Override
-    public void addCommandLogger(CommandLogger<S> logger) {
+    public void addCommandLogger(CommandLogger logger) {
         commandBus.addCommandLogger(logger);
     }
 
