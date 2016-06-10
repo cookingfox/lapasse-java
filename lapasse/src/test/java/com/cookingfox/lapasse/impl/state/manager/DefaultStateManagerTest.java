@@ -3,8 +3,8 @@ package com.cookingfox.lapasse.impl.state.manager;
 import com.cookingfox.lapasse.api.event.Event;
 import com.cookingfox.lapasse.api.exception.NotSubscribedException;
 import com.cookingfox.lapasse.api.state.observer.OnStateChanged;
-import fixtures.event.FixtureCountIncremented;
-import fixtures.state.FixtureState;
+import fixtures.event.CountIncremented;
+import fixtures.state.CountState;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -22,12 +22,12 @@ public class DefaultStateManagerTest {
     // TEST SETUP
     //----------------------------------------------------------------------------------------------
 
-    private FixtureState initialState;
-    private DefaultStateManager<FixtureState> stateManager;
+    private CountState initialState;
+    private DefaultStateManager<CountState> stateManager;
 
     @Before
     public void setUp() throws Exception {
-        initialState = new FixtureState(0);
+        initialState = new CountState(0);
         stateManager = new DefaultStateManager<>(initialState);
     }
 
@@ -46,11 +46,11 @@ public class DefaultStateManagerTest {
 
     @Test
     public void getCurrentState_should_return_current_state() throws Exception {
-        FixtureState currentState = stateManager.getCurrentState();
+        CountState currentState = stateManager.getCurrentState();
 
         assertEquals(initialState, currentState);
 
-        FixtureState newState = new FixtureState(1);
+        CountState newState = new CountState(1);
 
         // manually set new current state
         stateManager.currentState = newState;
@@ -66,47 +66,47 @@ public class DefaultStateManagerTest {
 
     @Test(expected = NullPointerException.class)
     public void handleNewState_should_throw_if_state_null() throws Exception {
-        stateManager.handleNewState(null, new FixtureCountIncremented(1));
+        stateManager.handleNewState(null, new CountIncremented(1));
     }
 
     @Test(expected = NullPointerException.class)
     public void handleNewState_should_throw_if_event_null() throws Exception {
-        stateManager.handleNewState(new FixtureState(1), null);
+        stateManager.handleNewState(new CountState(1), null);
     }
 
     @Test
     public void handleNewState_should_not_set_current_state_if_not_changed() throws Exception {
-        FixtureState newState = new FixtureState(0);
+        CountState newState = new CountState(0);
 
-        stateManager.handleNewState(newState, new FixtureCountIncremented(0));
+        stateManager.handleNewState(newState, new CountIncremented(0));
 
         assertNotSame(newState, stateManager.currentState);
     }
 
     @Test
     public void handleNewState_should_set_current_state_if_changed() throws Exception {
-        FixtureState newState = new FixtureState(1);
+        CountState newState = new CountState(1);
 
-        stateManager.handleNewState(newState, new FixtureCountIncremented(1));
+        stateManager.handleNewState(newState, new CountIncremented(1));
 
         assertSame(newState, stateManager.currentState);
     }
 
     @Test
     public void handleNewState_should_notify_subscribers() throws Exception {
-        final AtomicReference<FixtureState> subscriberState = new AtomicReference<>();
+        final AtomicReference<CountState> subscriberState = new AtomicReference<>();
         final AtomicReference<Event> subscriberEvent = new AtomicReference<>();
 
-        stateManager.subscribe(new OnStateChanged<FixtureState>() {
+        stateManager.subscribe(new OnStateChanged<CountState>() {
             @Override
-            public void onStateChanged(FixtureState state, Event event) {
+            public void onStateChanged(CountState state, Event event) {
                 subscriberState.set(state);
                 subscriberEvent.set(event);
             }
         });
 
-        FixtureState newState = new FixtureState(1);
-        FixtureCountIncremented event = new FixtureCountIncremented(1);
+        CountState newState = new CountState(1);
+        CountIncremented event = new CountIncremented(1);
 
         stateManager.handleNewState(newState, event);
 
@@ -134,9 +134,9 @@ public class DefaultStateManagerTest {
 
     @Test(expected = NotSubscribedException.class)
     public void unsubscribe_should_throw_if_not_subscribed() throws Exception {
-        stateManager.unsubscribe(new OnStateChanged<FixtureState>() {
+        stateManager.unsubscribe(new OnStateChanged<CountState>() {
             @Override
-            public void onStateChanged(FixtureState state, Event event) {
+            public void onStateChanged(CountState state, Event event) {
                 // ignore
             }
         });
@@ -146,16 +146,16 @@ public class DefaultStateManagerTest {
     public void unsubscribe_should_remove_subscriber() throws Exception {
         final AtomicBoolean called = new AtomicBoolean(false);
 
-        OnStateChanged<FixtureState> subscriber = new OnStateChanged<FixtureState>() {
+        OnStateChanged<CountState> subscriber = new OnStateChanged<CountState>() {
             @Override
-            public void onStateChanged(FixtureState state, Event event) {
+            public void onStateChanged(CountState state, Event event) {
                 called.set(true);
             }
         };
 
         stateManager.subscribe(subscriber);
         stateManager.unsubscribe(subscriber);
-        stateManager.handleNewState(new FixtureState(1), new FixtureCountIncremented(1));
+        stateManager.handleNewState(new CountState(1), new CountIncremented(1));
 
         assertFalse(called.get());
     }

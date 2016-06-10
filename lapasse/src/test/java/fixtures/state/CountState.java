@@ -1,15 +1,15 @@
-package fixtures.command;
+package fixtures.state;
 
-import com.cookingfox.lapasse.api.command.Command;
+import com.cookingfox.lapasse.api.state.State;
 
 /**
- * Fixture command: increment count.
+ * Fixture state: count value.
  */
-public class FixtureIncrementCount implements Command {
+public final class CountState implements State {
 
     public final int count;
 
-    public FixtureIncrementCount(int count) {
+    public CountState(int count) {
         this.count = count;
     }
 
@@ -18,7 +18,7 @@ public class FixtureIncrementCount implements Command {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        FixtureIncrementCount that = (FixtureIncrementCount) o;
+        CountState that = (CountState) o;
 
         return count == that.count;
     }
@@ -30,7 +30,7 @@ public class FixtureIncrementCount implements Command {
 
     @Override
     public String toString() {
-        return "FixtureIncrementCount{" +
+        return "CountState{" +
                 "count=" + count +
                 '}';
     }

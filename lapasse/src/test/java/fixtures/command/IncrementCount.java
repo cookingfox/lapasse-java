@@ -1,15 +1,15 @@
-package fixtures.event;
+package fixtures.command;
 
-import com.cookingfox.lapasse.api.event.Event;
+import com.cookingfox.lapasse.api.command.Command;
 
 /**
- * Fixture event: count incremented.
+ * Fixture command: increment count.
  */
-public class FixtureCountIncremented implements Event {
+public class IncrementCount implements Command {
 
     public final int count;
 
-    public FixtureCountIncremented(int count) {
+    public IncrementCount(int count) {
         this.count = count;
     }
 
@@ -18,7 +18,7 @@ public class FixtureCountIncremented implements Event {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        FixtureCountIncremented that = (FixtureCountIncremented) o;
+        IncrementCount that = (IncrementCount) o;
 
         return count == that.count;
     }
@@ -30,7 +30,7 @@ public class FixtureCountIncremented implements Event {
 
     @Override
     public String toString() {
-        return "FixtureCountIncremented{" +
+        return "IncrementCount{" +
                 "count=" + count +
                 '}';
     }

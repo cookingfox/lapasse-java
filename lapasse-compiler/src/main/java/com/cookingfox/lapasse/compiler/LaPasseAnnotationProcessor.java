@@ -7,6 +7,7 @@ import com.cookingfox.lapasse.api.event.handler.EventHandler;
 import com.cookingfox.lapasse.api.facade.Facade;
 import com.cookingfox.lapasse.compiler.command.HandleCommandInfo;
 import com.cookingfox.lapasse.compiler.event.HandleEventInfo;
+import com.cookingfox.lapasse.impl.helper.LaPasseHelper;
 import com.cookingfox.lapasse.impl.internal.HandlerMapper;
 import com.squareup.javapoet.*;
 
@@ -26,7 +27,9 @@ import java.util.*;
  */
 public class LaPasseAnnotationProcessor extends AbstractProcessor {
 
-    public static final String CLASS_SUFFIX = "$$LaPasseGenerated";
+    //----------------------------------------------------------------------------------------------
+    // CONSTANTS
+    //----------------------------------------------------------------------------------------------
 
     private static final String FIELD_PREFIX = "_";
     private static final String METHOD_HANDLE = "handle";
@@ -36,6 +39,10 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
     private static final String VAR_ORIGIN = "origin";
     private static final String VAR_STATE = "state";
 
+    //----------------------------------------------------------------------------------------------
+    // PROPERTIES
+    //----------------------------------------------------------------------------------------------
+
     private Elements elements;
     private Filer filer;
     private Messager messager;
@@ -43,15 +50,6 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
     //----------------------------------------------------------------------------------------------
     // PUBLIC METHODS
     //----------------------------------------------------------------------------------------------
-
-    @Override
-    public synchronized void init(ProcessingEnvironment processingEnv) {
-        super.init(processingEnv);
-
-        elements = processingEnv.getElementUtils();
-        filer = processingEnv.getFiler();
-        messager = processingEnv.getMessager();
-    }
 
     @Override
     public Set<String> getSupportedAnnotationTypes() {
@@ -64,6 +62,15 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
     @Override
     public SourceVersion getSupportedSourceVersion() {
         return SourceVersion.latestSupported();
+    }
+
+    @Override
+    public synchronized void init(ProcessingEnvironment processingEnv) {
+        super.init(processingEnv);
+
+        elements = processingEnv.getElementUtils();
+        filer = processingEnv.getFiler();
+        messager = processingEnv.getMessager();
     }
 
     @Override
@@ -104,7 +111,8 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
             String originClassName = getClassName(origin, packageName);
 
             // create new class name
-            ClassName className = ClassName.get(packageName, originClassName + CLASS_SUFFIX);
+            String generatedClassName = originClassName + LaPasseHelper.GENERATED_SUFFIX;
+            ClassName className = ClassName.get(packageName, generatedClassName);
 
             //--------------------------------------------------------------------------------------
             // CREATE CLASS SPECIFICATION
