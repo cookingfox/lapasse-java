@@ -31,7 +31,7 @@ and add the project to the `dependencies` block in your `build.gradle`:
 
 ```groovy
 dependencies {
-    compile 'com.cookingfox:lapasse:0.2.0'
+    compile 'com.cookingfox:lapasse:0.3.0'
 }
 ```
 
@@ -48,12 +48,17 @@ Add jCenter to your repositories in `pom.xml` or `settings.xml`:
 </repositories>
 ```
 
-and add the project declaration to your `pom.xml`:
+and add the project to the `dependencies` block in your `pom.xml`:
 
 ```xml
 <dependency>
     <groupId>com.cookingfox</groupId>
     <artifactId>lapasse</artifactId>
-    <version>0.2.0</version>
+    <version>0.3.0</version>
 </dependency>
 ```
+
+### Rx extension
+
+There is also an [RxJava](https://github.com/ReactiveX/RxJava) extension for the library. To
+download it, replace `lapasse` with `lapasse-rx` in the above dependency declarations.
