@@ -13,8 +13,8 @@
     </parent>
 
     <!-- Maven info -->
-    <artifactId>lapasse-compiler</artifactId>
-    <name>LaPasse Compiler (annotation processor)</name>
+    <artifactId>lapasse-rx</artifactId>
+    <name>LaPasse Rx</name>
 
     <!-- Dependencies -->
     <dependencies>
@@ -23,44 +23,24 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>lapasse-rx</artifactId>
+            <artifactId>lapasse</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <!-- Library dependencies -->
 
         <dependency>
-            <groupId>com.google.auto.service</groupId>
-            <artifactId>auto-service</artifactId>
-            <version>1.0-rc2</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.squareup</groupId>
-            <artifactId>javapoet</artifactId>
-            <version>1.7.0</version>
+            <groupId>io.reactivex</groupId>
+            <artifactId>rxjava</artifactId>
+            <version>1.1.5</version>
         </dependency>
 
         <!-- Test dependencies -->
 
         <dependency>
-            <groupId>com.google.testing.compile</groupId>
-            <artifactId>compile-testing</artifactId>
-            <version>0.9</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>${junit.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.google.truth</groupId>
-            <artifactId>truth</artifactId>
-            <version>0.28</version>
             <scope>test</scope>
         </dependency>
 

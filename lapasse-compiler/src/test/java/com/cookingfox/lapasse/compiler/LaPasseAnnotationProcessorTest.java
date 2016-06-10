@@ -3,6 +3,7 @@ package com.cookingfox.lapasse.compiler;
 import com.cookingfox.lapasse.impl.helper.LaPasseHelper;
 import com.google.testing.compile.JavaFileObjects;
 import org.junit.Test;
+import rx.Observable;
 
 import javax.tools.JavaFileObject;
 
@@ -348,6 +349,154 @@ public class LaPasseAnnotationProcessorTest {
                 "    final AsyncMultiCommandHandler<CountState, IncrementCount, CountIncremented> _1 = new AsyncMultiCommandHandler<CountState, IncrementCount, CountIncremented>() {",
                 "        @Override",
                 "        public Callable<Collection<CountIncremented>> handle(CountState state, IncrementCount command) {",
+                "            return origin.handle(state, command);",
+                "        }",
+                "    };",
+                "",
+                "    public Test$$LaPasseGenerated(T origin, Facade facade) {",
+                "        this.origin = origin;",
+                "        this.facade = facade;",
+                "    }",
+                "",
+                "    @Override",
+                "    public void mapHandlers() {",
+                "        facade.mapCommandHandler(IncrementCount.class, _1);",
+                "    }",
+                "}"
+        );
+
+        assertAbout(javaSource()).that(source)
+                .processedWith(new LaPasseAnnotationProcessor())
+                .compilesWithoutError()
+                .and()
+                .generatesSources(expected);
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // RX COMMAND HANDLER
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void rx_command_handler() throws Exception {
+        String sourceFqcn = "test.Test";
+        String expectedFqcn = sourceFqcn + LaPasseHelper.GENERATED_SUFFIX;
+
+        JavaFileObject source = JavaFileObjects.forSourceLines(sourceFqcn,
+                "package test;",
+                "",
+                "import com.cookingfox.lapasse.annotation.HandleCommand;",
+                "import fixtures.example.command.IncrementCount;",
+                "import fixtures.example.event.CountIncremented;",
+                "import fixtures.example.state.CountState;",
+                "import rx.Observable;",
+                "",
+                "public class Test {",
+                "    @HandleCommand",
+                "    public Observable<CountIncremented> handle(CountState state, final IncrementCount command) {",
+                "        return new Callable<CountIncremented>() {",
+                "            @Override",
+                "            public CountIncremented call() throws Exception {",
+                "                return Observable.just(command.getCount());",
+                "            }",
+                "        };",
+                "    }",
+                "}"
+        );
+
+        JavaFileObject expected = JavaFileObjects.forSourceLines(expectedFqcn,
+                "// Generated code from LaPasse - do not modify!",
+                "package test;",
+                "",
+                "import com.cookingfox.lapasse.api.command.handler.RxCommandHandler;",
+                "import com.cookingfox.lapasse.api.facade.Facade;",
+                "import com.cookingfox.lapasse.impl.internal.HandlerMapper;",
+                "import fixtures.example.command.IncrementCount;",
+                "import fixtures.example.event.CountIncremented;",
+                "import fixtures.example.state.CountState;",
+                "import java.lang.Override;",
+                "import rx.Observable;",
+                "",
+                "public class Test$$LaPasseGenerated<T extends Test> implements HandlerMapper {",
+                "    final T origin;",
+                "",
+                "    final Facade facade;",
+                "",
+                "    final RxCommandHandler<CountState, IncrementCount, CountIncremented> _1 = new RxCommandHandler<CountState, IncrementCount, CountIncremented>() {",
+                "        @Override",
+                "        public Observable<CountIncremented> handle(CountState state, IncrementCount command) {",
+                "            return origin.handle(state, command);",
+                "        }",
+                "    };",
+                "",
+                "    public Test$$LaPasseGenerated(T origin, Facade facade) {",
+                "        this.origin = origin;",
+                "        this.facade = facade;",
+                "    }",
+                "",
+                "    @Override",
+                "    public void mapHandlers() {",
+                "        facade.mapCommandHandler(IncrementCount.class, _1);",
+                "    }",
+                "}"
+        );
+
+        assertAbout(javaSource()).that(source)
+                .processedWith(new LaPasseAnnotationProcessor())
+                .compilesWithoutError()
+                .and()
+                .generatesSources(expected);
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // ASYNC MULTI COMMAND HANDLER
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void rx_multi_command_handler() throws Exception {
+        String sourceFqcn = "test.Test";
+        String expectedFqcn = sourceFqcn + LaPasseHelper.GENERATED_SUFFIX;
+
+        JavaFileObject source = JavaFileObjects.forSourceLines(sourceFqcn,
+                "package test;",
+                "",
+                "import com.cookingfox.lapasse.annotation.HandleCommand;",
+                "import fixtures.example.command.IncrementCount;",
+                "import fixtures.example.event.CountIncremented;",
+                "import fixtures.example.state.CountState;",
+                "import java.util.Arrays;",
+                "import java.util.Collection;",
+                "import rx.Observable;",
+                "",
+                "public class Test {",
+                "    @HandleCommand",
+                "    public Observable<Collection<CountIncremented>> handle(CountState state, final IncrementCount command) {",
+                "        return Observable.just(Arrays.asList(new CountIncremented(command.getCount())));",
+                "    }",
+                "}"
+        );
+
+        JavaFileObject expected = JavaFileObjects.forSourceLines(expectedFqcn,
+                "// Generated code from LaPasse - do not modify!",
+                "package test;",
+                "",
+                "import com.cookingfox.lapasse.api.command.handler.RxMultiCommandHandler;",
+                "import com.cookingfox.lapasse.api.facade.Facade;",
+                "import com.cookingfox.lapasse.impl.internal.HandlerMapper;",
+                "import fixtures.example.command.IncrementCount;",
+                "import fixtures.example.event.CountIncremented;",
+                "import fixtures.example.state.CountState;",
+                "import java.lang.Override;",
+                "import java.util.Collection;",
+                "import rx.Observable;",
+                "",
+                "public class Test$$LaPasseGenerated<T extends Test> implements HandlerMapper {",
+                "    final T origin;",
+                "",
+                "    final Facade facade;",
+                "",
+                "    final RxMultiCommandHandler<CountState, IncrementCount, CountIncremented> _1 = new RxMultiCommandHandler<CountState, IncrementCount, CountIncremented>() {",
+                "        @Override",
+                "        public Observable<Collection<CountIncremented>> handle(CountState state, IncrementCount command) {",
                 "            return origin.handle(state, command);",
                 "        }",
                 "    };",

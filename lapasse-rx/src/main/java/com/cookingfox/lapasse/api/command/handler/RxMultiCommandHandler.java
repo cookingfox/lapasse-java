@@ -3,9 +3,9 @@ package com.cookingfox.lapasse.api.command.handler;
 import com.cookingfox.lapasse.api.command.Command;
 import com.cookingfox.lapasse.api.event.Event;
 import com.cookingfox.lapasse.api.state.State;
+import rx.Observable;
 
 import java.util.Collection;
-import java.util.concurrent.Callable;
 
 /**
  * Command handler that handles its command asynchronously and produces multiple events.
@@ -14,7 +14,7 @@ import java.util.concurrent.Callable;
  * @param <C> The concrete command type that this handler will handle.
  * @param <E> The concrete event type that this handler will produce.
  */
-public interface AsyncMultiCommandHandler<S extends State, C extends Command, E extends Event>
+public interface RxMultiCommandHandler<S extends State, C extends Command, E extends Event>
         extends MultiCommandHandler<S, C, E> {
 
     /**
@@ -24,6 +24,6 @@ public interface AsyncMultiCommandHandler<S extends State, C extends Command, E 
      * @param command The command object to handle.
      * @return The event as a result of the handled command (optional).
      */
-    Callable<Collection<E>> handle(S state, C command);
+    Observable<Collection<E>> handle(S state, C command);
 
 }

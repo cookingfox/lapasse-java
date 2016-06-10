@@ -17,7 +17,7 @@ public interface AsyncCommandHandler<S extends State, C extends Command, E exten
         extends CommandHandler<S, C, E> {
 
     /**
-     * Handle a command synchronously.
+     * Handle a command asynchronously.
      *
      * @param state   The current state object.
      * @param command The command object to handle.

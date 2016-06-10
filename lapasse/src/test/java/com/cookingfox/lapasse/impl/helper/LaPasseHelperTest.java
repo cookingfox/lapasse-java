@@ -35,7 +35,7 @@ public class LaPasseHelperTest {
 
     @Before
     public void setUp() throws Exception {
-        facade = LaPasseFacade.builder(new CountState(0)).build();
+        facade = new LaPasseFacade.Builder<>(new CountState(0)).build();
     }
 
     //----------------------------------------------------------------------------------------------

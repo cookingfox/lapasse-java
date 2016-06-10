@@ -15,7 +15,9 @@ import com.cookingfox.lapasse.api.state.observer.StateObserver;
 import com.cookingfox.lapasse.impl.message.bus.AbstractMessageBus;
 
 import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -28,6 +30,28 @@ import java.util.concurrent.Executors;
 public class DefaultCommandBus<S extends State>
         extends AbstractMessageBus<Command, CommandHandler<S, Command, Event>>
         implements CommandBus<S> {
+
+    //----------------------------------------------------------------------------------------------
+    // CONSTANTS
+    //----------------------------------------------------------------------------------------------
+
+    /**
+     * Set of supported command handlers.
+     */
+    protected static final Set<Class<? extends CommandHandler>> SUPPORTED = new LinkedHashSet<>();
+
+    static {
+        // add supported command handler implementations
+        SUPPORTED.add(VoidCommandHandler.class);
+        SUPPORTED.add(SyncCommandHandler.class);
+        SUPPORTED.add(SyncMultiCommandHandler.class);
+        SUPPORTED.add(AsyncCommandHandler.class);
+        SUPPORTED.add(AsyncMultiCommandHandler.class);
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // PROPERTIES
+    //----------------------------------------------------------------------------------------------
 
     /**
      * Executor service that runs the async command handlers.
@@ -79,7 +103,10 @@ public class DefaultCommandBus<S extends State>
     }
 
     @Override
-    public <C extends Command, E extends Event> void mapCommandHandler(Class<C> commandClass, CommandHandler<S, C, E> commandHandler) {
+    public <C extends Command, E extends Event> void mapCommandHandler(
+            Class<C> commandClass, CommandHandler<S, C, E> commandHandler) {
+        isCommandHandlerSupported(Objects.requireNonNull(commandHandler, "Command handler can not be null"));
+
         // noinspection unchecked
         mapMessageHandler((Class) commandClass, (CommandHandler) commandHandler);
     }
@@ -141,15 +168,11 @@ public class DefaultCommandBus<S extends State>
                 throw new UnsupportedCommandHandlerException(handler);
             }
         } catch (Exception e) {
-            loggers.onCommandHandlerError(e, command);
+            handleCommandHandlerResult(e, command, null);
             return;
         }
 
-        loggers.onCommandHandlerResult(command, event);
-
-        if (event != null) {
-            eventBus.handleEvent(event);
-        }
+        handleCommandHandlerResult(null, command, event);
     }
 
     /**
@@ -160,7 +183,7 @@ public class DefaultCommandBus<S extends State>
      * @param handler The handler to execute.
      */
     protected void executeMultiCommandHandler(S state, Command command, MultiCommandHandler<S, Command, Event> handler) {
-        Collection<Event> events = null;
+        Collection<Event> events;
 
         try {
             if (handler instanceof SyncMultiCommandHandler) {
@@ -172,7 +195,43 @@ public class DefaultCommandBus<S extends State>
                 throw new UnsupportedCommandHandlerException(handler);
             }
         } catch (Exception e) {
-            loggers.onCommandHandlerError(e, command);
+            handleMultiCommandHandlerResult(e, command, null);
+            return;
+        }
+
+        handleMultiCommandHandlerResult(null, command, events);
+    }
+
+    /**
+     * Returns the command handler executor. Creates a new single thread executor if it has not been
+     * set explicitly.
+     *
+     * @return The command handler executor.
+     */
+    protected ExecutorService getCommandHandlerExecutor() {
+        if (commandHandlerExecutor == null) {
+            commandHandlerExecutor = Executors.newSingleThreadExecutor();
+        }
+
+        return commandHandlerExecutor;
+    }
+
+    protected void handleCommandHandlerResult(Throwable error, Command command, Event event) {
+        if (error != null) {
+            loggers.onCommandHandlerError(error, command);
+            return;
+        }
+
+        loggers.onCommandHandlerResult(command, event);
+
+        if (event != null) {
+            eventBus.handleEvent(event);
+        }
+    }
+
+    protected void handleMultiCommandHandlerResult(Throwable error, Command command, Collection<Event> events) {
+        if (error != null) {
+            loggers.onCommandHandlerError(error, command);
             return;
         }
 
@@ -188,17 +247,21 @@ public class DefaultCommandBus<S extends State>
     }
 
     /**
-     * Returns the command handler executor. Creates a new single thread executor if it has not been
-     * set explicitly.
+     * Checks whether this command handler implementation is supported.
      *
-     * @return The command handler executor.
+     * @param commandHandler
+     * @param <C>
+     * @param <E>
      */
-    protected ExecutorService getCommandHandlerExecutor() {
-        if (commandHandlerExecutor == null) {
-            commandHandlerExecutor = Executors.newSingleThreadExecutor();
+    protected <C extends Command, E extends Event> void isCommandHandlerSupported(
+            CommandHandler<S, C, E> commandHandler) {
+        for (Class<? extends CommandHandler> supported : SUPPORTED) {
+            if (supported.isInstance(commandHandler)) {
+                return;
+            }
         }
 
-        return commandHandlerExecutor;
+        throw new UnsupportedCommandHandlerException(commandHandler);
     }
 
 }

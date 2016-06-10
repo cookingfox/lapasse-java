@@ -45,7 +45,7 @@ public class LaPasseFacadeTest {
             }
         };
 
-        LaPasseFacade<CountState> facade = LaPasseFacade.builder(new CountState(0)).build();
+        LaPasseFacade<CountState> facade = new LaPasseFacade.Builder<>(new CountState(0)).build();
 
         /* COMBINED LOGGER */
 
@@ -87,7 +87,7 @@ public class LaPasseFacadeTest {
 
     @Test
     public void builder_should_set_correct_defaults() throws Exception {
-        LaPasseFacade<CountState> facade = LaPasseFacade.builder(new CountState(0)).build();
+        LaPasseFacade<CountState> facade = new LaPasseFacade.Builder<>(new CountState(0)).build();
 
         assertTrue(facade.commandBus instanceof DefaultCommandBus);
         assertTrue(facade.eventBus instanceof DefaultEventBus);
@@ -104,7 +104,7 @@ public class LaPasseFacadeTest {
         EventBus<CountState> eventBus = new DefaultEventBus<>(messageStore, loggers, stateManager);
         CommandBus<CountState> commandBus = new DefaultCommandBus<>(messageStore, eventBus, loggers, stateManager);
 
-        LaPasseFacade<CountState> facade = LaPasseFacade.builder(initialState)
+        LaPasseFacade<CountState> facade = new LaPasseFacade.Builder<>(initialState)
                 .setCommandBus(commandBus)
                 .setEventBus(eventBus)
                 .setLoggers(loggers)

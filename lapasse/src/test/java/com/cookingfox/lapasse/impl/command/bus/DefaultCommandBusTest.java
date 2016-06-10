@@ -17,6 +17,7 @@ import fixtures.state.manager.FixtureStateManager;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.Callable;
@@ -346,6 +347,27 @@ public class DefaultCommandBusTest {
         ExecutorService executor = commandBus.getCommandHandlerExecutor();
 
         assertSame(customExecutor, executor);
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // TESTS: mapCommandHandler
+    //----------------------------------------------------------------------------------------------
+
+    @Test(expected = NullPointerException.class)
+    public void mapCommandHandler_should_throw_if_handler_null() throws Exception {
+        commandBus.mapCommandHandler(IncrementCount.class, null);
+    }
+
+    @Test(expected = UnsupportedCommandHandlerException.class)
+    public void mapCommandHandler_should_throw_if_implementation_unsupported() throws Exception {
+        commandBus.mapCommandHandler(IncrementCount.class, new CommandHandler<CountState, IncrementCount, Event>() {
+        });
+    }
+
+    @Test(expected = UnsupportedCommandHandlerException.class)
+    public void mapCommandHandler_should_throw_if_multi_implementation_unsupported() throws Exception {
+        commandBus.mapCommandHandler(IncrementCount.class, new MultiCommandHandler<CountState, IncrementCount, Event>() {
+        });
     }
 
     //----------------------------------------------------------------------------------------------
