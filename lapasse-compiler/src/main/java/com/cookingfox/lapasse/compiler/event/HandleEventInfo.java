@@ -1,5 +1,6 @@
 package com.cookingfox.lapasse.compiler.event;
 
+import com.cookingfox.lapasse.annotation.HandleEvent;
 import com.squareup.javapoet.TypeName;
 
 import javax.lang.model.element.Element;
@@ -7,14 +8,14 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Name;
 
 /**
- * Created by abeldebeer on 09/06/16.
+ * Provides information about a {@link HandleEvent} annotated element.
  */
 public class HandleEventInfo extends AbstractHandleEvent {
 
     protected ExecutableElement executableElement;
     protected final HandleEventFirstParam firstParam;
     protected final HandleEventGeneral general;
-    protected final HandleEventReturns returns;
+    protected final HandleEventReturnType returns;
     protected final HandleEventSecondParam secondParam;
 
     //----------------------------------------------------------------------------------------------
@@ -26,7 +27,7 @@ public class HandleEventInfo extends AbstractHandleEvent {
 
         firstParam = new HandleEventFirstParam(element);
         general = new HandleEventGeneral(element);
-        returns = new HandleEventReturns(element);
+        returns = new HandleEventReturnType(element);
         secondParam = new HandleEventSecondParam(element);
     }
 
@@ -92,7 +93,6 @@ public class HandleEventInfo extends AbstractHandleEvent {
         }
 
         if (secondParam.isValid()) {
-            // TODO: 09/06/16 Pass `firstParam` to `returns` so we can match the State implementation
             returns.process();
         }
     }

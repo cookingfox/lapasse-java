@@ -1,5 +1,6 @@
 package com.cookingfox.lapasse.compiler.event;
 
+import com.cookingfox.lapasse.annotation.HandleEvent;
 import com.cookingfox.lapasse.api.state.State;
 import com.squareup.javapoet.TypeName;
 
@@ -12,7 +13,7 @@ import java.util.List;
 import static com.cookingfox.lapasse.compiler.utils.TypeUtils.isSubtype;
 
 /**
- * Created by abeldebeer on 09/06/16.
+ * Processes the first parameter of a {@link HandleEvent} annotated method.
  */
 public class HandleEventFirstParam extends AbstractHandleEvent {
 
@@ -72,7 +73,7 @@ public class HandleEventFirstParam extends AbstractHandleEvent {
         }
     }
 
-    private boolean validateParamExists() {
+    protected boolean validateParamExists() {
         List<? extends VariableElement> parameters = executableElement.getParameters();
 
         if (parameters.size() > 0) {
@@ -84,7 +85,7 @@ public class HandleEventFirstParam extends AbstractHandleEvent {
         return false;
     }
 
-    private boolean validateParamExtendsState() {
+    protected boolean validateParamExtendsState() {
         return isSubtype(firstParam, State.class);
     }
 

@@ -1,5 +1,6 @@
 package com.cookingfox.lapasse.compiler.command;
 
+import com.cookingfox.lapasse.annotation.HandleCommand;
 import com.cookingfox.lapasse.api.state.State;
 import com.squareup.javapoet.TypeName;
 
@@ -12,7 +13,7 @@ import java.util.List;
 import static com.cookingfox.lapasse.compiler.utils.TypeUtils.isSubtype;
 
 /**
- * Created by abeldebeer on 09/06/16.
+ * Processes the first parameter of a {@link HandleCommand} annotated method.
  */
 public class HandleCommandFirstParam extends AbstractHandleCommand {
 
@@ -72,7 +73,7 @@ public class HandleCommandFirstParam extends AbstractHandleCommand {
         }
     }
 
-    private boolean validateParamExists() {
+    protected boolean validateParamExists() {
         List<? extends VariableElement> parameters = executableElement.getParameters();
 
         if (parameters.size() > 0) {
@@ -84,7 +85,7 @@ public class HandleCommandFirstParam extends AbstractHandleCommand {
         return false;
     }
 
-    private boolean validateParamExtendsState() {
+    protected boolean validateParamExtendsState() {
         return isSubtype(firstParam, State.class);
     }
 

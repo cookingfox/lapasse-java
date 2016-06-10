@@ -8,9 +8,9 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * Created by abeldebeer on 09/06/16.
+ * Manages parsed annotated method infomation for commands and events.
  */
-public class Registry {
+class Registry {
 
     private final Set<HandleCommandInfo> handleCommands = new LinkedHashSet<>();
     private final Set<HandleEventInfo> handleEvents = new LinkedHashSet<>();

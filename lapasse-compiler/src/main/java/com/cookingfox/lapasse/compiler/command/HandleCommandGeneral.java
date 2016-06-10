@@ -1,5 +1,7 @@
 package com.cookingfox.lapasse.compiler.command;
 
+import com.cookingfox.lapasse.annotation.HandleCommand;
+
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
@@ -8,7 +10,7 @@ import java.util.Arrays;
 import java.util.Collections;
 
 /**
- * Created by abeldebeer on 09/06/16.
+ * Performs general validation of a {@link HandleCommand} annotated element.
  */
 public class HandleCommandGeneral extends AbstractHandleCommand {
 

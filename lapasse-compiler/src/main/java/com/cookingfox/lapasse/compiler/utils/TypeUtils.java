@@ -8,17 +8,25 @@ import javax.lang.model.type.TypeMirror;
 import java.util.List;
 
 /**
- * Created by abeldebeer on 09/06/16.
+ * Utilities for working with types and elements from the {@link javax.lang.model} package.
  */
 public final class TypeUtils {
 
-    public static boolean firstArgIsSubType(TypeMirror typeMirror, Class otherType) {
+    /**
+     * Performs operations to determine whether the first argument (generic parameter) of `type` is
+     * a subtype of `otherType`.
+     *
+     * @param type      The parameterized type to validate.
+     * @param otherType The subtype.
+     * @return Whether the first argument (generic parameter) of `type` is a subtype of `otherType`.
+     */
+    public static boolean firstArgIsSubType(TypeMirror type, Class otherType) {
         // no: undeclared type (e.g. void)
-        if (typeMirror.getKind() != TypeKind.DECLARED) {
+        if (type.getKind() != TypeKind.DECLARED) {
             return false;
         }
 
-        DeclaredType declaredType = (DeclaredType) typeMirror;
+        DeclaredType declaredType = (DeclaredType) type;
         List<? extends TypeMirror> typeArguments = declaredType.getTypeArguments();
 
         // no: invalid arguments size
@@ -30,22 +38,36 @@ public final class TypeUtils {
         return isSubtype(typeArguments.get(0), otherType);
     }
 
-    public static boolean isSubtype(TypeMirror typeMirror, Class otherType) {
-        return isSubtype(typeMirror, otherType.getCanonicalName());
+    /**
+     * Performs operations to determine whether `type` is a subtype of `otherType`.
+     *
+     * @param type      The type to validate.
+     * @param otherType The subtype.
+     * @return Whether `type` is a subtype of `otherType`.
+     */
+    public static boolean isSubtype(TypeMirror type, Class otherType) {
+        return isSubtype(type, otherType.getCanonicalName());
     }
 
-    public static boolean isSubtype(TypeMirror typeMirror, String otherType) {
+    /**
+     * Performs operations to determine whether `type` is a subtype of `otherType`.
+     *
+     * @param type      The type to validate.
+     * @param otherType The subtype.
+     * @return Whether `type` is a subtype of `otherType`.
+     */
+    public static boolean isSubtype(TypeMirror type, String otherType) {
         // yes: same type
-        if (otherType.equals(typeMirror.toString())) {
+        if (otherType.equals(type.toString())) {
             return true;
         }
 
         // no: undeclared type (e.g. void)
-        if (typeMirror.getKind() != TypeKind.DECLARED) {
+        if (type.getKind() != TypeKind.DECLARED) {
             return false;
         }
 
-        DeclaredType declaredType = (DeclaredType) typeMirror;
+        DeclaredType declaredType = (DeclaredType) type;
         String typeString = declaredType.toString();
         int genericStartPos = typeString.indexOf('<');
 

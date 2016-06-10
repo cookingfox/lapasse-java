@@ -6,9 +6,9 @@ import com.cookingfox.lapasse.compiler.base.AbstractHandleAnnotation;
 import javax.lang.model.element.Element;
 
 /**
- * Created by abeldebeer on 09/06/16.
+ * Base class for {@link HandleEvent} annotation processing.
  */
-public abstract class AbstractHandleEvent extends AbstractHandleAnnotation {
+abstract class AbstractHandleEvent extends AbstractHandleAnnotation {
 
     protected static final String ANNOTATION = HandleEvent.class.getSimpleName();
 

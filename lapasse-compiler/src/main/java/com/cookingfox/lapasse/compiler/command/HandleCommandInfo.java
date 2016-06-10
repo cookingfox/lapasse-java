@@ -1,5 +1,6 @@
 package com.cookingfox.lapasse.compiler.command;
 
+import com.cookingfox.lapasse.annotation.HandleCommand;
 import com.squareup.javapoet.TypeName;
 
 import javax.lang.model.element.Element;
@@ -7,14 +8,14 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Name;
 
 /**
- * Created by abeldebeer on 09/06/16.
+ * Provides information about a {@link HandleCommand} annotated element.
  */
 public class HandleCommandInfo extends AbstractHandleCommand {
 
     protected ExecutableElement executableElement;
     protected final HandleCommandFirstParam firstParam;
     protected final HandleCommandGeneral general;
-    protected final HandleCommandReturns returns;
+    protected final HandleCommandReturnType returns;
     protected final HandleCommandSecondParam secondParam;
 
     //----------------------------------------------------------------------------------------------
@@ -26,14 +27,13 @@ public class HandleCommandInfo extends AbstractHandleCommand {
 
         firstParam = new HandleCommandFirstParam(element);
         general = new HandleCommandGeneral(element);
-        returns = new HandleCommandReturns(element);
+        returns = new HandleCommandReturnType(element);
         secondParam = new HandleCommandSecondParam(element);
     }
 
     //----------------------------------------------------------------------------------------------
     // PUBLIC METHODS
     //----------------------------------------------------------------------------------------------
-
 
     @Override
     public String getError() {

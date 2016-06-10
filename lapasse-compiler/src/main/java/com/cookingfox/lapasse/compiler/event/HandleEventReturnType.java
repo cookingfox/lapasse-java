@@ -1,5 +1,6 @@
 package com.cookingfox.lapasse.compiler.event;
 
+import com.cookingfox.lapasse.annotation.HandleEvent;
 import com.cookingfox.lapasse.api.state.State;
 
 import javax.lang.model.element.Element;
@@ -11,9 +12,9 @@ import javax.lang.model.type.TypeMirror;
 import static com.cookingfox.lapasse.compiler.utils.TypeUtils.isSubtype;
 
 /**
- * Created by abeldebeer on 09/06/16.
+ * Processes the return type of a {@link HandleEvent} annotated method.
  */
-public class HandleEventReturns extends AbstractHandleEvent {
+public class HandleEventReturnType extends AbstractHandleEvent {
 
     protected ExecutableElement executableElement;
     protected DeclaredType returnType;
@@ -25,7 +26,7 @@ public class HandleEventReturns extends AbstractHandleEvent {
     // CONSTRUCTOR
     //----------------------------------------------------------------------------------------------
 
-    public HandleEventReturns(Element element) {
+    public HandleEventReturnType(Element element) {
         super(element);
     }
 
@@ -68,7 +69,7 @@ public class HandleEventReturns extends AbstractHandleEvent {
         }
     }
 
-    private boolean validateReturnsState() {
+    protected boolean validateReturnsState() {
         return isSubtype(returnType, State.class);
     }
 
@@ -90,7 +91,7 @@ public class HandleEventReturns extends AbstractHandleEvent {
 
     @Override
     public String toString() {
-        return "HandleEventReturns{" +
+        return "HandleEventReturnType{" +
                 "isDeclaredType=" + isDeclaredType +
                 ", returnsState=" + returnsState +
                 '}';

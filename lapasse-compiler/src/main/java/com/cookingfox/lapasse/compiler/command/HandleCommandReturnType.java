@@ -1,5 +1,6 @@
 package com.cookingfox.lapasse.compiler.command;
 
+import com.cookingfox.lapasse.annotation.HandleCommand;
 import com.cookingfox.lapasse.api.event.Event;
 import com.squareup.javapoet.TypeName;
 
@@ -16,9 +17,9 @@ import static com.cookingfox.lapasse.compiler.utils.TypeUtils.firstArgIsSubType;
 import static com.cookingfox.lapasse.compiler.utils.TypeUtils.isSubtype;
 
 /**
- * Created by abeldebeer on 09/06/16.
+ * Processes the return type of a {@link HandleCommand} annotated method.
  */
-public class HandleCommandReturns extends AbstractHandleCommand {
+public class HandleCommandReturnType extends AbstractHandleCommand {
 
     protected TypeMirror eventType;
     protected ExecutableElement executableElement;
@@ -37,7 +38,7 @@ public class HandleCommandReturns extends AbstractHandleCommand {
     // CONSTRUCTOR
     //----------------------------------------------------------------------------------------------
 
-    public HandleCommandReturns(Element element) {
+    public HandleCommandReturnType(Element element) {
         super(element);
     }
 
@@ -138,7 +139,7 @@ public class HandleCommandReturns extends AbstractHandleCommand {
         return true;
     }
 
-    private void validateDeclaredReturnType() {
+    protected void validateDeclaredReturnType() {
         if (isSubtype(returnType, Event.class)) {
             returnsEvent = true;
             setEventTypeWith(returnType);
@@ -176,11 +177,11 @@ public class HandleCommandReturns extends AbstractHandleCommand {
         }
     }
 
-    private void setEventTypeWith(TypeMirror type) {
+    protected void setEventTypeWith(TypeMirror type) {
         eventType = type;
     }
 
-    private boolean validateReturnsVoid() {
+    protected boolean validateReturnsVoid() {
         return executableElement.getReturnType().getKind() == TypeKind.VOID;
     }
 
@@ -190,7 +191,7 @@ public class HandleCommandReturns extends AbstractHandleCommand {
 
     @Override
     public String toString() {
-        return "HandleCommandReturns{" +
+        return "HandleCommandReturnType{" +
                 "isDeclaredType=" + isDeclaredType +
                 ", returnsVoid=" + returnsVoid +
                 ", returnsEvent=" + returnsEvent +
