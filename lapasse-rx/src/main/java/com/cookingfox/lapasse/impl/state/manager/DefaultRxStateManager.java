@@ -74,6 +74,7 @@ public class DefaultRxStateManager<S extends State>
                 subscriber.add(Subscriptions.create(new Action0() {
                     @Override
                     public void call() {
+                        subscriber.onCompleted();
                         unsubscribe(listener);
                     }
                 }));

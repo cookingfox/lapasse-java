@@ -67,6 +67,7 @@ public class DefaultRxStateManagerTest {
 
         subscriber.assertNoErrors();
         subscriber.assertValueCount(0);
+        subscriber.assertCompleted();
         subscriber.assertUnsubscribed();
     }
 
