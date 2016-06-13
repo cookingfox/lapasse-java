@@ -1,5 +1,9 @@
 # LaPasse for Java: Change Log
 
+## [0.3.1](../../tree/0.3.1) (2016-06-13)
+
+- Fixes release tag name format.
+
 ## [0.3.0](../../tree/lapasse-parent-0.3.0) (2016-06-10)
 
 - Introduces Rx extension!

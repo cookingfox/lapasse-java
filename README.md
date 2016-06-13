@@ -31,7 +31,7 @@ and add the project to the `dependencies` block in your `build.gradle`:
 
 ```groovy
 dependencies {
-    compile 'com.cookingfox:lapasse:0.3.0'
+    compile 'com.cookingfox:lapasse:0.3.1'
 }
 ```
 
@@ -54,7 +54,7 @@ and add the project to the `dependencies` block in your `pom.xml`:
 <dependency>
     <groupId>com.cookingfox</groupId>
     <artifactId>lapasse</artifactId>
-    <version>0.3.0</version>
+    <version>0.3.1</version>
 </dependency>
 ```
 
