@@ -77,15 +77,15 @@ public class LaPasseRxFacade<S extends State> extends LaPasseFacade<S> implement
         //------------------------------------------------------------------------------------------
 
         @Override
-        protected CommandBus<S> createDefaultCommandBus(MessageStore messageStore,
-                                                        EventBus<S> eventBus,
-                                                        LoggerCollection<S> loggers,
-                                                        StateManager<S> stateManager) {
+        protected RxCommandBus<S> createDefaultCommandBus(MessageStore messageStore,
+                                                          EventBus<S> eventBus,
+                                                          LoggerCollection<S> loggers,
+                                                          StateManager<S> stateManager) {
             return new DefaultRxCommandBus<>(messageStore, eventBus, loggers, (RxStateManager<S>) stateManager);
         }
 
         @Override
-        protected StateManager<S> createDefaultStateManager(S initialState) {
+        protected RxStateManager<S> createDefaultStateManager(S initialState) {
             return new DefaultRxStateManager<>(initialState);
         }
 
@@ -108,6 +108,21 @@ public class LaPasseRxFacade<S extends State> extends LaPasseFacade<S> implement
             }
 
             return (LaPasseRxFacade.Builder<S>) super.setCommandBus(commandBus);
+        }
+
+        @Override
+        public LaPasseRxFacade.Builder<S> setEventBus(EventBus<S> eventBus) {
+            return (LaPasseRxFacade.Builder<S>) super.setEventBus(eventBus);
+        }
+
+        @Override
+        public LaPasseRxFacade.Builder<S> setLoggers(LoggerCollection<S> loggers) {
+            return (LaPasseRxFacade.Builder<S>) super.setLoggers(loggers);
+        }
+
+        @Override
+        public LaPasseRxFacade.Builder<S> setMessageStore(MessageStore messageStore) {
+            return (LaPasseRxFacade.Builder<S>) super.setMessageStore(messageStore);
         }
 
         @Override
