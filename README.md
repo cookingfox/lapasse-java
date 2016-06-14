@@ -5,7 +5,6 @@ CQRS and Redux inspired library for Java.
 LaPasse requires at minimum Java 7.
 
 [![Build Status](https://travis-ci.org/cookingfox/lapasse-java.svg?branch=master)](https://travis-ci.org/cookingfox/lapasse-java)
-[![Javadocs](http://www.javadoc.io/badge/com.cookingfox/lapasse-java.svg)](http://www.javadoc.io/doc/com.cookingfox/lapasse-java)
 
 ### _Note: proper documentation is in the works!_
 
@@ -63,3 +62,11 @@ and add the project to the `dependencies` block in your `pom.xml`:
 
 There is also an [RxJava](https://github.com/ReactiveX/RxJava) extension for the library. To
 download it, replace `lapasse` with `lapasse-rx` in the above dependency declarations.
+
+## Usage
+
+Javadocs:
+- LaPasse (core): [javadoc.io](http://www.javadoc.io/doc/com.cookingfox/lapasse/0.3.1).
+- LaPasse Rx extension: [javadoc.io](http://www.javadoc.io/doc/com.cookingfox/lapasse-rx/0.3.1).
+- LaPasse Compiler (annotation processor):
+[javadoc.io](http://www.javadoc.io/doc/com.cookingfox/lapasse-compiler/0.3.1).
