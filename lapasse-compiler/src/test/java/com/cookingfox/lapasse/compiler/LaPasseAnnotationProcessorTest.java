@@ -2,14 +2,9 @@ package com.cookingfox.lapasse.compiler;
 
 import com.cookingfox.lapasse.impl.helper.LaPasseHelper;
 import com.google.testing.compile.JavaFileObjects;
-import fixtures.example.event.CountIncremented;
 import org.junit.Test;
-import rx.Observable;
 
 import javax.tools.JavaFileObject;
-
-import java.util.Arrays;
-import java.util.Collection;
 
 import static com.google.common.truth.Truth.assertAbout;
 import static com.google.testing.compile.JavaSourceSubjectFactory.javaSource;
