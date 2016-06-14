@@ -1,5 +1,9 @@
 # LaPasse for Java: Change Log
 
+## [0.3.2](../../tree/0.3.2) (2016-06-14)
+
+- Adds Facade Delegate implementations.
+
 ## [0.3.1](../../tree/0.3.1) (2016-06-13)
 
 - Fixes release tag name format.
