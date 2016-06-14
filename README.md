@@ -65,8 +65,7 @@ download it, replace `lapasse` with `lapasse-rx` in the above dependency declara
 
 ## Usage
 
-Javadocs:
-- LaPasse (core): [javadoc.io](http://www.javadoc.io/doc/com.cookingfox/lapasse/0.3.1).
-- LaPasse Rx extension: [javadoc.io](http://www.javadoc.io/doc/com.cookingfox/lapasse-rx/0.3.1).
-- LaPasse Compiler (annotation processor):
-[javadoc.io](http://www.javadoc.io/doc/com.cookingfox/lapasse-compiler/0.3.1).
+Javadocs (hosted on javadoc.io):
+- [LaPasse (core)](http://www.javadoc.io/doc/com.cookingfox/lapasse/0.3.1).
+- [LaPasse Rx extension](http://www.javadoc.io/doc/com.cookingfox/lapasse-rx/0.3.1).
+- [LaPasse Compiler (annotation processor)](http://www.javadoc.io/doc/com.cookingfox/lapasse-compiler/0.3.1).
