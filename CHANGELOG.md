@@ -1,5 +1,9 @@
 # LaPasse for Java: Change Log
 
+## [0.3.3](../../tree/0.3.3) (2016-06-14)
+
+- Correct overridden return for `LaPasseRxFacade.Builder` methods.
+
 ## [0.3.2](../../tree/0.3.2) (2016-06-14)
 
 - Adds Facade Delegate implementations.
