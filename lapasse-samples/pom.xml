@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- Module parent -->
+    <parent>
+        <artifactId>lapasse-parent</artifactId>
+        <groupId>com.cookingfox</groupId>
+        <version>0.3.5-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <!-- Maven info -->
+    <artifactId>lapasse-samples</artifactId>
+    <name>LaPasse Samples</name>
+
+    <!-- Dependencies -->
+    <dependencies>
+
+        <!-- Module dependencies -->
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>lapasse-rx</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>lapasse-compiler</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>lapasse</artifactId>
+            <version>${project.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Test dependencies -->
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+            <version>${junit.version}</version>
+        </dependency>
+
+    </dependencies>
+
+    <!-- Build plugins -->
+    <build>
+
+        <pluginManagement>
+            <plugins>
+
+                <!-- Compiler configuration -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.5.1</version>
+                    <configuration>
+                        <source>${java.version}</source>
+                        <target>${java.version}</target>
+                        <!-- Enable annotation processing for samples -->
+                        <compilerArgument>-proc:only</compilerArgument>
+                    </configuration>
+                </plugin>
+
+            </plugins>
+        </pluginManagement>
+
+        <plugins>
+
+            <!-- Deploy -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>2.7</version>
+                <configuration>
+                    <!-- Do not deploy to maven -->
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+
+        </plugins>
+
+    </build>
+
+</project>

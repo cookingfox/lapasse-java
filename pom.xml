@@ -16,6 +16,7 @@
         <module>lapasse</module>
         <module>lapasse-compiler</module>
         <module>lapasse-rx</module>
+        <module>lapasse-samples</module>
     </modules>
 
     <!-- Properties -->
