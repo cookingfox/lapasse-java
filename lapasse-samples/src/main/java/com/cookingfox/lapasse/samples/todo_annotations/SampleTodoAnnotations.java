@@ -8,12 +8,10 @@ import com.cookingfox.lapasse.impl.facade.LaPasseFacade;
 import com.cookingfox.lapasse.samples.shared.todo.command.AddTask;
 import com.cookingfox.lapasse.samples.shared.todo.command.CompleteTask;
 import com.cookingfox.lapasse.samples.shared.todo.command.RemoveTask;
-import com.cookingfox.lapasse.samples.shared.todo.entity.Task;
 import com.cookingfox.lapasse.samples.shared.todo.event.TaskAdded;
 import com.cookingfox.lapasse.samples.shared.todo.state.TodoState;
 import com.cookingfox.lapasse.samples.todo_annotations.facade.TodoFacadeAnnotations;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.UUID;
 
@@ -32,7 +30,7 @@ public class SampleTodoAnnotations implements CombinedLogger<TodoState>, OnState
         System.out.println("SAMPLE: " + getClass().getSimpleName());
 
         // create initial state
-        TodoState initialState = new TodoState(new ArrayList<Task>());
+        TodoState initialState = TodoState.createInitialState();
 
         // create facade
         TodoFacadeAnnotations facade = new TodoFacadeAnnotations(new LaPasseFacade.Builder<>(initialState).build());

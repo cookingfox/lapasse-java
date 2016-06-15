@@ -35,6 +35,10 @@ public final class TodoState implements State {
         return tasks;
     }
 
+    public static TodoState createInitialState() {
+        return new TodoState(new ArrayList<Task>());
+    }
+
     @Override
     public boolean equals(Object o) {
         return o instanceof TodoState && o.hashCode() == hashCode();

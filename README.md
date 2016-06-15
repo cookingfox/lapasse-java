@@ -77,3 +77,6 @@ You can find the following sample applications in the [`lapasse-samples`](lapass
 uses the core LaPasse library (no extensions) and no annotations.
 - [TODO app with annotations](lapasse-samples/src/main/java/com/cookingfox/lapasse/samples/todo_annotations):
 uses the core LaPasse library (no extensions) and annotations.
+- [TODO app with Immutables](lapasse-samples/src/main/java/com/cookingfox/lapasse/samples/todo_immutables):
+uses the core LaPasse library (no extensions), annotations and
+[Immutables library](http://immutables.github.io/).

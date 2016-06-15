@@ -1,18 +1,20 @@
-package com.cookingfox.lapasse.samples.todo_annotations.facade;
+package com.cookingfox.lapasse.samples.todo_immutables.facade;
 
 import com.cookingfox.lapasse.annotation.HandleCommand;
 import com.cookingfox.lapasse.annotation.HandleEvent;
 import com.cookingfox.lapasse.api.facade.Facade;
 import com.cookingfox.lapasse.impl.facade.LaPasseFacadeDelegate;
 import com.cookingfox.lapasse.impl.helper.LaPasse;
-import com.cookingfox.lapasse.samples.shared.todo.command.AddTask;
-import com.cookingfox.lapasse.samples.shared.todo.command.CompleteTask;
-import com.cookingfox.lapasse.samples.shared.todo.command.RemoveTask;
-import com.cookingfox.lapasse.samples.shared.todo.entity.Task;
-import com.cookingfox.lapasse.samples.shared.todo.event.TaskAdded;
-import com.cookingfox.lapasse.samples.shared.todo.event.TaskCompleted;
-import com.cookingfox.lapasse.samples.shared.todo.event.TaskRemoved;
-import com.cookingfox.lapasse.samples.shared.todo.state.TodoState;
+import com.cookingfox.lapasse.samples.todo_immutables.command.AddTask;
+import com.cookingfox.lapasse.samples.todo_immutables.command.CompleteTask;
+import com.cookingfox.lapasse.samples.todo_immutables.command.RemoveTask;
+import com.cookingfox.lapasse.samples.todo_immutables.entity.Task;
+import com.cookingfox.lapasse.samples.todo_immutables.event.TaskAdded;
+import com.cookingfox.lapasse.samples.todo_immutables.event.TaskCompleted;
+import com.cookingfox.lapasse.samples.todo_immutables.event.TaskRemoved;
+import com.cookingfox.lapasse.samples.todo_immutables.state.TodoState;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Collections2;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,9 +23,9 @@ import java.util.UUID;
 /**
  * LaPasse {@link Facade} delegate containing the command and event handlers with annotations.
  */
-public final class TodoFacadeAnnotations extends LaPasseFacadeDelegate<TodoState> {
+public final class TodoFacadeImmutables extends LaPasseFacadeDelegate<TodoState> {
 
-    public TodoFacadeAnnotations(Facade<TodoState> facade) {
+    public TodoFacadeImmutables(Facade<TodoState> facade) {
         super(facade);
 
         // required to link annotated code to generated code
@@ -36,9 +38,13 @@ public final class TodoFacadeAnnotations extends LaPasseFacadeDelegate<TodoState
 
     @HandleCommand
     TaskAdded handle(TodoState state, AddTask command) {
-        Task task = new Task(UUID.randomUUID(), command.getText(), false);
+        Task task = new Task.Builder()
+                .id(UUID.randomUUID())
+                .text(command.getText())
+                .isCompleted(false)
+                .build();
 
-        return new TaskAdded(task);
+        return new TaskAdded.Builder().task(task).build();
     }
 
     @HandleEvent
@@ -46,7 +52,10 @@ public final class TodoFacadeAnnotations extends LaPasseFacadeDelegate<TodoState
         Collection<Task> tasks = new ArrayList<>(state.getTasks());
         tasks.add(event.getTask());
 
-        return new TodoState(tasks);
+        return TodoState.builder()
+                .from(state)
+                .tasks(tasks)
+                .build();
     }
 
     //----------------------------------------------------------------------------------------------
@@ -63,29 +72,33 @@ public final class TodoFacadeAnnotations extends LaPasseFacadeDelegate<TodoState
             return null;
         }
 
-        return new TaskCompleted(new Task(task.getId(), task.getText(), true));
+        Task completedTask = new Task.Builder()
+                .from(task)
+                .isCompleted(true)
+                .build();
+
+        return new TaskCompleted.Builder()
+                .task(completedTask)
+                .build();
     }
 
     @HandleEvent
     TodoState handle(TodoState state, TaskCompleted event) {
-        Task completedTask = event.getTask();
-        ArrayList<Task> tasks = new ArrayList<>(state.getTasks());
-        boolean replaced = false;
+        final Task completedTask = event.getTask();
 
-        for (Task task : tasks) {
-            if (task.getId().equals(completedTask.getId())) {
-                tasks.remove(task);
-                tasks.add(completedTask);
-                replaced = true;
-                break;
+        Collection<Task> tasks = new ArrayList<>(Collections2.filter(state.getTasks(), new Predicate<Task>() {
+            @Override
+            public boolean apply(Task task) {
+                return !task.getId().equals(completedTask.getId());
             }
-        }
+        }));
 
-        if (!replaced) {
-            new Exception("Could not find task with id " + completedTask.getId()).printStackTrace();
-        }
+        tasks.add(completedTask);
 
-        return new TodoState(tasks);
+        return TodoState.builder()
+                .from(state)
+                .tasks(tasks)
+                .build();
     }
 
     //----------------------------------------------------------------------------------------------
@@ -102,29 +115,26 @@ public final class TodoFacadeAnnotations extends LaPasseFacadeDelegate<TodoState
             return null;
         }
 
-        return new TaskRemoved(new Task(task.getId(), task.getText(), task.isCompleted()));
+        return new TaskRemoved.Builder()
+                .task(task)
+                .build();
     }
 
     @HandleEvent
     TodoState handle(TodoState state, TaskRemoved event) {
-        Task removedTask = event.getTask();
-        ArrayList<Task> tasks = new ArrayList<>(state.getTasks());
-        boolean removed = false;
+        final Task removedTask = event.getTask();
 
-        for (Task task : tasks) {
-            if (task.getId().equals(removedTask.getId())) {
-                tasks.remove(task);
-                removed = true;
-                break;
+        Collection<Task> tasks = Collections2.filter(state.getTasks(), new Predicate<Task>() {
+            @Override
+            public boolean apply(Task task) {
+                return !task.getId().equals(removedTask.getId());
             }
-        }
+        });
 
-        if (!removed) {
-            // TODO: 15/06/16 Handle task not found
-            new Exception("Could not find task with id " + removedTask.getId()).printStackTrace();
-        }
-
-        return new TodoState(tasks);
+        return TodoState.builder()
+                .from(state)
+                .tasks(tasks)
+                .build();
     }
 
 }

@@ -120,7 +120,7 @@ public final class TodoFacadeVanilla extends LaPasseFacadeDelegate<TodoState> {
                         return null;
                     }
 
-                    return new TaskRemoved(new Task(task.getId(), task.getText(), true));
+                    return new TaskRemoved(new Task(task.getId(), task.getText(), task.isCompleted()));
                 }
             };
 

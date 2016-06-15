@@ -1,29 +1,27 @@
-package com.cookingfox.lapasse.samples.todo_vanilla;
+package com.cookingfox.lapasse.samples.todo_immutables;
 
 import com.cookingfox.lapasse.api.command.Command;
 import com.cookingfox.lapasse.api.event.Event;
 import com.cookingfox.lapasse.api.logging.CombinedLogger;
 import com.cookingfox.lapasse.api.state.observer.OnStateChanged;
 import com.cookingfox.lapasse.impl.facade.LaPasseFacade;
-import com.cookingfox.lapasse.samples.shared.todo.command.AddTask;
-import com.cookingfox.lapasse.samples.shared.todo.command.CompleteTask;
-import com.cookingfox.lapasse.samples.shared.todo.command.RemoveTask;
-import com.cookingfox.lapasse.samples.shared.todo.event.TaskAdded;
-import com.cookingfox.lapasse.samples.shared.todo.state.TodoState;
-import com.cookingfox.lapasse.samples.todo_vanilla.facade.TodoFacadeVanilla;
+import com.cookingfox.lapasse.samples.todo_immutables.command.AddTask;
+import com.cookingfox.lapasse.samples.todo_immutables.command.CompleteTask;
+import com.cookingfox.lapasse.samples.todo_immutables.command.RemoveTask;
+import com.cookingfox.lapasse.samples.todo_immutables.event.TaskAdded;
+import com.cookingfox.lapasse.samples.todo_immutables.facade.TodoFacadeImmutables;
+import com.cookingfox.lapasse.samples.todo_immutables.state.TodoState;
 
 import java.util.Collection;
 import java.util.UUID;
 
 /**
- * Sample "vanilla" application, vanilla meaning:
- * - Core LaPasse library (no extensions).
- * - No annotations.
+ * Sample application using core LaPasse library with annotations.
  */
-public class SampleTodoVanilla implements CombinedLogger<TodoState>, OnStateChanged<TodoState> {
+public class SampleTodoImmutables implements CombinedLogger<TodoState>, OnStateChanged<TodoState> {
 
     public static void main(String[] args) throws Exception {
-        new SampleTodoVanilla().init();
+        new SampleTodoImmutables().init();
     }
 
     private UUID firstCreatedTaskId;
@@ -35,7 +33,7 @@ public class SampleTodoVanilla implements CombinedLogger<TodoState>, OnStateChan
         TodoState initialState = TodoState.createInitialState();
 
         // create facade
-        TodoFacadeVanilla facade = new TodoFacadeVanilla(new LaPasseFacade.Builder<>(initialState).build());
+        TodoFacadeImmutables facade = new TodoFacadeImmutables(new LaPasseFacade.Builder<>(initialState).build());
 
         // subscribe to state changes
         facade.subscribe(this);
@@ -46,13 +44,13 @@ public class SampleTodoVanilla implements CombinedLogger<TodoState>, OnStateChan
         System.out.println("\nINITIAL STATE: " + initialState);
 
         System.out.println("\n>>> ADD TASK");
-        facade.handleCommand(new AddTask("First task"));
+        facade.handleCommand(new AddTask.Builder().text("First task").build());
 
         System.out.println("\n>>> MARK TASK COMPLETE");
-        facade.handleCommand(new CompleteTask(firstCreatedTaskId));
+        facade.handleCommand(new CompleteTask.Builder().taskId(firstCreatedTaskId).build());
 
         System.out.println("\n>>> REMOVE TASK");
-        facade.handleCommand(new RemoveTask(firstCreatedTaskId));
+        facade.handleCommand(new RemoveTask.Builder().taskId(firstCreatedTaskId).build());
     }
 
     @Override
