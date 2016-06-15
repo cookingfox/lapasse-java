@@ -14,7 +14,7 @@ import java.util.Objects;
 /**
  * Helper class for mapping handlers from annotated class.
  */
-public final class LaPasseHelper {
+public final class LaPasse {
 
     /**
      * Generated class name suffix.
@@ -28,7 +28,7 @@ public final class LaPasseHelper {
     /**
      * Not meant to be instantiated.
      */
-    private LaPasseHelper() {
+    private LaPasse() {
     }
 
     //----------------------------------------------------------------------------------------------
@@ -36,18 +36,32 @@ public final class LaPasseHelper {
     //----------------------------------------------------------------------------------------------
 
     /**
+     * Map the handler methods of a facade implementation.
+     *
+     * @param origin The facade implementation, containing the annotations.
+     * @throws NoGeneratedClassException             when no generated class exists for this origin.
+     * @throws GeneratedConstructorNotFoundException when the expected generated constructor was not
+     *                                               found.
+     * @throws HandlerMapperInstantiationException   when an error occurs during the instantiation
+     *                                               of the HandlerMapper.
+     * @see #mapHandlers(Object, Facade)
+     */
+    public static void mapHandlers(Facade<? extends State> origin) {
+        mapHandlers(origin, origin);
+    }
+
+    /**
      * Map the annotated handler methods of a class to its facade.
      *
      * @param origin The class containing the annotations.
      * @param facade The LaPasse facade to map handlers to.
-     * @param <T>    Indicates the origin type.
      * @throws NoGeneratedClassException             when no generated class exists for this origin.
      * @throws GeneratedConstructorNotFoundException when the expected generated constructor was not
      *                                               found.
      * @throws HandlerMapperInstantiationException   when an error occurs during the instantiation
      *                                               of the HandlerMapper.
      */
-    public static <T> void mapHandlers(T origin, Facade<? extends State> facade) {
+    public static void mapHandlers(Object origin, Facade<? extends State> facade) {
         Objects.requireNonNull(origin, "Origin can not be null");
         Objects.requireNonNull(facade, "Facade can not be null");
 

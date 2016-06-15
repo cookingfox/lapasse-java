@@ -8,6 +8,7 @@ import com.cookingfox.lapasse.impl.helper.exception.HandlerMapperInstantiationEx
 import com.cookingfox.lapasse.impl.helper.exception.NoGeneratedClassException;
 import com.cookingfox.lapasse.impl.internal.HandlerMapper;
 import fixtures.annotations.FixtureAnnotated;
+import fixtures.annotations.FixtureAnnotatedFacadeDelegate;
 import fixtures.annotations.MissingConstructor$$LaPassGenerated;
 import fixtures.annotations.ThrowingConstructor$$LaPasseGenerated;
 import fixtures.example.command.IncrementCount;
@@ -23,9 +24,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
- * Unit tests for {@link LaPasseHelper}.
+ * Unit tests for {@link LaPasse}.
  */
-public class LaPasseHelperTest {
+public class LaPasseTest {
 
     //----------------------------------------------------------------------------------------------
     // TEST SETUP
@@ -47,9 +48,9 @@ public class LaPasseHelperTest {
         FixtureAnnotated origin = new FixtureAnnotated(facade);
 
         Constructor<? extends HandlerMapper> handlerMapperConstructor =
-                LaPasseHelper.getHandlerMapperConstructor(ThrowingConstructor$$LaPasseGenerated.class, origin.getClass());
+                LaPasse.getHandlerMapperConstructor(ThrowingConstructor$$LaPasseGenerated.class, origin.getClass());
 
-        LaPasseHelper.createHandlerMapperInstance(handlerMapperConstructor, origin, facade);
+        LaPasse.createHandlerMapperInstance(handlerMapperConstructor, origin, facade);
     }
 
     //----------------------------------------------------------------------------------------------
@@ -58,7 +59,7 @@ public class LaPasseHelperTest {
 
     @Test(expected = GeneratedConstructorNotFoundException.class)
     public void getHandlerMapperConstructor_should_throw_if_missing_constructor() throws Exception {
-        LaPasseHelper.getHandlerMapperConstructor(MissingConstructor$$LaPassGenerated.class, FixtureAnnotated.class);
+        LaPasse.getHandlerMapperConstructor(MissingConstructor$$LaPassGenerated.class, FixtureAnnotated.class);
     }
 
     //----------------------------------------------------------------------------------------------
@@ -67,23 +68,47 @@ public class LaPasseHelperTest {
 
     @Test(expected = NullPointerException.class)
     public void mapHandlers_should_throw_if_origin_null() throws Exception {
-        LaPasseHelper.mapHandlers(null, facade);
+        LaPasse.mapHandlers(null, facade);
     }
 
     @Test(expected = NullPointerException.class)
     public void mapHandlers_should_throw_if_facade_null() throws Exception {
-        LaPasseHelper.mapHandlers(this, null);
+        LaPasse.mapHandlers(this, null);
     }
 
     @Test(expected = NoGeneratedClassException.class)
     public void mapHandlers_should_throw_if_generated_class_does_not_exist() throws Exception {
-        LaPasseHelper.mapHandlers(this, facade);
+        LaPasse.mapHandlers(this, facade);
     }
 
     @Test
     public void mapHandlers_should_map_handlers_from_generated_class() throws Exception {
         FixtureAnnotated origin = new FixtureAnnotated(facade);
         origin.mapHandlers();
+
+        final AtomicReference<CountState> calledStateRef = new AtomicReference<>();
+        final AtomicReference<Event> calledEventRef = new AtomicReference<>();
+
+        facade.subscribe(new OnStateChanged<CountState>() {
+            @Override
+            public void onStateChanged(CountState state, Event event) {
+                calledStateRef.set(state);
+                calledEventRef.set(event);
+            }
+        });
+
+        final int incrementValue = 123;
+
+        facade.handleCommand(new IncrementCount(incrementValue));
+
+        assertEquals(incrementValue, calledStateRef.get().getCount());
+        assertTrue(calledEventRef.get() instanceof CountIncremented);
+    }
+
+    @Test
+    public void mapHandlers_should_accept_facade_origin_as_only_argument() throws Exception {
+        FixtureAnnotatedFacadeDelegate facadeOrigin = new FixtureAnnotatedFacadeDelegate(facade);
+        facadeOrigin.mapHandlers();
 
         final AtomicReference<CountState> calledStateRef = new AtomicReference<>();
         final AtomicReference<Event> calledEventRef = new AtomicReference<>();

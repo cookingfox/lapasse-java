@@ -1,6 +1,6 @@
 package com.cookingfox.lapasse.compiler;
 
-import com.cookingfox.lapasse.impl.helper.LaPasseHelper;
+import com.cookingfox.lapasse.impl.helper.LaPasse;
 import com.google.testing.compile.JavaFileObjects;
 import org.junit.Test;
 
@@ -21,7 +21,7 @@ public class LaPasseAnnotationProcessorTest {
     @Test
     public void void_command_handler() throws Exception {
         String sourceFqcn = "test.Test";
-        String expectedFqcn = sourceFqcn + LaPasseHelper.GENERATED_SUFFIX;
+        String expectedFqcn = sourceFqcn + LaPasse.GENERATED_SUFFIX;
 
         JavaFileObject source = JavaFileObjects.forSourceLines(sourceFqcn,
                 "package test;",
@@ -86,7 +86,7 @@ public class LaPasseAnnotationProcessorTest {
     @Test
     public void sync_command_handler() throws Exception {
         String sourceFqcn = "test.Test";
-        String expectedFqcn = sourceFqcn + LaPasseHelper.GENERATED_SUFFIX;
+        String expectedFqcn = sourceFqcn + LaPasse.GENERATED_SUFFIX;
 
         JavaFileObject source = JavaFileObjects.forSourceLines(sourceFqcn,
                 "package test;",
@@ -154,7 +154,7 @@ public class LaPasseAnnotationProcessorTest {
     @Test
     public void sync_multi_command_handler() throws Exception {
         String sourceFqcn = "test.Test";
-        String expectedFqcn = sourceFqcn + LaPasseHelper.GENERATED_SUFFIX;
+        String expectedFqcn = sourceFqcn + LaPasse.GENERATED_SUFFIX;
 
         JavaFileObject source = JavaFileObjects.forSourceLines(sourceFqcn,
                 "package test;",
@@ -225,7 +225,7 @@ public class LaPasseAnnotationProcessorTest {
     @Test
     public void async_command_handler() throws Exception {
         String sourceFqcn = "test.Test";
-        String expectedFqcn = sourceFqcn + LaPasseHelper.GENERATED_SUFFIX;
+        String expectedFqcn = sourceFqcn + LaPasse.GENERATED_SUFFIX;
 
         JavaFileObject source = JavaFileObjects.forSourceLines(sourceFqcn,
                 "package test;",
@@ -300,7 +300,7 @@ public class LaPasseAnnotationProcessorTest {
     @Test
     public void async_multi_command_handler() throws Exception {
         String sourceFqcn = "test.Test";
-        String expectedFqcn = sourceFqcn + LaPasseHelper.GENERATED_SUFFIX;
+        String expectedFqcn = sourceFqcn + LaPasse.GENERATED_SUFFIX;
 
         JavaFileObject source = JavaFileObjects.forSourceLines(sourceFqcn,
                 "package test;",
@@ -378,7 +378,7 @@ public class LaPasseAnnotationProcessorTest {
     @Test
     public void rx_command_handler() throws Exception {
         String sourceFqcn = "test.Test";
-        String expectedFqcn = sourceFqcn + LaPasseHelper.GENERATED_SUFFIX;
+        String expectedFqcn = sourceFqcn + LaPasse.GENERATED_SUFFIX;
 
         JavaFileObject source = JavaFileObjects.forSourceLines(sourceFqcn,
                 "package test;",
@@ -448,7 +448,7 @@ public class LaPasseAnnotationProcessorTest {
     @Test
     public void rx_multi_command_handler() throws Exception {
         String sourceFqcn = "test.Test";
-        String expectedFqcn = sourceFqcn + LaPasseHelper.GENERATED_SUFFIX;
+        String expectedFqcn = sourceFqcn + LaPasse.GENERATED_SUFFIX;
 
         JavaFileObject source = JavaFileObjects.forSourceLines(sourceFqcn,
                 "package test;",
@@ -521,7 +521,7 @@ public class LaPasseAnnotationProcessorTest {
     @Test
     public void valid_event_handler() throws Exception {
         String sourceFqcn = "test.Test";
-        String expectedFqcn = sourceFqcn + LaPasseHelper.GENERATED_SUFFIX;
+        String expectedFqcn = sourceFqcn + LaPasse.GENERATED_SUFFIX;
 
         JavaFileObject source = JavaFileObjects.forSourceLines(sourceFqcn,
                 "package test;",

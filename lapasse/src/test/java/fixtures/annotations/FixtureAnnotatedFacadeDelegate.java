@@ -3,24 +3,23 @@ package fixtures.annotations;
 import com.cookingfox.lapasse.annotation.HandleCommand;
 import com.cookingfox.lapasse.annotation.HandleEvent;
 import com.cookingfox.lapasse.api.facade.Facade;
+import com.cookingfox.lapasse.impl.facade.LaPasseFacadeDelegate;
 import com.cookingfox.lapasse.impl.helper.LaPasse;
 import fixtures.example.command.IncrementCount;
 import fixtures.example.event.CountIncremented;
 import fixtures.example.state.CountState;
 
 /**
- * Fixture class with annotations.
+ * Fixture facade delegate with annotations.
  */
-public class FixtureAnnotated {
+public class FixtureAnnotatedFacadeDelegate extends LaPasseFacadeDelegate<CountState> {
 
-    final Facade<CountState> facade;
-
-    public FixtureAnnotated(Facade<CountState> facade) {
-        this.facade = facade;
+    public FixtureAnnotatedFacadeDelegate(Facade<CountState> facade) {
+        super(facade);
     }
 
     public void mapHandlers() {
-        LaPasse.mapHandlers(this, facade);
+        LaPasse.mapHandlers(this);
     }
 
     @HandleCommand

@@ -9,9 +9,9 @@ import fixtures.example.event.CountIncremented;
 import fixtures.example.state.CountState;
 
 /**
- * Fixture generated class with annotations.
+ * Fixture generated facade delegate with annotations.
  */
-public class FixtureAnnotated$$LaPasseGenerated<T extends FixtureAnnotated> implements HandlerMapper {
+public class FixtureAnnotatedFacadeDelegate$$LaPasseGenerated<T extends FixtureAnnotatedFacadeDelegate> implements HandlerMapper {
 
     final T origin;
     final Facade facade;
@@ -30,7 +30,7 @@ public class FixtureAnnotated$$LaPasseGenerated<T extends FixtureAnnotated> impl
         }
     };
 
-    public FixtureAnnotated$$LaPasseGenerated(T origin, Facade facade) {
+    public FixtureAnnotatedFacadeDelegate$$LaPasseGenerated(T origin, Facade facade) {
         this.origin = origin;
         this.facade = facade;
     }

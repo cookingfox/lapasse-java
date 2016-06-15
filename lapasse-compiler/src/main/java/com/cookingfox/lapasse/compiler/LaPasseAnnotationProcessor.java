@@ -8,7 +8,7 @@ import com.cookingfox.lapasse.api.facade.Facade;
 import com.cookingfox.lapasse.compiler.command.HandleCommandInfo;
 import com.cookingfox.lapasse.compiler.command.HandleCommandReturnType;
 import com.cookingfox.lapasse.compiler.event.HandleEventInfo;
-import com.cookingfox.lapasse.impl.helper.LaPasseHelper;
+import com.cookingfox.lapasse.impl.helper.LaPasse;
 import com.cookingfox.lapasse.impl.internal.HandlerMapper;
 import com.squareup.javapoet.*;
 
@@ -112,7 +112,7 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
             String originClassName = getClassName(origin, packageName);
 
             // create new class name
-            String generatedClassName = originClassName + LaPasseHelper.GENERATED_SUFFIX;
+            String generatedClassName = originClassName + LaPasse.GENERATED_SUFFIX;
             ClassName className = ClassName.get(packageName, generatedClassName);
 
             //--------------------------------------------------------------------------------------
