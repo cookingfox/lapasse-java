@@ -69,3 +69,11 @@ Javadocs (hosted on javadoc.io):
 - [LaPasse (core)](http://www.javadoc.io/doc/com.cookingfox/lapasse/0.3.4)
 - [LaPasse Rx extension](http://www.javadoc.io/doc/com.cookingfox/lapasse-rx/0.3.4)
 - [LaPasse Compiler (annotation processor)](http://www.javadoc.io/doc/com.cookingfox/lapasse-compiler/0.3.4)
+
+## Samples
+
+You can find the following sample applications in the [`lapasse-samples`](lapasse-samples) folder:
+- [TODO app "vanilla"](lapasse-samples/src/main/java/com/cookingfox/lapasse/samples/todo_vanilla):
+uses the core LaPasse library (no extensions) and no annotations.
+- [TODO app with annotations](lapasse-samples/src/main/java/com/cookingfox/lapasse/samples/todo_annotations):
+uses the core LaPasse library (no extensions) and annotations.
