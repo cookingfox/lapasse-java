@@ -1,5 +1,11 @@
 # LaPasse for Java: Change Log
 
+## [0.3.4](../../tree/0.3.4) (2016-06-15)
+
+- Renames `LaPasseHelper` to `LaPasse`.
+- Adds `LaPasseHelper#mapHandlers(Facade origin)` for a facade implementation containing annotated
+handler methods.
+
 ## [0.3.3](../../tree/0.3.3) (2016-06-14)
 
 - Correct overridden return for `LaPasseRxFacade.Builder` methods.
