@@ -5,7 +5,7 @@
     <!-- Maven info -->
     <groupId>com.cookingfox</groupId>
     <artifactId>lapasse-parent</artifactId>
-    <version>0.3.4</version>
+    <version>0.3.5-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>LaPasse (Parent)</name>
     <description>CQRS and Redux inspired library for Java.</description>
@@ -38,7 +38,7 @@
         <developerConnection>
             scm:git:ssh://git@github.com/cookingfox/lapasse-java.git
         </developerConnection>
-        <tag>0.3.4</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <!-- Issue management -->
