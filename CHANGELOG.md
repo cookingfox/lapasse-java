@@ -1,5 +1,9 @@
 # LaPasse for Java: Change Log
 
+## [0.3.6](../../tree/0.3.6) (2016-06-20)
+
+- Fixes issue where command bus would throw for Rx-based handler that returned null.
+
 ## [0.3.5](../../tree/0.3.5) (2016-06-19)
 
 - Adds missing `RxCommandBus` methods to `RxFacade` and implementations.
