@@ -65,13 +65,13 @@ public class DefaultRxCommandBus<S extends State>
     //----------------------------------------------------------------------------------------------
 
     @Override
-    public void setObserveOnScheduler(Scheduler observeOnScheduler) {
+    public void setCommandObserveScheduler(Scheduler observeOnScheduler) {
         this.observeOnScheduler = Objects.requireNonNull(observeOnScheduler,
                 "Scheduler can not be null");
     }
 
     @Override
-    public void setSubscribeOnScheduler(Scheduler subscribeOnScheduler) {
+    public void setCommandSubscribeScheduler(Scheduler subscribeOnScheduler) {
         this.subscribeOnScheduler = Objects.requireNonNull(subscribeOnScheduler,
                 "Scheduler can not be null");
     }

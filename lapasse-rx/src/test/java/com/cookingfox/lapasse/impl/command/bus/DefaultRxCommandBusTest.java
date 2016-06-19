@@ -54,8 +54,8 @@ public class DefaultRxCommandBusTest {
         eventBus = new DefaultEventBus<>(messageStore, loggers, stateManager);
 
         commandBus = new DefaultRxCommandBus<>(messageStore, eventBus, loggers, stateManager);
-        commandBus.setObserveOnScheduler(Schedulers.immediate());
-        commandBus.setSubscribeOnScheduler(Schedulers.immediate());
+        commandBus.setCommandObserveScheduler(Schedulers.immediate());
+        commandBus.setCommandSubscribeScheduler(Schedulers.immediate());
     }
 
     //----------------------------------------------------------------------------------------------

@@ -11,19 +11,19 @@ import rx.Scheduler;
 public interface RxCommandBus<S extends State> extends CommandBus<S> {
 
     /**
-     * Set the scheduler to observe Observables on.
+     * Set the scheduler to observe command handler Observables on.
      *
      * @param observeOnScheduler The scheduler to observe on.
      * @see rx.Observable#observeOn(Scheduler)
      */
-    void setObserveOnScheduler(Scheduler observeOnScheduler);
+    void setCommandObserveScheduler(Scheduler observeOnScheduler);
 
     /**
-     * Set the scheduler to subscribe Observables on.
+     * Set the scheduler to subscribe command handler Observables on.
      *
      * @param subscribeOnScheduler The scheduler to subscribe on.
      * @see rx.Observable#subscribeOn(Scheduler)
      */
-    void setSubscribeOnScheduler(Scheduler subscribeOnScheduler);
+    void setCommandSubscribeScheduler(Scheduler subscribeOnScheduler);
 
 }

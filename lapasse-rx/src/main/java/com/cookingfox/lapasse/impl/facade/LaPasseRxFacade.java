@@ -14,6 +14,7 @@ import com.cookingfox.lapasse.api.state.observer.StateChanged;
 import com.cookingfox.lapasse.impl.command.bus.DefaultRxCommandBus;
 import com.cookingfox.lapasse.impl.state.manager.DefaultRxStateManager;
 import rx.Observable;
+import rx.Scheduler;
 
 /**
  * Implementation of {@link RxFacade}, containing a Builder class.
@@ -34,7 +35,21 @@ public class LaPasseRxFacade<S extends State> extends LaPasseFacade<S> implement
     }
 
     //----------------------------------------------------------------------------------------------
-    // PUBLIC METHODS
+    // RX COMMAND BUS
+    //----------------------------------------------------------------------------------------------
+
+    @Override
+    public void setCommandObserveScheduler(Scheduler observeOnScheduler) {
+        getRxCommandBus().setCommandObserveScheduler(observeOnScheduler);
+    }
+
+    @Override
+    public void setCommandSubscribeScheduler(Scheduler subscribeOnScheduler) {
+        getRxCommandBus().setCommandSubscribeScheduler(subscribeOnScheduler);
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // RX STATE OBSERVER
     //----------------------------------------------------------------------------------------------
 
     @Override
@@ -45,6 +60,13 @@ public class LaPasseRxFacade<S extends State> extends LaPasseFacade<S> implement
     //----------------------------------------------------------------------------------------------
     // PROTECTED METHODS
     //----------------------------------------------------------------------------------------------
+
+    /**
+     * @return The command bus as Rx command bus.
+     */
+    protected RxCommandBus<S> getRxCommandBus() {
+        return (RxCommandBus<S>) commandBus;
+    }
 
     /**
      * @return The state observer as Rx state observer.
