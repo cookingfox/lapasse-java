@@ -255,6 +255,31 @@ public class DefaultRxCommandBusTest {
         assertSame(exception, calledError.get());
     }
 
+    @Test
+    public void executeHandler_should_not_throw_for_null_result() throws Exception {
+        commandBus.mapCommandHandler(IncrementCount.class, new RxCommandHandler<CountState, IncrementCount, Event>() {
+            @Override
+            public Observable<Event> handle(CountState state, IncrementCount command) {
+                return null;
+            }
+        });
+
+        commandBus.handleCommand(new IncrementCount(1));
+    }
+
+    @Test
+    public void executeHandler_should_not_throw_for_null_result_from_multi() throws Exception {
+        commandBus.mapCommandHandler(IncrementCount.class,
+                new RxMultiCommandHandler<CountState, IncrementCount, Event>() {
+                    @Override
+                    public Observable<Collection<Event>> handle(CountState state, IncrementCount command) {
+                        return null;
+                    }
+                });
+
+        commandBus.handleCommand(new IncrementCount(1));
+    }
+
     //----------------------------------------------------------------------------------------------
     // HELPER METHODS
     //----------------------------------------------------------------------------------------------

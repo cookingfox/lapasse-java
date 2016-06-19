@@ -107,8 +107,16 @@ public class DefaultRxCommandBus<S extends State>
         }
 
         try {
-            ((RxCommandHandler<S, Command, Event>) handler).handle(state, command)
-                    .compose(this.<Event>applySchedulers())
+            Observable<Event> eventObservable =
+                    ((RxCommandHandler<S, Command, Event>) handler).handle(state, command);
+
+            // null result is valid: command handlers are not required to return an event
+            if (eventObservable == null) {
+                handleResult(null, command, null);
+                return;
+            }
+
+            eventObservable.compose(this.<Event>applySchedulers())
                     .subscribe(new Action1<Event>() {
                         @Override
                         public void call(Event event) {
@@ -135,8 +143,16 @@ public class DefaultRxCommandBus<S extends State>
         }
 
         try {
-            ((RxMultiCommandHandler<S, Command, Event>) handler).handle(state, command)
-                    .compose(this.<Collection<Event>>applySchedulers())
+            Observable<Collection<Event>> multiEventObservable =
+                    ((RxMultiCommandHandler<S, Command, Event>) handler).handle(state, command);
+
+            // null result is valid: command handlers are not required to return an event
+            if (multiEventObservable == null) {
+                handleMultiResult(null, command, null);
+                return;
+            }
+
+            multiEventObservable.compose(this.<Collection<Event>>applySchedulers())
                     .subscribe(new Action1<Collection<Event>>() {
                         @Override
                         public void call(Collection<Event> events) {
