@@ -71,8 +71,6 @@ public class HandleEventGeneral extends AbstractHandleEvent {
         return Collections.disjoint(element.getModifiers(), Arrays.asList(
                 Modifier.ABSTRACT,
                 Modifier.NATIVE,
-                Modifier.PROTECTED,
-                Modifier.PROTECTED,
                 Modifier.STATIC,
                 Modifier.STRICTFP,
                 Modifier.VOLATILE

@@ -7,5 +7,4 @@ Wishlist - general:
 Wishlist for `lapasse-compiler`:
 - TODO: support omitting the `state` parameter in command & event handlers
 - TODO: support non-strict parameter order (state & command / event) in command & event handlers
-- TODO: support protected handler methods
 - TODO: validate concrete state of handlers based on provided facade state
