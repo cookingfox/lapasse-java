@@ -10,7 +10,10 @@ import fixtures.message.store.FixtureMessageStore;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Set;
+
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -144,16 +147,30 @@ public class AbstractMessageBusTest {
     // TESTS: getMessageHandlers
     //----------------------------------------------------------------------------------------------
 
-    @Test(expected = NoMessageHandlersException.class)
-    public void getMessageHandlers_should_throw_for_no_matching_super_type_handlers() throws Exception {
+    @Test
+    public void getMessageHandlers_should_not_throw_for_no_matching_type_handlers() throws Exception {
+        Set<FixtureMessageHandler> handlers = messageBus.getMessageHandlers(CountIncremented.class);
+
+        assertNull(handlers);
+    }
+
+    @Test
+    public void getMessageHandlers_should_not_throw_for_no_matching_super_type_handlers() throws Exception {
         messageBus.mapMessageHandler(FixtureMessage.class, new FixtureMessageHandler());
 
-        messageBus.getMessageHandlers(CountIncremented.class);
+        Set<FixtureMessageHandler> handlers = messageBus.getMessageHandlers(CountIncremented.class);
+
+        assertNull(handlers);
     }
 
     //----------------------------------------------------------------------------------------------
     // TESTS: onMessageAddedToStore
     //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void onMessageAddedToStore_should_not_throw_for_no_message_handlers() throws Exception {
+        messageBus.onMessageAddedToStore.onMessageAdded(new FixtureMessage());
+    }
 
     @Test
     public void onMessageAddedToStore_should_not_throw_for_unsupported_message_type() throws Exception {

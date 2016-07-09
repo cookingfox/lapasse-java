@@ -48,11 +48,17 @@ public abstract class AbstractMessageBus<M extends Message, H extends MessageHan
 
     @Override
     public void handleMessage(M message) {
-        Objects.requireNonNull(message, "Message can not be null");
+        Class<? extends Message> messageClass = message.getClass();
 
-        // throws if there are no mapped handlers
-        getMessageHandlers(message.getClass());
+        // no mapped handlers? throw
+        if (getMessageHandlers(messageClass) == null) {
+            throw new NoMessageHandlersException(messageClass);
+        }
 
+        /**
+         * Store the message - will call subscriber after the message is stored.
+         * @see #onMessageAddedToStore
+         */
         messageStore.addMessage(message);
     }
 
@@ -63,6 +69,7 @@ public abstract class AbstractMessageBus<M extends Message, H extends MessageHan
 
         Set<H> handlers = messageHandlerMap.get(messageClass);
 
+        // no handler collection yet? create it first
         if (handlers == null) {
             handlers = new LinkedHashSet<>();
             messageHandlerMap.put(messageClass, handlers);
@@ -108,16 +115,15 @@ public abstract class AbstractMessageBus<M extends Message, H extends MessageHan
         // noinspection SuspiciousMethodCalls
         Set<H> handlers = messageHandlerMap.get(messageClass);
 
+        // no mapped handlers for this message type: see if there's a handler for the message's
+        // super type
         if (handlers == null) {
-            for (Class<M> mClass : messageHandlerMap.keySet()) {
-                if (mClass.isAssignableFrom(messageClass)) {
-                    handlers = messageHandlerMap.get(mClass);
+            for (Class<M> messageSuperClass : messageHandlerMap.keySet()) {
+                // does the message type extend this super type? if so, use its handlers
+                if (messageSuperClass.isAssignableFrom(messageClass)) {
+                    handlers = messageHandlerMap.get(messageSuperClass);
                     break;
                 }
-            }
-
-            if (handlers == null) {
-                throw new NoMessageHandlersException(messageClass);
             }
         }
 
@@ -130,12 +136,12 @@ public abstract class AbstractMessageBus<M extends Message, H extends MessageHan
     protected final OnMessageAdded onMessageAddedToStore = new OnMessageAdded() {
         @Override
         public void onMessageAdded(Message message) {
-            if (!shouldHandleMessageType(message)) {
+            Set<H> handlers = getMessageHandlers(message.getClass());
+
+            if (!shouldHandleMessageType(message) || handlers == null) {
                 // this message bus should not handle messages of this type
                 return;
             }
-
-            Set<H> handlers = getMessageHandlers(message.getClass());
 
             // execute message handlers
             for (H handler : handlers) {
