@@ -1,5 +1,10 @@
 # LaPasse for Java: Change Log
 
+## [0.3.7](../../tree/0.3.7) (2016-07-12)
+
+- Improves message handling by checking whether handlers are registered for an added message.
+- Adds support for protected handler methods in Compiler.
+
 ## [0.3.6](../../tree/0.3.6) (2016-06-20)
 
 - Fixes issue where command bus would throw for Rx-based handler that returned null.
