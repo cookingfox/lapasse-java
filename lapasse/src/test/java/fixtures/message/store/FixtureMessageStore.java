@@ -11,7 +11,7 @@ import java.util.Set;
 
 /**
  * Minimal implementation of {@link AbstractMessageStore} that tracks added messages and immediately
- * calls subscribers.
+ * calls listeners.
  */
 public class FixtureMessageStore extends AbstractMessageStore {
 
@@ -24,8 +24,8 @@ public class FixtureMessageStore extends AbstractMessageStore {
         notifyMessageAdded(message);
     }
 
-    public Set<OnMessageAdded> getSubscribers() {
-        return subscribers;
+    public Set<OnMessageAdded> getMessageAddedListeners() {
+        return messageAddedListeners;
     }
 
 }

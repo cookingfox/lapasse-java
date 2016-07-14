@@ -78,8 +78,8 @@ public class LaPasseFacadeTest {
         /* STATE */
 
         facade.getCurrentState();
-        facade.subscribe(onStateChanged);
-        facade.unsubscribe(onStateChanged);
+        facade.addStateChangedListener(onStateChanged);
+        facade.removeStateChangedListener(onStateChanged);
     }
 
     //----------------------------------------------------------------------------------------------

@@ -37,7 +37,7 @@ public abstract class AbstractMessageBus<M extends Message, H extends MessageHan
     //----------------------------------------------------------------------------------------------
 
     public AbstractMessageBus(MessageStore messageStore) {
-        messageStore.subscribe(onMessageAddedToStore);
+        messageStore.addMessageAddedListener(onMessageAddedToStore);
 
         this.messageStore = messageStore;
     }
@@ -61,7 +61,7 @@ public abstract class AbstractMessageBus<M extends Message, H extends MessageHan
         }
 
         /**
-         * Store the message - will call subscriber after the message is stored.
+         * Store the message - will notify listeners after the message is stored.
          * @see #onMessageAddedToStore
          */
         messageStore.addMessage(message);
@@ -136,11 +136,12 @@ public abstract class AbstractMessageBus<M extends Message, H extends MessageHan
     }
 
     /**
-     * Message store subscriber.
+     * Listener for when a new message is added to the store.
      */
     protected final OnMessageAdded onMessageAddedToStore = new OnMessageAdded() {
         @Override
         public void onMessageAdded(Message message) {
+            // check if the bus has mapped handlers
             Set<H> handlers = getMessageHandlers(message.getClass());
 
             if (!shouldHandleMessageType(message) || handlers == null) {

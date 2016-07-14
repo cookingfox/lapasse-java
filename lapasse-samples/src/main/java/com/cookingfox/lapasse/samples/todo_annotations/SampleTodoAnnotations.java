@@ -35,8 +35,8 @@ public class SampleTodoAnnotations implements CombinedLogger<TodoState>, OnState
         // create facade
         TodoFacadeAnnotations facade = new TodoFacadeAnnotations(new LaPasseFacade.Builder<>(initialState).build());
 
-        // subscribe to state changes
-        facade.subscribe(this);
+        // add state changed listener
+        facade.addStateChangedListener(this);
 
         // log operations
         facade.addLogger(this);

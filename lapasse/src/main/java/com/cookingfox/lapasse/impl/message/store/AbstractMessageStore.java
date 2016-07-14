@@ -1,6 +1,6 @@
 package com.cookingfox.lapasse.impl.message.store;
 
-import com.cookingfox.lapasse.api.exception.NotSubscribedException;
+import com.cookingfox.lapasse.api.exception.ListenerNotAddedException;
 import com.cookingfox.lapasse.api.message.Message;
 import com.cookingfox.lapasse.api.message.store.MessageStore;
 import com.cookingfox.lapasse.api.message.store.OnMessageAdded;
@@ -15,33 +15,33 @@ import java.util.Set;
 public abstract class AbstractMessageStore implements MessageStore {
 
     /**
-     * Set of unique listener instances.
+     * Collection of listeners for when a message is added.
      */
-    protected final Set<OnMessageAdded> subscribers = new LinkedHashSet<>();
+    protected final Set<OnMessageAdded> messageAddedListeners = new LinkedHashSet<>();
 
     //----------------------------------------------------------------------------------------------
     // PUBLIC METHODS
     //----------------------------------------------------------------------------------------------
 
     @Override
+    public void addMessageAddedListener(OnMessageAdded listener) {
+        messageAddedListeners.add(Objects.requireNonNull(listener, "Listener can not be null"));
+    }
+
+    @Override
     public void dispose() {
-        subscribers.clear();
+        messageAddedListeners.clear();
     }
 
     @Override
-    public void subscribe(OnMessageAdded subscriber) {
-        subscribers.add(Objects.requireNonNull(subscriber, "Subscriber can not be null"));
-    }
+    public void removeMessageAddedListener(OnMessageAdded listener) {
+        Objects.requireNonNull(listener, "Listener can not be null");
 
-    @Override
-    public void unsubscribe(OnMessageAdded subscriber) {
-        Objects.requireNonNull(subscriber, "Subscriber can not be null");
-
-        if (!subscribers.contains(subscriber)) {
-            throw new NotSubscribedException(subscriber, this);
+        if (!messageAddedListeners.contains(listener)) {
+            throw new ListenerNotAddedException(listener, this);
         }
 
-        subscribers.remove(subscriber);
+        messageAddedListeners.remove(listener);
     }
 
     //----------------------------------------------------------------------------------------------
@@ -49,13 +49,13 @@ public abstract class AbstractMessageStore implements MessageStore {
     //----------------------------------------------------------------------------------------------
 
     /**
-     * Notify subscribed listener of a newly added message.
+     * Notify listeners of a newly added message.
      *
      * @param message The message that was added.
      */
     protected void notifyMessageAdded(Message message) {
-        for (OnMessageAdded subscriber : subscribers) {
-            subscriber.onMessageAdded(message);
+        for (OnMessageAdded listener : messageAddedListeners) {
+            listener.onMessageAdded(message);
         }
     }
 

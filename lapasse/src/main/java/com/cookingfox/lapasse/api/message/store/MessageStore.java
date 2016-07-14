@@ -16,17 +16,17 @@ public interface MessageStore extends Disposable {
     void addMessage(Message message);
 
     /**
-     * Subscribe to when a new message is added to the store.
+     * Add listener for when a message is added to the store.
      *
-     * @param subscriber The subscriber to notify of new messages.
+     * @param listener The listener to notify of newly added messages.
      */
-    void subscribe(OnMessageAdded subscriber);
+    void addMessageAddedListener(OnMessageAdded listener);
 
     /**
-     * Remove previously added subscriber.
+     * Remove previously added listener.
      *
-     * @param subscriber The subscriber to remove.
+     * @param listener The listener to remove.
      */
-    void unsubscribe(OnMessageAdded subscriber);
+    void removeMessageAddedListener(OnMessageAdded listener);
 
 }

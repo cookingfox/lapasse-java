@@ -36,10 +36,10 @@ public class NoStorageMessageStoreTest {
     }
 
     @Test
-    public void addMessage_should_immediately_notify_subscribers() throws Exception {
+    public void addMessage_should_immediately_notify_listeners() throws Exception {
         final AtomicReference<Message> notifiedMessage = new AtomicReference<>();
 
-        messageStore.subscribe(new OnMessageAdded() {
+        messageStore.addMessageAddedListener(new OnMessageAdded() {
             @Override
             public void onMessageAdded(Message message) {
                 notifiedMessage.set(message);

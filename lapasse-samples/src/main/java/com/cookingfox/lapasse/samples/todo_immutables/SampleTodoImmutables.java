@@ -35,8 +35,8 @@ public class SampleTodoImmutables implements CombinedLogger<TodoState>, OnStateC
         // create facade
         TodoFacadeImmutables facade = new TodoFacadeImmutables(new LaPasseFacade.Builder<>(initialState).build());
 
-        // subscribe to state changes
-        facade.subscribe(this);
+        // add state changed listener
+        facade.addStateChangedListener(this);
 
         // log operations
         facade.addLogger(this);

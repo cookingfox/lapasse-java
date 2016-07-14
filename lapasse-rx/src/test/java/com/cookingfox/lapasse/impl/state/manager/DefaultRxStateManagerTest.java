@@ -57,11 +57,11 @@ public class DefaultRxStateManagerTest {
 
         Subscription subscription = stateManager.observeStateChanges().subscribe(subscriber);
 
-        assertTrue(stateManager.subscribers.size() == 1);
+        assertTrue(stateManager.stateChangedListeners.size() == 1);
 
         subscription.unsubscribe();
 
-        assertTrue(stateManager.subscribers.size() == 0);
+        assertTrue(stateManager.stateChangedListeners.size() == 0);
 
         stateManager.handleNewState(new CountState(1), new CountIncremented(1));
 

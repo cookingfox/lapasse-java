@@ -6,8 +6,8 @@ import com.cookingfox.lapasse.api.message.store.MessageStore;
 import java.util.Objects;
 
 /**
- * Implementation of {@link MessageStore} without storage mechanism. Notifies subscribers
- * immediately when a new message is added.
+ * Implementation of {@link MessageStore} without storage mechanism. Notifies listeners immediately
+ * when a new message is added.
  */
 public class NoStorageMessageStore extends AbstractMessageStore {
 

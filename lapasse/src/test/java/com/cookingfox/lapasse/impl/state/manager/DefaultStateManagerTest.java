@@ -1,7 +1,7 @@
 package com.cookingfox.lapasse.impl.state.manager;
 
 import com.cookingfox.lapasse.api.event.Event;
-import com.cookingfox.lapasse.api.exception.NotSubscribedException;
+import com.cookingfox.lapasse.api.exception.ListenerNotAddedException;
 import com.cookingfox.lapasse.api.state.observer.OnStateChanged;
 import fixtures.example.event.CountIncremented;
 import fixtures.example.state.CountState;
@@ -45,17 +45,17 @@ public class DefaultStateManagerTest {
     //----------------------------------------------------------------------------------------------
 
     @Test
-    public void dispose_should_unsubscribe_subscribers() throws Exception {
+    public void dispose_should_remove_listeners() throws Exception {
         final AtomicBoolean called = new AtomicBoolean(false);
 
-        OnStateChanged<CountState> subscriber = new OnStateChanged<CountState>() {
+        OnStateChanged<CountState> listener = new OnStateChanged<CountState>() {
             @Override
             public void onStateChanged(CountState state, Event event) {
                 called.set(true);
             }
         };
 
-        stateManager.subscribe(subscriber);
+        stateManager.addStateChangedListener(listener);
 
         stateManager.dispose();
 
@@ -117,15 +117,15 @@ public class DefaultStateManagerTest {
     }
 
     @Test
-    public void handleNewState_should_notify_subscribers() throws Exception {
-        final AtomicReference<CountState> subscriberState = new AtomicReference<>();
-        final AtomicReference<Event> subscriberEvent = new AtomicReference<>();
+    public void handleNewState_should_notify_listeners() throws Exception {
+        final AtomicReference<CountState> listenerState = new AtomicReference<>();
+        final AtomicReference<Event> listenerEvent = new AtomicReference<>();
 
-        stateManager.subscribe(new OnStateChanged<CountState>() {
+        stateManager.addStateChangedListener(new OnStateChanged<CountState>() {
             @Override
             public void onStateChanged(CountState state, Event event) {
-                subscriberState.set(state);
-                subscriberEvent.set(event);
+                listenerState.set(state);
+                listenerEvent.set(event);
             }
         });
 
@@ -134,31 +134,31 @@ public class DefaultStateManagerTest {
 
         stateManager.handleNewState(newState, event);
 
-        assertSame(newState, subscriberState.get());
-        assertSame(event, subscriberEvent.get());
+        assertSame(newState, listenerState.get());
+        assertSame(event, listenerEvent.get());
     }
 
     //----------------------------------------------------------------------------------------------
-    // TESTS: subscribe
+    // TESTS: addStateChangedListener
     //----------------------------------------------------------------------------------------------
 
     @Test(expected = NullPointerException.class)
-    public void subscribe_should_throw_if_subscriber_null() throws Exception {
-        stateManager.subscribe(null);
+    public void addStateChangedListener_should_throw_if_listener_null() throws Exception {
+        stateManager.addStateChangedListener(null);
     }
 
     //----------------------------------------------------------------------------------------------
-    // TESTS: unsubscribe
+    // TESTS: removeStateChangedListener
     //----------------------------------------------------------------------------------------------
 
     @Test(expected = NullPointerException.class)
-    public void unsubscribe_should_throw_if_null_message() throws Exception {
-        stateManager.unsubscribe(null);
+    public void removeStateChangedListener_should_throw_if_null_message() throws Exception {
+        stateManager.removeStateChangedListener(null);
     }
 
-    @Test(expected = NotSubscribedException.class)
-    public void unsubscribe_should_throw_if_not_subscribed() throws Exception {
-        stateManager.unsubscribe(new OnStateChanged<CountState>() {
+    @Test(expected = ListenerNotAddedException.class)
+    public void removeStateChangedListener_should_throw_if_not_added() throws Exception {
+        stateManager.removeStateChangedListener(new OnStateChanged<CountState>() {
             @Override
             public void onStateChanged(CountState state, Event event) {
                 // ignore
@@ -167,18 +167,18 @@ public class DefaultStateManagerTest {
     }
 
     @Test
-    public void unsubscribe_should_remove_subscriber() throws Exception {
+    public void removeStateChangedListener_should_remove_listener() throws Exception {
         final AtomicBoolean called = new AtomicBoolean(false);
 
-        OnStateChanged<CountState> subscriber = new OnStateChanged<CountState>() {
+        OnStateChanged<CountState> listener = new OnStateChanged<CountState>() {
             @Override
             public void onStateChanged(CountState state, Event event) {
                 called.set(true);
             }
         };
 
-        stateManager.subscribe(subscriber);
-        stateManager.unsubscribe(subscriber);
+        stateManager.addStateChangedListener(listener);
+        stateManager.removeStateChangedListener(listener);
         stateManager.handleNewState(new CountState(1), new CountIncremented(1));
 
         assertFalse(called.get());

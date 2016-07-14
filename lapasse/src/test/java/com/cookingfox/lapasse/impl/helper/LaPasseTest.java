@@ -89,7 +89,7 @@ public class LaPasseTest {
         final AtomicReference<CountState> calledStateRef = new AtomicReference<>();
         final AtomicReference<Event> calledEventRef = new AtomicReference<>();
 
-        facade.subscribe(new OnStateChanged<CountState>() {
+        facade.addStateChangedListener(new OnStateChanged<CountState>() {
             @Override
             public void onStateChanged(CountState state, Event event) {
                 calledStateRef.set(state);
@@ -113,7 +113,7 @@ public class LaPasseTest {
         final AtomicReference<CountState> calledStateRef = new AtomicReference<>();
         final AtomicReference<Event> calledEventRef = new AtomicReference<>();
 
-        facade.subscribe(new OnStateChanged<CountState>() {
+        facade.addStateChangedListener(new OnStateChanged<CountState>() {
             @Override
             public void onStateChanged(CountState state, Event event) {
                 calledStateRef.set(state);

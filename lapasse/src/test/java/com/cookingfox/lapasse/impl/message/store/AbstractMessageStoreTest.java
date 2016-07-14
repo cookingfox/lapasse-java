@@ -1,6 +1,6 @@
 package com.cookingfox.lapasse.impl.message.store;
 
-import com.cookingfox.lapasse.api.exception.NotSubscribedException;
+import com.cookingfox.lapasse.api.exception.ListenerNotAddedException;
 import com.cookingfox.lapasse.api.message.Message;
 import com.cookingfox.lapasse.api.message.store.OnMessageAdded;
 import fixtures.message.FixtureMessage;
@@ -34,10 +34,10 @@ public class AbstractMessageStoreTest {
     //----------------------------------------------------------------------------------------------
 
     @Test
-    public void dispose_should_unsubscribe_subscribers() throws Exception {
+    public void dispose_should_remove_listeners() throws Exception {
         final AtomicBoolean called = new AtomicBoolean(false);
 
-        messageStore.subscribe(new OnMessageAdded() {
+        messageStore.addMessageAddedListener(new OnMessageAdded() {
             @Override
             public void onMessageAdded(Message message) {
                 called.set(true);
@@ -52,19 +52,19 @@ public class AbstractMessageStoreTest {
     }
 
     //----------------------------------------------------------------------------------------------
-    // TESTS: subscribe
+    // TESTS: addMessageAddedListener
     //----------------------------------------------------------------------------------------------
 
     @Test(expected = NullPointerException.class)
-    public void subscribe_should_throw_if_null_message() throws Exception {
-        messageStore.subscribe(null);
+    public void addMessageAddedListener_should_throw_if_null_message() throws Exception {
+        messageStore.addMessageAddedListener(null);
     }
 
     @Test
-    public void subscribe_should_add_subscriber() throws Exception {
+    public void addMessageAddedListener_should_add_listener() throws Exception {
         final AtomicBoolean called = new AtomicBoolean(false);
 
-        messageStore.subscribe(new OnMessageAdded() {
+        messageStore.addMessageAddedListener(new OnMessageAdded() {
             @Override
             public void onMessageAdded(Message message) {
                 called.set(true);
@@ -77,17 +77,17 @@ public class AbstractMessageStoreTest {
     }
 
     //----------------------------------------------------------------------------------------------
-    // TESTS: unsubscribe
+    // TESTS: removeMessageAddedListener
     //----------------------------------------------------------------------------------------------
 
     @Test(expected = NullPointerException.class)
-    public void unsubscribe_should_throw_if_null_message() throws Exception {
-        messageStore.unsubscribe(null);
+    public void removeMessageAddedListener_should_throw_if_null_message() throws Exception {
+        messageStore.removeMessageAddedListener(null);
     }
 
-    @Test(expected = NotSubscribedException.class)
-    public void unsubscribe_should_throw_if_not_subscribed() throws Exception {
-        messageStore.unsubscribe(new OnMessageAdded() {
+    @Test(expected = ListenerNotAddedException.class)
+    public void removeMessageAddedListener_should_throw_if_not_added() throws Exception {
+        messageStore.removeMessageAddedListener(new OnMessageAdded() {
             @Override
             public void onMessageAdded(Message message) {
                 // ignore
@@ -96,18 +96,18 @@ public class AbstractMessageStoreTest {
     }
 
     @Test
-    public void unsubscribe_should_remove_subscriber() throws Exception {
+    public void removeMessageAddedListener_should_remove_listener() throws Exception {
         final AtomicBoolean called = new AtomicBoolean(false);
 
-        OnMessageAdded subscriber = new OnMessageAdded() {
+        OnMessageAdded listener = new OnMessageAdded() {
             @Override
             public void onMessageAdded(Message message) {
                 called.set(true);
             }
         };
 
-        messageStore.subscribe(subscriber);
-        messageStore.unsubscribe(subscriber);
+        messageStore.addMessageAddedListener(listener);
+        messageStore.removeMessageAddedListener(listener);
         messageStore.addMessage(new FixtureMessage());
 
         assertFalse(called.get());

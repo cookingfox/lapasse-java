@@ -37,8 +37,8 @@ public class SampleTodoVanilla implements CombinedLogger<TodoState>, OnStateChan
         // create facade
         TodoFacadeVanilla facade = new TodoFacadeVanilla(new LaPasseFacade.Builder<>(initialState).build());
 
-        // subscribe to state changes
-        facade.subscribe(this);
+        // add state changed listener
+        facade.addStateChangedListener(this);
 
         // log operations
         facade.addLogger(this);

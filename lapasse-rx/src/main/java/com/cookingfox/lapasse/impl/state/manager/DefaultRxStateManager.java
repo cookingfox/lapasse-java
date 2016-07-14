@@ -42,7 +42,7 @@ public class DefaultRxStateManager<S extends State>
                 final OnStateChanged<S> listener = new OnStateChanged<S>() {
                     @Override
                     public void onStateChanged(final S state, final Event event) {
-                        // wrap objects with VO
+                        // wrap parameters with VO
                         subscriber.onNext(new StateChanged<S>() {
                             @Override
                             public Event getEvent() {
@@ -65,8 +65,8 @@ public class DefaultRxStateManager<S extends State>
                     }
                 };
 
-                // subscribe listener
-                subscribe(listener);
+                // add listener
+                addStateChangedListener(listener);
 
                 /**
                  * Unsubscribe listener on {@link Subscription#unsubscribe()}.
@@ -74,8 +74,11 @@ public class DefaultRxStateManager<S extends State>
                 subscriber.add(Subscriptions.create(new Action0() {
                     @Override
                     public void call() {
+                        // complete subscriber
                         subscriber.onCompleted();
-                        unsubscribe(listener);
+
+                        // remove listener
+                        removeStateChangedListener(listener);
                     }
                 }));
             }

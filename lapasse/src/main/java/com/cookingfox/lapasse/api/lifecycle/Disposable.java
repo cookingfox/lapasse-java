@@ -6,7 +6,7 @@ package com.cookingfox.lapasse.api.lifecycle;
 public interface Disposable {
 
     /**
-     * Hook for cleaning up: unsubscribe listeners, shutdown threads, etc.
+     * Hook for cleaning up: remove listeners, shutdown threads, etc.
      */
     void dispose();
 

@@ -36,12 +36,12 @@ public class FixtureStateManager implements StateManager<CountState> {
     }
 
     @Override
-    public void subscribe(OnStateChanged<CountState> subscriber) {
+    public void addStateChangedListener(OnStateChanged<CountState> listener) {
         throw new UnsupportedOperationException("Not implemented");
     }
 
     @Override
-    public void unsubscribe(OnStateChanged<CountState> subscriber) {
+    public void removeStateChangedListener(OnStateChanged<CountState> listener) {
         throw new UnsupportedOperationException("Not implemented");
     }
 
