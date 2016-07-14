@@ -8,7 +8,7 @@ import com.cookingfox.lapasse.api.command.handler.RxCommandHandler;
 import com.cookingfox.lapasse.api.command.handler.RxMultiCommandHandler;
 import com.cookingfox.lapasse.api.event.Event;
 import com.cookingfox.lapasse.api.event.bus.EventBus;
-import com.cookingfox.lapasse.api.logging.LoggerCollection;
+import com.cookingfox.lapasse.api.logging.LoggersHelper;
 import com.cookingfox.lapasse.api.message.store.MessageStore;
 import com.cookingfox.lapasse.api.state.State;
 import com.cookingfox.lapasse.api.state.observer.RxStateObserver;
@@ -73,7 +73,7 @@ public class DefaultRxCommandBus<S extends State>
 
     public DefaultRxCommandBus(MessageStore messageStore,
                                EventBus<S> eventBus,
-                               LoggerCollection<S> loggers,
+                               LoggersHelper<S> loggers,
                                RxStateObserver<S> stateObserver) {
         super(messageStore, eventBus, loggers, stateObserver);
     }

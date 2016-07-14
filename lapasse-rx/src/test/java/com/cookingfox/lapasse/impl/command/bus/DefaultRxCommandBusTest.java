@@ -8,13 +8,13 @@ import com.cookingfox.lapasse.api.command.handler.SyncMultiCommandHandler;
 import com.cookingfox.lapasse.api.event.Event;
 import com.cookingfox.lapasse.api.event.bus.EventBus;
 import com.cookingfox.lapasse.api.event.handler.EventHandler;
-import com.cookingfox.lapasse.api.logging.LoggerCollection;
+import com.cookingfox.lapasse.api.logging.LoggersHelper;
 import com.cookingfox.lapasse.api.message.store.MessageStore;
 import com.cookingfox.lapasse.api.state.manager.RxStateManager;
 import com.cookingfox.lapasse.api.state.observer.StateChanged;
 import com.cookingfox.lapasse.impl.event.bus.DefaultEventBus;
 import com.cookingfox.lapasse.impl.logging.DefaultLogger;
-import com.cookingfox.lapasse.impl.logging.LoggersHelper;
+import com.cookingfox.lapasse.impl.logging.DefaultLoggersHelper;
 import com.cookingfox.lapasse.impl.message.store.NoStorageMessageStore;
 import com.cookingfox.lapasse.impl.state.manager.DefaultRxStateManager;
 import fixtures.example.command.IncrementCount;
@@ -44,12 +44,12 @@ public class DefaultRxCommandBusTest {
 
     private DefaultRxCommandBus<CountState> commandBus;
     private EventBus<CountState> eventBus;
-    private LoggerCollection<CountState> loggers;
+    private LoggersHelper<CountState> loggers;
     private RxStateManager<CountState> stateManager;
 
     @Before
     public void setUp() throws Exception {
-        loggers = new LoggersHelper<>();
+        loggers = new DefaultLoggersHelper<>();
         MessageStore messageStore = new NoStorageMessageStore();
         stateManager = new DefaultRxStateManager<>(new CountState(0));
         eventBus = new DefaultEventBus<>(messageStore, loggers, stateManager);

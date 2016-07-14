@@ -10,14 +10,14 @@ import com.cookingfox.lapasse.api.event.handler.EventHandler;
 import com.cookingfox.lapasse.api.event.logging.EventLogger;
 import com.cookingfox.lapasse.api.facade.Facade;
 import com.cookingfox.lapasse.api.logging.CombinedLogger;
-import com.cookingfox.lapasse.api.logging.LoggerCollection;
+import com.cookingfox.lapasse.api.logging.LoggersHelper;
 import com.cookingfox.lapasse.api.message.store.MessageStore;
 import com.cookingfox.lapasse.api.state.State;
 import com.cookingfox.lapasse.api.state.manager.StateManager;
 import com.cookingfox.lapasse.api.state.observer.OnStateChanged;
 import com.cookingfox.lapasse.impl.command.bus.DefaultCommandBus;
 import com.cookingfox.lapasse.impl.event.bus.DefaultEventBus;
-import com.cookingfox.lapasse.impl.logging.LoggersHelper;
+import com.cookingfox.lapasse.impl.logging.DefaultLoggersHelper;
 import com.cookingfox.lapasse.impl.message.store.NoStorageMessageStore;
 import com.cookingfox.lapasse.impl.state.manager.DefaultStateManager;
 
@@ -33,7 +33,7 @@ public class LaPasseFacade<S extends State> implements Facade<S> {
 
     protected final CommandBus<S> commandBus;
     protected final EventBus<S> eventBus;
-    protected final LoggerCollection<S> loggers;
+    protected final LoggersHelper<S> loggersHelper;
     protected final MessageStore messageStore;
     protected final StateManager<S> stateManager;
 
@@ -43,12 +43,12 @@ public class LaPasseFacade<S extends State> implements Facade<S> {
 
     public LaPasseFacade(CommandBus<S> commandBus,
                          EventBus<S> eventBus,
-                         LoggerCollection<S> loggers,
+                         LoggersHelper<S> loggersHelper,
                          MessageStore messageStore,
                          StateManager<S> stateManager) {
         this.commandBus = Objects.requireNonNull(commandBus, "Command bus can not be null");
         this.eventBus = Objects.requireNonNull(eventBus, "Event bus can not be null");
-        this.loggers = Objects.requireNonNull(loggers, "Loggers can not be null");
+        this.loggersHelper = Objects.requireNonNull(loggersHelper, "Loggers helper can not be null");
         this.messageStore = Objects.requireNonNull(messageStore, "Message store can not be null");
         this.stateManager = Objects.requireNonNull(stateManager, "State manager can not be null");
     }
@@ -59,12 +59,12 @@ public class LaPasseFacade<S extends State> implements Facade<S> {
 
     @Override
     public void addLogger(CombinedLogger<S> logger) {
-        loggers.addLogger(logger);
+        loggersHelper.addLogger(logger);
     }
 
     @Override
     public void removeLogger(CombinedLogger<S> logger) {
-        loggers.removeLogger(logger);
+        loggersHelper.removeLogger(logger);
     }
 
     //----------------------------------------------------------------------------------------------
@@ -104,7 +104,7 @@ public class LaPasseFacade<S extends State> implements Facade<S> {
     public void dispose() {
         commandBus.dispose();
         eventBus.dispose();
-        loggers.dispose();
+        loggersHelper.dispose();
         messageStore.dispose();
         stateManager.dispose();
     }
@@ -166,7 +166,7 @@ public class LaPasseFacade<S extends State> implements Facade<S> {
         protected CommandBus<S> commandBus;
         protected EventBus<S> eventBus;
         protected final S initialState;
-        protected LoggerCollection<S> loggers;
+        protected LoggersHelper<S> loggersHelper;
         protected MessageStore messageStore;
         protected StateManager<S> stateManager;
 
@@ -190,12 +190,12 @@ public class LaPasseFacade<S extends State> implements Facade<S> {
         public LaPasseFacade<S> build() {
             CommandBus<S> _commandBus = commandBus;
             EventBus<S> _eventBus = eventBus;
-            LoggerCollection<S> _loggers = loggers;
+            LoggersHelper<S> _loggersHelper = loggersHelper;
             MessageStore _messageStore = messageStore;
             StateManager<S> _stateManager = stateManager;
 
-            if (_loggers == null) {
-                _loggers = createDefaultLoggers();
+            if (_loggersHelper == null) {
+                _loggersHelper = createDefaultLoggersHelper();
             }
 
             // default to message store without storage
@@ -209,14 +209,14 @@ public class LaPasseFacade<S extends State> implements Facade<S> {
             }
 
             if (_eventBus == null) {
-                _eventBus = createDefaultEventBus(_messageStore, _loggers, _stateManager);
+                _eventBus = createDefaultEventBus(_messageStore, _loggersHelper, _stateManager);
             }
 
             if (_commandBus == null) {
-                _commandBus = createDefaultCommandBus(_messageStore, _eventBus, _loggers, _stateManager);
+                _commandBus = createDefaultCommandBus(_messageStore, _eventBus, _loggersHelper, _stateManager);
             }
 
-            return createFacade(_commandBus, _eventBus, _loggers, _messageStore, _stateManager);
+            return createFacade(_commandBus, _eventBus, _loggersHelper, _messageStore, _stateManager);
         }
 
         //------------------------------------------------------------------------------------------
@@ -225,19 +225,19 @@ public class LaPasseFacade<S extends State> implements Facade<S> {
 
         protected CommandBus<S> createDefaultCommandBus(MessageStore messageStore,
                                                         EventBus<S> eventBus,
-                                                        LoggerCollection<S> loggers,
+                                                        LoggersHelper<S> loggers,
                                                         StateManager<S> stateManager) {
             return new DefaultCommandBus<>(messageStore, eventBus, loggers, stateManager);
         }
 
         protected EventBus<S> createDefaultEventBus(MessageStore messageStore,
-                                                    LoggerCollection<S> loggers,
+                                                    LoggersHelper<S> loggers,
                                                     StateManager<S> stateManager) {
             return new DefaultEventBus<>(messageStore, loggers, stateManager);
         }
 
-        protected LoggerCollection<S> createDefaultLoggers() {
-            return new LoggersHelper<>();
+        protected LoggersHelper<S> createDefaultLoggersHelper() {
+            return new DefaultLoggersHelper<>();
         }
 
         protected MessageStore createDefaultMessageStore() {
@@ -250,7 +250,7 @@ public class LaPasseFacade<S extends State> implements Facade<S> {
 
         protected LaPasseFacade<S> createFacade(CommandBus<S> commandBus,
                                                 EventBus<S> eventBus,
-                                                LoggerCollection<S> loggers,
+                                                LoggersHelper<S> loggers,
                                                 MessageStore messageStore,
                                                 StateManager<S> stateManager) {
             return new LaPasseFacade<>(commandBus, eventBus, loggers, messageStore, stateManager);
@@ -270,8 +270,8 @@ public class LaPasseFacade<S extends State> implements Facade<S> {
             return this;
         }
 
-        public Builder<S> setLoggers(LoggerCollection<S> loggers) {
-            this.loggers = Objects.requireNonNull(loggers, "Loggers can not be null");
+        public Builder<S> setLoggersHelper(LoggersHelper<S> loggersHelper) {
+            this.loggersHelper = Objects.requireNonNull(loggersHelper, "Loggers helper can not be null");
             return this;
         }
 

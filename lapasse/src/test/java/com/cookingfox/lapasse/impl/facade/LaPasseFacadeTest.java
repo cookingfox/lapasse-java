@@ -5,14 +5,14 @@ import com.cookingfox.lapasse.api.command.handler.SyncCommandHandler;
 import com.cookingfox.lapasse.api.event.Event;
 import com.cookingfox.lapasse.api.event.bus.EventBus;
 import com.cookingfox.lapasse.api.event.handler.EventHandler;
-import com.cookingfox.lapasse.api.logging.LoggerCollection;
+import com.cookingfox.lapasse.api.logging.LoggersHelper;
 import com.cookingfox.lapasse.api.message.store.MessageStore;
 import com.cookingfox.lapasse.api.state.manager.StateManager;
 import com.cookingfox.lapasse.api.state.observer.OnStateChanged;
 import com.cookingfox.lapasse.impl.command.bus.DefaultCommandBus;
 import com.cookingfox.lapasse.impl.event.bus.DefaultEventBus;
 import com.cookingfox.lapasse.impl.logging.DefaultLogger;
-import com.cookingfox.lapasse.impl.logging.LoggersHelper;
+import com.cookingfox.lapasse.impl.logging.DefaultLoggersHelper;
 import com.cookingfox.lapasse.impl.message.store.NoStorageMessageStore;
 import com.cookingfox.lapasse.impl.state.manager.DefaultStateManager;
 import fixtures.example.command.IncrementCount;
@@ -92,7 +92,7 @@ public class LaPasseFacadeTest {
 
         assertTrue(facade.commandBus instanceof DefaultCommandBus);
         assertTrue(facade.eventBus instanceof DefaultEventBus);
-        assertTrue(facade.loggers instanceof LoggersHelper);
+        assertTrue(facade.loggersHelper instanceof DefaultLoggersHelper);
         assertTrue(facade.messageStore instanceof NoStorageMessageStore);
         assertTrue(facade.stateManager instanceof DefaultStateManager);
     }
@@ -100,7 +100,7 @@ public class LaPasseFacadeTest {
     @Test
     public void builder_should_apply_custom_settings() throws Exception {
         CountState initialState = new CountState(0);
-        LoggerCollection<CountState> loggers = new LoggersHelper<>();
+        LoggersHelper<CountState> loggers = new DefaultLoggersHelper<>();
         MessageStore messageStore = new NoStorageMessageStore();
         StateManager<CountState> stateManager = new DefaultStateManager<>(initialState);
         EventBus<CountState> eventBus = new DefaultEventBus<>(messageStore, loggers, stateManager);
@@ -109,14 +109,14 @@ public class LaPasseFacadeTest {
         LaPasseFacade<CountState> facade = new LaPasseFacade.Builder<>(initialState)
                 .setCommandBus(commandBus)
                 .setEventBus(eventBus)
-                .setLoggers(loggers)
+                .setLoggersHelper(loggers)
                 .setMessageStore(messageStore)
                 .setStateManager(stateManager)
                 .build();
 
         assertSame(commandBus, facade.commandBus);
         assertSame(eventBus, facade.eventBus);
-        assertSame(loggers, facade.loggers);
+        assertSame(loggers, facade.loggersHelper);
         assertSame(stateManager, facade.stateManager);
     }
 
@@ -141,7 +141,7 @@ public class LaPasseFacadeTest {
             }
         };
 
-        LoggerCollection<CountState> loggers = new LoggersHelper<CountState>() {
+        LoggersHelper<CountState> loggers = new DefaultLoggersHelper<CountState>() {
             @Override
             public void dispose() {
                 loggersCalled.set(true);
@@ -172,7 +172,7 @@ public class LaPasseFacadeTest {
         LaPasseFacade<CountState> facade = new LaPasseFacade.Builder<>(initialState)
                 .setCommandBus(commandBus)
                 .setEventBus(eventBus)
-                .setLoggers(loggers)
+                .setLoggersHelper(loggers)
                 .setMessageStore(messageStore)
                 .setStateManager(stateManager)
                 .build();

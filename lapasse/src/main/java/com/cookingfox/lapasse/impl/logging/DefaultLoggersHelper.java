@@ -8,7 +8,7 @@ import com.cookingfox.lapasse.api.event.exception.NoRegisteredEventLoggerExcepti
 import com.cookingfox.lapasse.api.event.logging.EventLogger;
 import com.cookingfox.lapasse.api.exception.LoggerNotAddedException;
 import com.cookingfox.lapasse.api.logging.CombinedLogger;
-import com.cookingfox.lapasse.api.logging.LoggerCollection;
+import com.cookingfox.lapasse.api.logging.LoggersHelper;
 import com.cookingfox.lapasse.api.state.State;
 
 import java.util.Collection;
@@ -21,7 +21,7 @@ import java.util.Set;
  *
  * @param <S> The concrete type of the state object.
  */
-public class LoggersHelper<S extends State> implements LoggerCollection<S> {
+public class DefaultLoggersHelper<S extends State> implements LoggersHelper<S> {
 
     /**
      * Set of unique command logger instances.

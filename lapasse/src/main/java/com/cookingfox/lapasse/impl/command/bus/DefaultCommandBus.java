@@ -5,9 +5,9 @@ import com.cookingfox.lapasse.api.command.bus.CommandBus;
 import com.cookingfox.lapasse.api.command.exception.UnsupportedCommandHandlerException;
 import com.cookingfox.lapasse.api.command.handler.*;
 import com.cookingfox.lapasse.api.command.logging.CommandLogger;
+import com.cookingfox.lapasse.api.command.logging.CommandLoggerHelper;
 import com.cookingfox.lapasse.api.event.Event;
 import com.cookingfox.lapasse.api.event.bus.EventBus;
-import com.cookingfox.lapasse.api.logging.LoggerCollection;
 import com.cookingfox.lapasse.api.message.Message;
 import com.cookingfox.lapasse.api.message.store.MessageStore;
 import com.cookingfox.lapasse.api.state.State;
@@ -63,7 +63,7 @@ public class DefaultCommandBus<S extends State>
     /**
      * Used for logging the command handler operations.
      */
-    protected final LoggerCollection<S> loggers;
+    protected final CommandLoggerHelper loggerHelper;
 
     /**
      * Provides access to the current state.
@@ -76,12 +76,12 @@ public class DefaultCommandBus<S extends State>
 
     public DefaultCommandBus(MessageStore messageStore,
                              EventBus<S> eventBus,
-                             LoggerCollection<S> loggers,
+                             CommandLoggerHelper loggerHelper,
                              StateObserver<S> stateObserver) {
         super(messageStore);
 
         this.eventBus = Objects.requireNonNull(eventBus, "Event bus can not be null");
-        this.loggers = Objects.requireNonNull(loggers, "Loggers can not be null");
+        this.loggerHelper = Objects.requireNonNull(loggerHelper, "Logger helper can not be null");
         this.stateObserver = Objects.requireNonNull(stateObserver, "State observer can not be null");
     }
 
@@ -91,7 +91,7 @@ public class DefaultCommandBus<S extends State>
 
     @Override
     public void addCommandLogger(CommandLogger logger) {
-        loggers.addCommandLogger(logger);
+        loggerHelper.addCommandLogger(logger);
     }
 
     @Override
@@ -112,7 +112,7 @@ public class DefaultCommandBus<S extends State>
     @Override
     public <C extends Command, E extends Event> void mapCommandHandler(
             Class<C> commandClass, CommandHandler<S, C, E> commandHandler) {
-        isCommandHandlerSupported(Objects.requireNonNull(commandHandler, "Command handler can not be null"));
+        isCommandHandlerSupported(commandHandler);
 
         // noinspection unchecked
         mapMessageHandler((Class) commandClass, (CommandHandler) commandHandler);
@@ -120,7 +120,7 @@ public class DefaultCommandBus<S extends State>
 
     @Override
     public void removeCommandLogger(CommandLogger logger) {
-        loggers.removeCommandLogger(logger);
+        loggerHelper.removeCommandLogger(logger);
     }
 
     /**
@@ -259,11 +259,11 @@ public class DefaultCommandBus<S extends State>
      */
     protected void handleMultiResult(Throwable error, Command command, Collection<Event> events) {
         if (error != null) {
-            loggers.onCommandHandlerError(error, command, events);
+            loggerHelper.onCommandHandlerError(error, command, events);
             return;
         }
 
-        loggers.onCommandHandlerResult(command, events);
+        loggerHelper.onCommandHandlerResult(command, events);
 
         if (events != null) {
             for (Event event : events) {
@@ -282,6 +282,8 @@ public class DefaultCommandBus<S extends State>
      */
     protected <C extends Command, E extends Event> void isCommandHandlerSupported(
             CommandHandler<S, C, E> commandHandler) {
+        Objects.requireNonNull(commandHandler, "Command handler can not be null");
+
         for (Class<? extends CommandHandler> supported : SUPPORTED) {
             if (supported.isInstance(commandHandler)) {
                 return;

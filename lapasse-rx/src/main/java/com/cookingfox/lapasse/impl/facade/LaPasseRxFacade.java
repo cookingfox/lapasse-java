@@ -4,7 +4,7 @@ import com.cookingfox.lapasse.api.command.bus.CommandBus;
 import com.cookingfox.lapasse.api.command.bus.RxCommandBus;
 import com.cookingfox.lapasse.api.event.bus.EventBus;
 import com.cookingfox.lapasse.api.facade.RxFacade;
-import com.cookingfox.lapasse.api.logging.LoggerCollection;
+import com.cookingfox.lapasse.api.logging.LoggersHelper;
 import com.cookingfox.lapasse.api.message.store.MessageStore;
 import com.cookingfox.lapasse.api.state.State;
 import com.cookingfox.lapasse.api.state.manager.RxStateManager;
@@ -29,7 +29,7 @@ public class LaPasseRxFacade<S extends State> extends LaPasseFacade<S> implement
 
     public LaPasseRxFacade(RxCommandBus<S> commandBus,
                            EventBus<S> eventBus,
-                           LoggerCollection<S> loggers,
+                           LoggersHelper<S> loggers,
                            MessageStore messageStore,
                            RxStateManager<S> stateManager) {
         super(commandBus, eventBus, loggers, messageStore, stateManager);
@@ -103,7 +103,7 @@ public class LaPasseRxFacade<S extends State> extends LaPasseFacade<S> implement
         @Override
         protected RxCommandBus<S> createDefaultCommandBus(MessageStore messageStore,
                                                           EventBus<S> eventBus,
-                                                          LoggerCollection<S> loggers,
+                                                          LoggersHelper<S> loggers,
                                                           StateManager<S> stateManager) {
             return new DefaultRxCommandBus<>(messageStore, eventBus, loggers, (RxStateManager<S>) stateManager);
         }
@@ -116,7 +116,7 @@ public class LaPasseRxFacade<S extends State> extends LaPasseFacade<S> implement
         @Override
         protected LaPasseRxFacade<S> createFacade(CommandBus<S> commandBus,
                                                   EventBus<S> eventBus,
-                                                  LoggerCollection<S> loggers,
+                                                  LoggersHelper<S> loggers,
                                                   MessageStore messageStore,
                                                   StateManager<S> stateManager) {
             return new LaPasseRxFacade<>((RxCommandBus<S>) commandBus, eventBus, loggers,
@@ -142,8 +142,8 @@ public class LaPasseRxFacade<S extends State> extends LaPasseFacade<S> implement
         }
 
         @Override
-        public LaPasseRxFacade.Builder<S> setLoggers(LoggerCollection<S> loggers) {
-            return (LaPasseRxFacade.Builder<S>) super.setLoggers(loggers);
+        public LaPasseRxFacade.Builder<S> setLoggersHelper(LoggersHelper<S> loggersHelper) {
+            return (LaPasseRxFacade.Builder<S>) super.setLoggersHelper(loggersHelper);
         }
 
         @Override

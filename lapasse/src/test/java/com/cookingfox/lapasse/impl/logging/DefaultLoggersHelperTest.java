@@ -19,19 +19,19 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
- * Unit tests for {@link LoggersHelper}.
+ * Unit tests for {@link DefaultLoggersHelper}.
  */
-public class LoggersHelperTest {
+public class DefaultLoggersHelperTest {
 
     //----------------------------------------------------------------------------------------------
     // TEST SETUP
     //----------------------------------------------------------------------------------------------
 
-    private LoggersHelper<CountState> loggers;
+    private DefaultLoggersHelper<CountState> loggers;
 
     @Before
     public void setUp() throws Exception {
-        loggers = new LoggersHelper<>();
+        loggers = new DefaultLoggersHelper<>();
     }
 
     //----------------------------------------------------------------------------------------------

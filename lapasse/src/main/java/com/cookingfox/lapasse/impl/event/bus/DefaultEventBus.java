@@ -5,7 +5,7 @@ import com.cookingfox.lapasse.api.event.bus.EventBus;
 import com.cookingfox.lapasse.api.event.exception.EventHandlerReturnedNullException;
 import com.cookingfox.lapasse.api.event.handler.EventHandler;
 import com.cookingfox.lapasse.api.event.logging.EventLogger;
-import com.cookingfox.lapasse.api.logging.LoggerCollection;
+import com.cookingfox.lapasse.api.event.logging.EventLoggerHelper;
 import com.cookingfox.lapasse.api.message.Message;
 import com.cookingfox.lapasse.api.message.store.MessageStore;
 import com.cookingfox.lapasse.api.state.State;
@@ -26,7 +26,7 @@ public class DefaultEventBus<S extends State>
     /**
      * Used for logging the event handler operations.
      */
-    protected final LoggerCollection<S> loggers;
+    protected final EventLoggerHelper<S> loggerHelper;
 
     /**
      * Provides access to the current state.
@@ -37,10 +37,12 @@ public class DefaultEventBus<S extends State>
     // CONSTRUCTOR
     //----------------------------------------------------------------------------------------------
 
-    public DefaultEventBus(MessageStore messageStore, LoggerCollection<S> loggers, StateManager<S> stateManager) {
+    public DefaultEventBus(MessageStore messageStore,
+                           EventLoggerHelper<S> loggerHelper,
+                           StateManager<S> stateManager) {
         super(messageStore);
 
-        this.loggers = Objects.requireNonNull(loggers, "Loggers can not be null");
+        this.loggerHelper = Objects.requireNonNull(loggerHelper, "Logger helper can not be null");
         this.stateManager = Objects.requireNonNull(stateManager, "State manager can not be null");
     }
 
@@ -50,7 +52,7 @@ public class DefaultEventBus<S extends State>
 
     @Override
     public void addEventLogger(EventLogger<S> logger) {
-        loggers.addEventLogger(logger);
+        loggerHelper.addEventLogger(logger);
     }
 
     @Override
@@ -66,7 +68,7 @@ public class DefaultEventBus<S extends State>
 
     @Override
     public void removeEventLogger(EventLogger<S> logger) {
-        loggers.removeEventLogger(logger);
+        loggerHelper.removeEventLogger(logger);
     }
 
     //----------------------------------------------------------------------------------------------
@@ -81,16 +83,16 @@ public class DefaultEventBus<S extends State>
             // attempt to create a new state by applying the event to the current state
             newState = eventHandler.handle(stateManager.getCurrentState(), event);
         } catch (Exception e) {
-            loggers.onEventHandlerError(e, event, null);
+            loggerHelper.onEventHandlerError(e, event, null);
             return;
         }
 
         // log handler result
-        loggers.onEventHandlerResult(event, newState);
+        loggerHelper.onEventHandlerResult(event, newState);
 
         if (newState == null) {
             // handler returned null: log error
-            loggers.onEventHandlerError(new EventHandlerReturnedNullException(event), event, null);
+            loggerHelper.onEventHandlerError(new EventHandlerReturnedNullException(event), event, null);
         } else {
             // handler returned new state: pass to state manager
             stateManager.handleNewState(newState, event);
