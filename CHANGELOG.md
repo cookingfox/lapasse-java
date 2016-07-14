@@ -1,5 +1,12 @@
 # LaPasse for Java: Change Log
 
+## [0.4.0](../../tree/0.4.0) (2016-07-14)
+
+- Introduces `Disposable` interface with implementations across LaPasse components that perform
+clean up operations.
+- Renames 'subscriber' in core to 'listener' to prevent confusion with Rx extension.
+- Refactors loggers with better naming and support for removing loggers.
+
 ## [0.3.7](../../tree/0.3.7) (2016-07-12)
 
 - Improves message handling by checking whether handlers are registered for an added message.
