@@ -17,4 +17,11 @@ public interface CombinedLoggerAware<S extends State> extends Disposable {
      */
     void addLogger(CombinedLogger<S> logger);
 
+    /**
+     * Remove a logger instance that implements all supported logger interfaces.
+     *
+     * @param logger The logger to remove.
+     */
+    void removeLogger(CombinedLogger<S> logger);
+
 }

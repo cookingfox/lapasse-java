@@ -33,8 +33,27 @@ public class LaPasseFacadeDelegate<S extends State> implements Facade<S> {
     }
 
     //----------------------------------------------------------------------------------------------
-    // PUBLIC METHODS
+    // COMBINED LOGGER AWARE
     //----------------------------------------------------------------------------------------------
+
+    @Override
+    public void addLogger(CombinedLogger<S> logger) {
+        facade.addLogger(logger);
+    }
+
+    @Override
+    public void removeLogger(CombinedLogger<S> logger) {
+        facade.removeLogger(logger);
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // COMMAND BUS
+    //----------------------------------------------------------------------------------------------
+
+    @Override
+    public void addCommandLogger(CommandLogger logger) {
+        facade.addCommandLogger(logger);
+    }
 
     @Override
     public void handleCommand(Command command) {
@@ -47,18 +66,31 @@ public class LaPasseFacadeDelegate<S extends State> implements Facade<S> {
     }
 
     @Override
+    public void removeCommandLogger(CommandLogger logger) {
+        facade.removeCommandLogger(logger);
+    }
+
+    @Override
     public void setCommandHandlerExecutor(ExecutorService executor) {
         facade.setCommandHandlerExecutor(executor);
     }
 
-    @Override
-    public void addCommandLogger(CommandLogger logger) {
-        facade.addCommandLogger(logger);
-    }
+    //----------------------------------------------------------------------------------------------
+    // DISPOSABLE
+    //----------------------------------------------------------------------------------------------
 
     @Override
     public void dispose() {
         facade.dispose();
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // EVENT BUS
+    //----------------------------------------------------------------------------------------------
+
+    @Override
+    public void addEventLogger(EventLogger<S> logger) {
+        facade.addEventLogger(logger);
     }
 
     @Override
@@ -72,14 +104,13 @@ public class LaPasseFacadeDelegate<S extends State> implements Facade<S> {
     }
 
     @Override
-    public void addEventLogger(EventLogger<S> logger) {
-        facade.addEventLogger(logger);
+    public void removeEventLogger(EventLogger<S> logger) {
+        facade.removeEventLogger(logger);
     }
 
-    @Override
-    public void addLogger(CombinedLogger<S> logger) {
-        facade.addLogger(logger);
-    }
+    //----------------------------------------------------------------------------------------------
+    // STATE OBSERVER
+    //----------------------------------------------------------------------------------------------
 
     @Override
     public void addStateChangedListener(OnStateChanged<S> listener) {

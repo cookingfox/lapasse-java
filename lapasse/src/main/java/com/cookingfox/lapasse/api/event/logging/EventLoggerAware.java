@@ -17,4 +17,11 @@ public interface EventLoggerAware<S extends State> extends Disposable {
      */
     void addEventLogger(EventLogger<S> logger);
 
+    /**
+     * Remove an event logger.
+     *
+     * @param logger The event logger to remove.
+     */
+    void removeEventLogger(EventLogger<S> logger);
+
 }

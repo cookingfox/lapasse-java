@@ -64,6 +64,11 @@ public class DefaultEventBus<S extends State>
         mapMessageHandler((Class) eventClass, (EventHandler) eventHandler);
     }
 
+    @Override
+    public void removeEventLogger(EventLogger<S> logger) {
+        loggers.removeEventLogger(logger);
+    }
+
     //----------------------------------------------------------------------------------------------
     // OVERRIDDEN ABSTRACT METHODS
     //----------------------------------------------------------------------------------------------

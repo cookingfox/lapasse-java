@@ -118,6 +118,11 @@ public class DefaultCommandBus<S extends State>
         mapMessageHandler((Class) commandClass, (CommandHandler) commandHandler);
     }
 
+    @Override
+    public void removeCommandLogger(CommandLogger logger) {
+        loggers.removeCommandLogger(logger);
+    }
+
     /**
      * Sets the executor service to use for executing async command handlers.
      *

@@ -1,11 +1,13 @@
 package com.cookingfox.lapasse.impl.logging;
 
 import com.cookingfox.lapasse.api.command.Command;
-import com.cookingfox.lapasse.api.command.exception.NoRegisteredCommandErrorHandlerException;
+import com.cookingfox.lapasse.api.command.exception.NoRegisteredCommandLoggerException;
 import com.cookingfox.lapasse.api.command.logging.CommandLogger;
 import com.cookingfox.lapasse.api.event.Event;
-import com.cookingfox.lapasse.api.event.exception.NoRegisteredEventErrorHandlerException;
+import com.cookingfox.lapasse.api.event.exception.NoRegisteredEventLoggerException;
 import com.cookingfox.lapasse.api.event.logging.EventLogger;
+import com.cookingfox.lapasse.api.exception.LoggerNotAddedException;
+import com.cookingfox.lapasse.api.state.State;
 import fixtures.example.state.CountState;
 import org.junit.Before;
 import org.junit.Test;
@@ -66,10 +68,37 @@ public class LoggersHelperTest {
     }
 
     //----------------------------------------------------------------------------------------------
+    // TESTS: removeCommandLogger
+    //----------------------------------------------------------------------------------------------
+
+    @Test(expected = NullPointerException.class)
+    public void removeCommandLogger_should_throw_if_null() throws Exception {
+        loggers.removeCommandLogger(null);
+    }
+
+    @Test(expected = LoggerNotAddedException.class)
+    public void removeCommandLogger_should_throw_if_not_added() throws Exception {
+        loggers.removeCommandLogger(new DefaultLogger<>());
+    }
+
+    @Test
+    public void removeCommandLogger_should_remove_logger() throws Exception {
+        DefaultLogger<State> logger = new DefaultLogger<>();
+
+        loggers.addCommandLogger(logger);
+
+        assertTrue(loggers.commandLoggers.contains(logger));
+
+        loggers.removeCommandLogger(logger);
+
+        assertFalse(loggers.commandLoggers.contains(logger));
+    }
+
+    //----------------------------------------------------------------------------------------------
     // TESTS: onCommandHandlerError
     //----------------------------------------------------------------------------------------------
 
-    @Test(expected = NoRegisteredCommandErrorHandlerException.class)
+    @Test(expected = NoRegisteredCommandLoggerException.class)
     public void onCommandHandlerError_should_throw_if_no_command_loggers() throws Exception {
         loggers.onCommandHandlerError(null, null, null);
     }
@@ -108,10 +137,37 @@ public class LoggersHelperTest {
     }
 
     //----------------------------------------------------------------------------------------------
+    // TESTS: removeEventLogger
+    //----------------------------------------------------------------------------------------------
+
+    @Test(expected = NullPointerException.class)
+    public void removeEventLogger_should_throw_if_null() throws Exception {
+        loggers.removeEventLogger(null);
+    }
+
+    @Test(expected = LoggerNotAddedException.class)
+    public void removeEventLogger_should_throw_if_not_added() throws Exception {
+        loggers.removeEventLogger(new DefaultLogger<CountState>());
+    }
+
+    @Test
+    public void removeEventLogger_should_remove_logger() throws Exception {
+        DefaultLogger<CountState> logger = new DefaultLogger<>();
+
+        loggers.addEventLogger(logger);
+
+        assertTrue(loggers.eventLoggers.contains(logger));
+
+        loggers.removeEventLogger(logger);
+
+        assertFalse(loggers.eventLoggers.contains(logger));
+    }
+
+    //----------------------------------------------------------------------------------------------
     // TESTS: onEventHandlerError
     //----------------------------------------------------------------------------------------------
 
-    @Test(expected = NoRegisteredEventErrorHandlerException.class)
+    @Test(expected = NoRegisteredEventLoggerException.class)
     public void onEventHandlerError_should_throw_if_no_event_loggers() throws Exception {
         loggers.onEventHandlerError(null, null, null);
     }
@@ -163,6 +219,35 @@ public class LoggersHelperTest {
         assertTrue(commandResultCalled.get());
         assertTrue(eventErrorCalled.get());
         assertTrue(eventResultCalled.get());
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // TESTS: removeLogger
+    //----------------------------------------------------------------------------------------------
+
+    @Test(expected = NullPointerException.class)
+    public void removeLogger_should_throw_if_null() throws Exception {
+        loggers.removeLogger(null);
+    }
+
+    @Test(expected = LoggerNotAddedException.class)
+    public void removeLogger_should_throw_if_not_added() throws Exception {
+        loggers.removeLogger(new DefaultLogger<CountState>());
+    }
+
+    @Test
+    public void removeLogger_should_remove_logger() throws Exception {
+        DefaultLogger<CountState> logger = new DefaultLogger<>();
+
+        loggers.addLogger(logger);
+
+        assertTrue(loggers.commandLoggers.contains(logger));
+        assertTrue(loggers.eventLoggers.contains(logger));
+
+        loggers.removeLogger(logger);
+
+        assertFalse(loggers.commandLoggers.contains(logger));
+        assertFalse(loggers.eventLoggers.contains(logger));
     }
 
     //----------------------------------------------------------------------------------------------

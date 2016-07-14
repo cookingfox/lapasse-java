@@ -1,7 +1,7 @@
 package com.cookingfox.lapasse.impl.command.bus;
 
 import com.cookingfox.lapasse.api.command.Command;
-import com.cookingfox.lapasse.api.command.exception.NoRegisteredCommandErrorHandlerException;
+import com.cookingfox.lapasse.api.command.exception.NoRegisteredCommandLoggerException;
 import com.cookingfox.lapasse.api.command.exception.UnsupportedCommandHandlerException;
 import com.cookingfox.lapasse.api.command.handler.*;
 import com.cookingfox.lapasse.api.event.Event;
@@ -329,7 +329,7 @@ public class DefaultCommandBusTest {
             });
 
             fail("Expected exception");
-        } catch (NoRegisteredCommandErrorHandlerException e) {
+        } catch (NoRegisteredCommandLoggerException e) {
             assertTrue(e.getCause() instanceof UnsupportedCommandHandlerException);
         }
     }
@@ -341,7 +341,7 @@ public class DefaultCommandBusTest {
             });
 
             fail("Expected exception");
-        } catch (NoRegisteredCommandErrorHandlerException e) {
+        } catch (NoRegisteredCommandLoggerException e) {
             assertTrue(e.getCause() instanceof UnsupportedCommandHandlerException);
         }
     }

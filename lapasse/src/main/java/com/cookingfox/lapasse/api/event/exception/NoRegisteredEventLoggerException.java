@@ -4,11 +4,11 @@ import com.cookingfox.lapasse.api.event.Event;
 import com.cookingfox.lapasse.api.exception.LaPasseException;
 
 /**
- * Thrown when there is no registered event error handler. Wraps the original exception.
+ * Thrown when there is no registered event logger. Wraps the original exception.
  */
-public class NoRegisteredEventErrorHandlerException extends LaPasseException {
+public class NoRegisteredEventLoggerException extends LaPasseException {
 
-    public NoRegisteredEventErrorHandlerException(Throwable cause, Event event) {
+    public NoRegisteredEventLoggerException(Throwable cause, Event event) {
         super(String.format("Exception thrown by handler for event '%s'", event), cause);
     }
 

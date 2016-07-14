@@ -62,6 +62,11 @@ public class LaPasseFacade<S extends State> implements Facade<S> {
         loggers.addLogger(logger);
     }
 
+    @Override
+    public void removeLogger(CombinedLogger<S> logger) {
+        loggers.removeLogger(logger);
+    }
+
     //----------------------------------------------------------------------------------------------
     // COMMAND BUS
     //----------------------------------------------------------------------------------------------
@@ -79,6 +84,11 @@ public class LaPasseFacade<S extends State> implements Facade<S> {
     @Override
     public <C extends Command, E extends Event> void mapCommandHandler(Class<C> commandClass, CommandHandler<S, C, E> commandHandler) {
         commandBus.mapCommandHandler(commandClass, commandHandler);
+    }
+
+    @Override
+    public void removeCommandLogger(CommandLogger logger) {
+        commandBus.removeCommandLogger(logger);
     }
 
     @Override
@@ -116,6 +126,11 @@ public class LaPasseFacade<S extends State> implements Facade<S> {
     @Override
     public <E extends Event> void mapEventHandler(Class<E> eventClass, EventHandler<S, E> eventHandler) {
         eventBus.mapEventHandler(eventClass, eventHandler);
+    }
+
+    @Override
+    public void removeEventLogger(EventLogger<S> logger) {
+        eventBus.removeEventLogger(logger);
     }
 
     //----------------------------------------------------------------------------------------------

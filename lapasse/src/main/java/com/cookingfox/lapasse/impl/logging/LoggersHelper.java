@@ -1,11 +1,12 @@
 package com.cookingfox.lapasse.impl.logging;
 
 import com.cookingfox.lapasse.api.command.Command;
-import com.cookingfox.lapasse.api.command.exception.NoRegisteredCommandErrorHandlerException;
+import com.cookingfox.lapasse.api.command.exception.NoRegisteredCommandLoggerException;
 import com.cookingfox.lapasse.api.command.logging.CommandLogger;
 import com.cookingfox.lapasse.api.event.Event;
-import com.cookingfox.lapasse.api.event.exception.NoRegisteredEventErrorHandlerException;
+import com.cookingfox.lapasse.api.event.exception.NoRegisteredEventLoggerException;
 import com.cookingfox.lapasse.api.event.logging.EventLogger;
+import com.cookingfox.lapasse.api.exception.LoggerNotAddedException;
 import com.cookingfox.lapasse.api.logging.CombinedLogger;
 import com.cookingfox.lapasse.api.logging.LoggerCollection;
 import com.cookingfox.lapasse.api.state.State;
@@ -42,9 +43,18 @@ public class LoggersHelper<S extends State> implements LoggerCollection<S> {
     }
 
     @Override
+    public void removeCommandLogger(CommandLogger logger) {
+        if (!commandLoggers.contains(Objects.requireNonNull(logger, "Logger can not be null"))) {
+            throw new LoggerNotAddedException(logger, this);
+        }
+
+        commandLoggers.remove(logger);
+    }
+
+    @Override
     public void onCommandHandlerError(Throwable error, Command command, Collection<Event> events) {
         if (commandLoggers.isEmpty()) {
-            throw new NoRegisteredCommandErrorHandlerException(error, command);
+            throw new NoRegisteredCommandLoggerException(error, command);
         }
 
         for (CommandLogger logger : commandLoggers) {
@@ -69,9 +79,18 @@ public class LoggersHelper<S extends State> implements LoggerCollection<S> {
     }
 
     @Override
+    public void removeEventLogger(EventLogger<S> logger) {
+        if (!eventLoggers.contains(Objects.requireNonNull(logger, "Logger can not be null"))) {
+            throw new LoggerNotAddedException(logger, this);
+        }
+
+        eventLoggers.remove(logger);
+    }
+
+    @Override
     public void onEventHandlerError(Throwable error, Event event, S newState) {
         if (eventLoggers.isEmpty()) {
-            throw new NoRegisteredEventErrorHandlerException(error, event);
+            throw new NoRegisteredEventLoggerException(error, event);
         }
 
         for (EventLogger<S> logger : eventLoggers) {
@@ -87,7 +106,7 @@ public class LoggersHelper<S extends State> implements LoggerCollection<S> {
     }
 
     //----------------------------------------------------------------------------------------------
-    // PUBLIC METHODS
+    // COMBINED LOGGER
     //----------------------------------------------------------------------------------------------
 
     @Override
@@ -95,6 +114,16 @@ public class LoggersHelper<S extends State> implements LoggerCollection<S> {
         addCommandLogger(logger);
         addEventLogger(logger);
     }
+
+    @Override
+    public void removeLogger(CombinedLogger<S> logger) {
+        removeCommandLogger(logger);
+        removeEventLogger(logger);
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // DISPOSABLE
+    //----------------------------------------------------------------------------------------------
 
     @Override
     public void dispose() {

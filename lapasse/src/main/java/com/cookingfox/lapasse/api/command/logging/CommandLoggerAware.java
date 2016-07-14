@@ -14,4 +14,11 @@ public interface CommandLoggerAware extends Disposable {
      */
     void addCommandLogger(CommandLogger logger);
 
+    /**
+     * Remove a command logger.
+     *
+     * @param logger The command logger to remove.
+     */
+    void removeCommandLogger(CommandLogger logger);
+
 }
