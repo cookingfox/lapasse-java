@@ -30,6 +30,28 @@ public class AbstractMessageStoreTest {
     }
 
     //----------------------------------------------------------------------------------------------
+    // TESTS: dispose
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void dispose_should_unsubscribe_subscribers() throws Exception {
+        final AtomicBoolean called = new AtomicBoolean(false);
+
+        messageStore.subscribe(new OnMessageAdded() {
+            @Override
+            public void onMessageAdded(Message message) {
+                called.set(true);
+            }
+        });
+
+        messageStore.dispose();
+
+        messageStore.addMessage(new FixtureMessage());
+
+        assertFalse(called.get());
+    }
+
+    //----------------------------------------------------------------------------------------------
     // TESTS: subscribe
     //----------------------------------------------------------------------------------------------
 

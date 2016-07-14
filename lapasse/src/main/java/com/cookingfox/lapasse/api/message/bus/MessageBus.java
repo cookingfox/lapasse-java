@@ -1,5 +1,6 @@
 package com.cookingfox.lapasse.api.message.bus;
 
+import com.cookingfox.lapasse.api.lifecycle.Disposable;
 import com.cookingfox.lapasse.api.message.Message;
 import com.cookingfox.lapasse.api.message.handler.MessageHandler;
 
@@ -9,7 +10,7 @@ import com.cookingfox.lapasse.api.message.handler.MessageHandler;
  * @param <M> The concrete message type.
  * @param <H> The concrete message handler type.
  */
-public interface MessageBus<M extends Message, H extends MessageHandler<M>> {
+public interface MessageBus<M extends Message, H extends MessageHandler<M>> extends Disposable {
 
     /**
      * Execute the message handler that is mapped to this message type. Throws if no handler is

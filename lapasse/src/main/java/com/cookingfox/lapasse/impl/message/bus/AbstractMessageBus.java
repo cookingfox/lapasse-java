@@ -47,6 +47,11 @@ public abstract class AbstractMessageBus<M extends Message, H extends MessageHan
     //----------------------------------------------------------------------------------------------
 
     @Override
+    public void dispose() {
+        messageHandlerMap.clear();
+    }
+
+    @Override
     public void handleMessage(M message) {
         Class<? extends Message> messageClass = message.getClass();
 

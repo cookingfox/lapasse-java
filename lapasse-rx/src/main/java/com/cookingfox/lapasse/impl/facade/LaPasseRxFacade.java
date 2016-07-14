@@ -27,11 +27,12 @@ public class LaPasseRxFacade<S extends State> extends LaPasseFacade<S> implement
     // CONSTRUCTOR
     //----------------------------------------------------------------------------------------------
 
-    public LaPasseRxFacade(CommandBus<S> commandBus,
+    public LaPasseRxFacade(RxCommandBus<S> commandBus,
                            EventBus<S> eventBus,
                            LoggerCollection<S> loggers,
-                           RxStateObserver<S> stateObserver) {
-        super(commandBus, eventBus, loggers, stateObserver);
+                           MessageStore messageStore,
+                           RxStateManager<S> stateManager) {
+        super(commandBus, eventBus, loggers, messageStore, stateManager);
     }
 
     //----------------------------------------------------------------------------------------------
@@ -72,7 +73,8 @@ public class LaPasseRxFacade<S extends State> extends LaPasseFacade<S> implement
      * @return The state observer as Rx state observer.
      */
     protected RxStateObserver<S> getRxStateObserver() {
-        return (RxStateObserver<S>) stateObserver;
+        // noinspection unchecked
+        return (RxStateObserver<S>) stateManager;
     }
 
     //----------------------------------------------------------------------------------------------
@@ -115,8 +117,10 @@ public class LaPasseRxFacade<S extends State> extends LaPasseFacade<S> implement
         protected LaPasseRxFacade<S> createFacade(CommandBus<S> commandBus,
                                                   EventBus<S> eventBus,
                                                   LoggerCollection<S> loggers,
+                                                  MessageStore messageStore,
                                                   StateManager<S> stateManager) {
-            return new LaPasseRxFacade<>(commandBus, eventBus, loggers, (RxStateManager<S>) stateManager);
+            return new LaPasseRxFacade<>((RxCommandBus<S>) commandBus, eventBus, loggers,
+                    messageStore, (RxStateManager<S>) stateManager);
         }
 
         //------------------------------------------------------------------------------------------

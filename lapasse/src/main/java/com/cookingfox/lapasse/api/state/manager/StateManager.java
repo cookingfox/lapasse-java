@@ -1,6 +1,7 @@
 package com.cookingfox.lapasse.api.state.manager;
 
 import com.cookingfox.lapasse.api.event.Event;
+import com.cookingfox.lapasse.api.lifecycle.Disposable;
 import com.cookingfox.lapasse.api.state.State;
 import com.cookingfox.lapasse.api.state.observer.StateObserver;
 
@@ -9,7 +10,7 @@ import com.cookingfox.lapasse.api.state.observer.StateObserver;
  *
  * @param <S> The concrete type of the state object.
  */
-public interface StateManager<S extends State> extends StateObserver<S> {
+public interface StateManager<S extends State> extends Disposable, StateObserver<S> {
 
     /**
      * Validate and set a new state object. Calls subscribers if the new state is different from the

@@ -28,9 +28,10 @@ import rx.schedulers.Schedulers;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static org.junit.Assert.assertSame;
+import static org.junit.Assert.*;
 
 /**
  * Unit tests for {@link DefaultRxCommandBus}.
@@ -56,6 +57,19 @@ public class DefaultRxCommandBusTest {
         commandBus = new DefaultRxCommandBus<>(messageStore, eventBus, loggers, stateManager);
         commandBus.setCommandObserveScheduler(Schedulers.immediate());
         commandBus.setCommandSubscribeScheduler(Schedulers.immediate());
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // TESTS: dispose
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void dispose_should_unsubscribe_subscriptions() throws Exception {
+        assertFalse(commandBus.subscriptions.isUnsubscribed());
+
+        commandBus.dispose();
+
+        assertTrue(commandBus.subscriptions.isUnsubscribed());
     }
 
     //----------------------------------------------------------------------------------------------
@@ -278,6 +292,59 @@ public class DefaultRxCommandBusTest {
                 });
 
         commandBus.handleCommand(new IncrementCount(1));
+    }
+
+    @Test
+    public void executeHandler_should_add_subscription_single() throws Exception {
+        assertFalse(commandBus.subscriptions.hasSubscriptions());
+
+        commandBus.mapCommandHandler(IncrementCount.class,
+                new RxCommandHandler<CountState, IncrementCount, CountIncremented>() {
+                    @Override
+                    public Observable<CountIncremented> handle(CountState state, IncrementCount command) {
+                        return Observable.just(new CountIncremented(command.getCount()))
+                                // add delay so the subscription remains
+                                .delay(1, TimeUnit.MILLISECONDS);
+                    }
+                });
+
+        eventBus.mapEventHandler(CountIncremented.class, new EventHandler<CountState, CountIncremented>() {
+            @Override
+            public CountState handle(CountState previousState, CountIncremented event) {
+                return previousState;
+            }
+        });
+
+        commandBus.handleCommand(new IncrementCount(1));
+
+        assertTrue(commandBus.subscriptions.hasSubscriptions());
+    }
+
+    @Test
+    public void executeHandler_should_add_subscription_multi() throws Exception {
+        assertFalse(commandBus.subscriptions.hasSubscriptions());
+
+        commandBus.mapCommandHandler(IncrementCount.class,
+                new RxMultiCommandHandler<CountState, IncrementCount, CountIncremented>() {
+                    @Override
+                    public Observable<Collection<CountIncremented>> handle(CountState state, IncrementCount command) {
+                        // noinspection unchecked
+                        return (Observable) Observable.just(Collections.singleton(new CountIncremented(1)))
+                                // add delay so the subscription remains
+                                .delay(1, TimeUnit.MILLISECONDS);
+                    }
+                });
+
+        eventBus.mapEventHandler(CountIncremented.class, new EventHandler<CountState, CountIncremented>() {
+            @Override
+            public CountState handle(CountState previousState, CountIncremented event) {
+                return previousState;
+            }
+        });
+
+        commandBus.handleCommand(new IncrementCount(1));
+
+        assertTrue(commandBus.subscriptions.hasSubscriptions());
     }
 
     //----------------------------------------------------------------------------------------------

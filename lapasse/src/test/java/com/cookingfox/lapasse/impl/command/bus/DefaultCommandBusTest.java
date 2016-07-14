@@ -5,6 +5,7 @@ import com.cookingfox.lapasse.api.command.exception.NoRegisteredCommandErrorHand
 import com.cookingfox.lapasse.api.command.exception.UnsupportedCommandHandlerException;
 import com.cookingfox.lapasse.api.command.handler.*;
 import com.cookingfox.lapasse.api.event.Event;
+import com.cookingfox.lapasse.api.message.exception.NoMessageHandlersException;
 import com.cookingfox.lapasse.impl.logging.DefaultLogger;
 import com.cookingfox.lapasse.impl.logging.LoggersHelper;
 import fixtures.event.bus.FixtureEventBus;
@@ -73,6 +74,43 @@ public class DefaultCommandBusTest {
     @Test(expected = NullPointerException.class)
     public void constructor_should_throw_if_state_manager_null() throws Exception {
         new DefaultCommandBus<>(messageStore, eventBus, loggers, null);
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // TESTS: dispose
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void dispose_should_remove_mapped_command_handlers() throws Exception {
+        commandBus.mapCommandHandler(IncrementCount.class, new SyncCommandHandler<CountState, IncrementCount, CountIncremented>() {
+            @Override
+            public CountIncremented handle(CountState state, IncrementCount command) {
+                return null;
+            }
+        });
+
+        commandBus.dispose();
+
+        try {
+            commandBus.handleCommand(new IncrementCount(1));
+
+            fail("Expected exception");
+        } catch (NoMessageHandlersException e) {
+            assertNotNull(e);
+        }
+    }
+
+    @Test
+    public void dispose_should_shutdown_command_executor() throws Exception {
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+
+        commandBus.setCommandHandlerExecutor(executorService);
+
+        assertFalse(executorService.isShutdown());
+
+        commandBus.dispose();
+
+        assertTrue(executorService.isShutdown());
     }
 
     //----------------------------------------------------------------------------------------------

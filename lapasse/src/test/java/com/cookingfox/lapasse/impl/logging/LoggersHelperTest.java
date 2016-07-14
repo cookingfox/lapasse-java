@@ -13,6 +13,7 @@ import org.junit.Test;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -162,6 +163,25 @@ public class LoggersHelperTest {
         assertTrue(commandResultCalled.get());
         assertTrue(eventErrorCalled.get());
         assertTrue(eventResultCalled.get());
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // TESTS: dispose
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void dispose_should_remove_event_listeners() throws Exception {
+        DefaultLogger<CountState> logger = new DefaultLogger<>();
+
+        loggers.addLogger(logger);
+
+        assertTrue(loggers.commandLoggers.contains(logger));
+        assertTrue(loggers.eventLoggers.contains(logger));
+
+        loggers.dispose();
+
+        assertFalse(loggers.commandLoggers.contains(logger));
+        assertFalse(loggers.eventLoggers.contains(logger));
     }
 
 }

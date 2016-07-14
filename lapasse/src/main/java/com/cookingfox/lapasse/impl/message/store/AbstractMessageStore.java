@@ -24,6 +24,11 @@ public abstract class AbstractMessageStore implements MessageStore {
     //----------------------------------------------------------------------------------------------
 
     @Override
+    public void dispose() {
+        subscribers.clear();
+    }
+
+    @Override
     public void subscribe(OnMessageAdded subscriber) {
         subscribers.add(Objects.requireNonNull(subscriber, "Subscriber can not be null"));
     }

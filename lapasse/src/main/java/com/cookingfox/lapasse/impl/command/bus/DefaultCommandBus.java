@@ -95,6 +95,16 @@ public class DefaultCommandBus<S extends State>
     }
 
     @Override
+    public void dispose() {
+        super.dispose();
+
+        // shutdown command handler executor
+        if (commandHandlerExecutor != null && !commandHandlerExecutor.isShutdown()) {
+            commandHandlerExecutor.shutdown();
+        }
+    }
+
+    @Override
     public void handleCommand(Command command) {
         handleMessage(command);
     }

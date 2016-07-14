@@ -10,7 +10,7 @@ import com.cookingfox.lapasse.api.state.observer.RxStateObserver;
  * @param <S> The concrete type of the state object.
  */
 public interface RxFacade<S extends State> extends
-        RxCommandBus<S>,
         Facade<S>,
+        RxCommandBus<S>,
         RxStateObserver<S> {
 }

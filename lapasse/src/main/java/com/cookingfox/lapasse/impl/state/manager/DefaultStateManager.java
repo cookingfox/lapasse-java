@@ -40,6 +40,11 @@ public class DefaultStateManager<S extends State> implements StateManager<S> {
     //----------------------------------------------------------------------------------------------
 
     @Override
+    public void dispose() {
+        subscribers.clear();
+    }
+
+    @Override
     public S getCurrentState() {
         return currentState;
     }

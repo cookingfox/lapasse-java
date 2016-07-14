@@ -27,6 +27,11 @@ public class FixtureEventBus implements EventBus<CountState> {
     }
 
     @Override
+    public void dispose() {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    @Override
     public void handleEvent(Event event) {
         handleEventCalls.add(event);
     }

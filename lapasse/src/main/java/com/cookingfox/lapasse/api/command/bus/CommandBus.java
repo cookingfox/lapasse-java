@@ -4,6 +4,7 @@ import com.cookingfox.lapasse.api.command.Command;
 import com.cookingfox.lapasse.api.command.handler.CommandHandler;
 import com.cookingfox.lapasse.api.command.logging.CommandLoggerAware;
 import com.cookingfox.lapasse.api.event.Event;
+import com.cookingfox.lapasse.api.lifecycle.Disposable;
 import com.cookingfox.lapasse.api.state.State;
 
 import java.util.concurrent.ExecutorService;
@@ -13,7 +14,7 @@ import java.util.concurrent.ExecutorService;
  *
  * @param <S> The concrete type of the state object.
  */
-public interface CommandBus<S extends State> extends CommandLoggerAware {
+public interface CommandBus<S extends State> extends CommandLoggerAware, Disposable {
 
     /**
      * Execute the command handler that is mapped to this command type. Throws if no handler is

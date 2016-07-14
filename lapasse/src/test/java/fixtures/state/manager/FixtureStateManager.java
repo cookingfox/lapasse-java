@@ -19,15 +19,20 @@ public class FixtureStateManager implements StateManager<CountState> {
     }
 
     @Override
-    public void handleNewState(CountState newState, Event event) {
-        if (!newState.equals(currentState)) {
-            currentState = newState;
-        }
+    public void dispose() {
+        throw new UnsupportedOperationException("Not implemented");
     }
 
     @Override
     public CountState getCurrentState() {
         return currentState;
+    }
+
+    @Override
+    public void handleNewState(CountState newState, Event event) {
+        if (!newState.equals(currentState)) {
+            currentState = newState;
+        }
     }
 
     @Override

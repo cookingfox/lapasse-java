@@ -1,11 +1,12 @@
 package com.cookingfox.lapasse.api.message.store;
 
+import com.cookingfox.lapasse.api.lifecycle.Disposable;
 import com.cookingfox.lapasse.api.message.Message;
 
 /**
  * Manages stored messages.
  */
-public interface MessageStore {
+public interface MessageStore extends Disposable {
 
     /**
      * Add a new message to the store.

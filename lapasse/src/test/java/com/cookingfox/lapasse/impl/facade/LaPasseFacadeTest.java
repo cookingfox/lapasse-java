@@ -21,6 +21,7 @@ import fixtures.example.state.CountState;
 import org.junit.Test;
 
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
@@ -92,7 +93,8 @@ public class LaPasseFacadeTest {
         assertTrue(facade.commandBus instanceof DefaultCommandBus);
         assertTrue(facade.eventBus instanceof DefaultEventBus);
         assertTrue(facade.loggers instanceof LoggersHelper);
-        assertTrue(facade.stateObserver instanceof DefaultStateManager);
+        assertTrue(facade.messageStore instanceof NoStorageMessageStore);
+        assertTrue(facade.stateManager instanceof DefaultStateManager);
     }
 
     @Test
@@ -115,7 +117,73 @@ public class LaPasseFacadeTest {
         assertSame(commandBus, facade.commandBus);
         assertSame(eventBus, facade.eventBus);
         assertSame(loggers, facade.loggers);
-        assertSame(stateManager, facade.stateObserver);
+        assertSame(stateManager, facade.stateManager);
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // TESTS: dispose
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void dispose_should_dispose_components() throws Exception {
+        final AtomicBoolean messageStoreCalled = new AtomicBoolean(false);
+        final AtomicBoolean loggersCalled = new AtomicBoolean(false);
+        final AtomicBoolean stateManagerCalled = new AtomicBoolean(false);
+        final AtomicBoolean eventBusCalled = new AtomicBoolean(false);
+        final AtomicBoolean commandBusCalled = new AtomicBoolean(false);
+
+        CountState initialState = new CountState(0);
+
+        MessageStore messageStore = new NoStorageMessageStore() {
+            @Override
+            public void dispose() {
+                messageStoreCalled.set(true);
+            }
+        };
+
+        LoggerCollection<CountState> loggers = new LoggersHelper<CountState>() {
+            @Override
+            public void dispose() {
+                loggersCalled.set(true);
+            }
+        };
+
+        StateManager<CountState> stateManager = new DefaultStateManager<CountState>(initialState) {
+            @Override
+            public void dispose() {
+                stateManagerCalled.set(true);
+            }
+        };
+
+        EventBus<CountState> eventBus = new DefaultEventBus<CountState>(messageStore, loggers, stateManager) {
+            @Override
+            public void dispose() {
+                eventBusCalled.set(true);
+            }
+        };
+
+        CommandBus<CountState> commandBus = new DefaultCommandBus<CountState>(messageStore, eventBus, loggers, stateManager) {
+            @Override
+            public void dispose() {
+                commandBusCalled.set(true);
+            }
+        };
+
+        LaPasseFacade<CountState> facade = new LaPasseFacade.Builder<>(initialState)
+                .setCommandBus(commandBus)
+                .setEventBus(eventBus)
+                .setLoggers(loggers)
+                .setMessageStore(messageStore)
+                .setStateManager(stateManager)
+                .build();
+
+        facade.dispose();
+
+        assertTrue(commandBusCalled.get());
+        assertTrue(eventBusCalled.get());
+        assertTrue(loggersCalled.get());
+        assertTrue(messageStoreCalled.get());
+        assertTrue(stateManagerCalled.get());
     }
 
 }

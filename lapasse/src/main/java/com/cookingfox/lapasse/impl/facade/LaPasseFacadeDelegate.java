@@ -57,6 +57,11 @@ public class LaPasseFacadeDelegate<S extends State> implements Facade<S> {
     }
 
     @Override
+    public void dispose() {
+        facade.dispose();
+    }
+
+    @Override
     public void handleEvent(Event event) {
         facade.handleEvent(event);
     }

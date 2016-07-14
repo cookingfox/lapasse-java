@@ -3,6 +3,7 @@ package com.cookingfox.lapasse.impl.event.bus;
 import com.cookingfox.lapasse.api.event.Event;
 import com.cookingfox.lapasse.api.event.exception.EventHandlerReturnedNullException;
 import com.cookingfox.lapasse.api.event.handler.EventHandler;
+import com.cookingfox.lapasse.api.message.exception.NoMessageHandlersException;
 import com.cookingfox.lapasse.impl.logging.DefaultLogger;
 import com.cookingfox.lapasse.impl.logging.LoggersHelper;
 import fixtures.example.event.CountIncremented;
@@ -56,6 +57,30 @@ public class DefaultEventBusTest {
     @Test(expected = NullPointerException.class)
     public void constructor_should_throw_if_state_manager_null() throws Exception {
         new DefaultEventBus<>(messageStore, loggers, null);
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // TESTS: dispose
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void dispose_should_remove_mapped_event_handlers() throws Exception {
+        eventBus.mapEventHandler(CountIncremented.class, new EventHandler<CountState, CountIncremented>() {
+            @Override
+            public CountState handle(CountState previousState, CountIncremented event) {
+                return null;
+            }
+        });
+
+        eventBus.dispose();
+
+        try {
+            eventBus.handleEvent(new CountIncremented(1));
+
+            fail("Expected exception");
+        } catch (NoMessageHandlersException e) {
+            assertNotNull(e);
+        }
     }
 
     //----------------------------------------------------------------------------------------------

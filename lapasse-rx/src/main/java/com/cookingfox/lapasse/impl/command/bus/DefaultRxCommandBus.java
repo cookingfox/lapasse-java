@@ -14,8 +14,10 @@ import com.cookingfox.lapasse.api.state.State;
 import com.cookingfox.lapasse.api.state.observer.RxStateObserver;
 import rx.Observable;
 import rx.Scheduler;
+import rx.Subscription;
 import rx.functions.Action1;
 import rx.schedulers.Schedulers;
+import rx.subscriptions.CompositeSubscription;
 
 import java.util.Collection;
 import java.util.Objects;
@@ -46,8 +48,24 @@ public class DefaultRxCommandBus<S extends State>
     // PROPERTIES
     //----------------------------------------------------------------------------------------------
 
+    /**
+     * The default Scheduler that will be observed on.
+     *
+     * @see Observable#observeOn(Scheduler)
+     */
     protected Scheduler observeOnScheduler;
+
+    /**
+     * The default Scheduler that will be subscribed on.
+     *
+     * @see Observable#subscribeOn(Scheduler)
+     */
     protected Scheduler subscribeOnScheduler;
+
+    /**
+     * Managed collection of Rx subscriptions.
+     */
+    protected final CompositeSubscription subscriptions = new CompositeSubscription();
 
     //----------------------------------------------------------------------------------------------
     // CONSTRUCTOR
@@ -63,6 +81,13 @@ public class DefaultRxCommandBus<S extends State>
     //----------------------------------------------------------------------------------------------
     // PUBLIC METHODS
     //----------------------------------------------------------------------------------------------
+
+    @Override
+    public void dispose() {
+        super.dispose();
+
+        subscriptions.unsubscribe();
+    }
 
     @Override
     public void setCommandObserveScheduler(Scheduler observeOnScheduler) {
@@ -116,7 +141,9 @@ public class DefaultRxCommandBus<S extends State>
                 return;
             }
 
-            eventObservable.compose(this.<Event>applySchedulers())
+            // apply schedulers and subscribe to observable
+            Subscription subscription = eventObservable
+                    .compose(this.<Event>applySchedulers())
                     .subscribe(new Action1<Event>() {
                         @Override
                         public void call(Event event) {
@@ -128,6 +155,8 @@ public class DefaultRxCommandBus<S extends State>
                             handleResult(error, command, null);
                         }
                     });
+
+            subscriptions.add(subscription);
         } catch (Throwable error) {
             handleResult(error, command, null);
         }
@@ -152,7 +181,9 @@ public class DefaultRxCommandBus<S extends State>
                 return;
             }
 
-            multiEventObservable.compose(this.<Collection<Event>>applySchedulers())
+            // apply schedulers and subscribe to observable
+            Subscription subscription = multiEventObservable
+                    .compose(this.<Collection<Event>>applySchedulers())
                     .subscribe(new Action1<Collection<Event>>() {
                         @Override
                         public void call(Collection<Event> events) {
@@ -164,6 +195,8 @@ public class DefaultRxCommandBus<S extends State>
                             handleMultiResult(error, command, null);
                         }
                     });
+
+            subscriptions.add(subscription);
         } catch (Throwable error) {
             handleMultiResult(error, command, null);
         }

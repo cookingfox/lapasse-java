@@ -3,6 +3,7 @@ package com.cookingfox.lapasse.api.event.bus;
 import com.cookingfox.lapasse.api.event.Event;
 import com.cookingfox.lapasse.api.event.handler.EventHandler;
 import com.cookingfox.lapasse.api.event.logging.EventLoggerAware;
+import com.cookingfox.lapasse.api.lifecycle.Disposable;
 import com.cookingfox.lapasse.api.state.State;
 
 /**
@@ -10,7 +11,7 @@ import com.cookingfox.lapasse.api.state.State;
  *
  * @param <S> The concrete type of the state object.
  */
-public interface EventBus<S extends State> extends EventLoggerAware<S> {
+public interface EventBus<S extends State> extends Disposable, EventLoggerAware<S> {
 
     /**
      * Execute the event handler that is mapped to this event type. Throws if no handler is

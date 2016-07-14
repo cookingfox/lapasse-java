@@ -15,7 +15,6 @@ import com.cookingfox.lapasse.api.message.store.MessageStore;
 import com.cookingfox.lapasse.api.state.State;
 import com.cookingfox.lapasse.api.state.manager.StateManager;
 import com.cookingfox.lapasse.api.state.observer.OnStateChanged;
-import com.cookingfox.lapasse.api.state.observer.StateObserver;
 import com.cookingfox.lapasse.impl.command.bus.DefaultCommandBus;
 import com.cookingfox.lapasse.impl.event.bus.DefaultEventBus;
 import com.cookingfox.lapasse.impl.logging.LoggersHelper;
@@ -35,7 +34,8 @@ public class LaPasseFacade<S extends State> implements Facade<S> {
     protected final CommandBus<S> commandBus;
     protected final EventBus<S> eventBus;
     protected final LoggerCollection<S> loggers;
-    protected final StateObserver<S> stateObserver;
+    protected final MessageStore messageStore;
+    protected final StateManager<S> stateManager;
 
     //----------------------------------------------------------------------------------------------
     // CONSTRUCTOR
@@ -44,11 +44,13 @@ public class LaPasseFacade<S extends State> implements Facade<S> {
     public LaPasseFacade(CommandBus<S> commandBus,
                          EventBus<S> eventBus,
                          LoggerCollection<S> loggers,
-                         StateObserver<S> stateObserver) {
+                         MessageStore messageStore,
+                         StateManager<S> stateManager) {
         this.commandBus = Objects.requireNonNull(commandBus, "Command bus can not be null");
         this.eventBus = Objects.requireNonNull(eventBus, "Event bus can not be null");
         this.loggers = Objects.requireNonNull(loggers, "Loggers can not be null");
-        this.stateObserver = Objects.requireNonNull(stateObserver, "State observer can not be null");
+        this.messageStore = Objects.requireNonNull(messageStore, "Message store can not be null");
+        this.stateManager = Objects.requireNonNull(stateManager, "State manager can not be null");
     }
 
     //----------------------------------------------------------------------------------------------
@@ -85,6 +87,19 @@ public class LaPasseFacade<S extends State> implements Facade<S> {
     }
 
     //----------------------------------------------------------------------------------------------
+    // DISPOSABLE
+    //----------------------------------------------------------------------------------------------
+
+    @Override
+    public void dispose() {
+        commandBus.dispose();
+        eventBus.dispose();
+        loggers.dispose();
+        messageStore.dispose();
+        stateManager.dispose();
+    }
+
+    //----------------------------------------------------------------------------------------------
     // EVENT BUS
     //----------------------------------------------------------------------------------------------
 
@@ -109,17 +124,17 @@ public class LaPasseFacade<S extends State> implements Facade<S> {
 
     @Override
     public S getCurrentState() {
-        return stateObserver.getCurrentState();
+        return stateManager.getCurrentState();
     }
 
     @Override
     public void subscribe(OnStateChanged<S> subscriber) {
-        stateObserver.subscribe(subscriber);
+        stateManager.subscribe(subscriber);
     }
 
     @Override
     public void unsubscribe(OnStateChanged<S> subscriber) {
-        stateObserver.unsubscribe(subscriber);
+        stateManager.unsubscribe(subscriber);
     }
 
     //----------------------------------------------------------------------------------------------
@@ -186,7 +201,7 @@ public class LaPasseFacade<S extends State> implements Facade<S> {
                 _commandBus = createDefaultCommandBus(_messageStore, _eventBus, _loggers, _stateManager);
             }
 
-            return createFacade(_commandBus, _eventBus, _loggers, _stateManager);
+            return createFacade(_commandBus, _eventBus, _loggers, _messageStore, _stateManager);
         }
 
         //------------------------------------------------------------------------------------------
@@ -221,8 +236,9 @@ public class LaPasseFacade<S extends State> implements Facade<S> {
         protected LaPasseFacade<S> createFacade(CommandBus<S> commandBus,
                                                 EventBus<S> eventBus,
                                                 LoggerCollection<S> loggers,
+                                                MessageStore messageStore,
                                                 StateManager<S> stateManager) {
-            return new LaPasseFacade<>(commandBus, eventBus, loggers, stateManager);
+            return new LaPasseFacade<>(commandBus, eventBus, loggers, messageStore, stateManager);
         }
 
         //------------------------------------------------------------------------------------------

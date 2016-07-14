@@ -57,7 +57,7 @@ public class LaPasseRxFacadeTest {
         LaPasseRxFacade<CountState> _ = new LaPasseRxFacade.Builder<>(initialState).build();
         LaPasseRxFacade.Builder<CountState> builder = new LaPasseRxFacade.Builder<>(initialState);
         builder.setCommandBus(new DefaultCommandBus<>(
-                builder.createDefaultMessageStore(), _.eventBus, _.loggers, _.stateObserver
+                builder.createDefaultMessageStore(), _.eventBus, _.loggers, _.stateManager
         ));
     }
 

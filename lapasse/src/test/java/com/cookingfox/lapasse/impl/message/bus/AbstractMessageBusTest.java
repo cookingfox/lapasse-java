@@ -12,9 +12,7 @@ import org.junit.Test;
 
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * Unit tests for {@link AbstractMessageBus}.
@@ -41,6 +39,21 @@ public class AbstractMessageBusTest {
     @Test
     public void constructor_should_subscribe_to_store() throws Exception {
         assertEquals(1, messageStore.getSubscribers().size());
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // TESTS: dispose
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void dispose_should_clear_mapped_handlers() throws Exception {
+        messageBus.mapMessageHandler(FixtureMessage.class, new FixtureMessageHandler());
+
+        assertEquals(1, messageBus.messageHandlerMap.size());
+
+        messageBus.dispose();
+
+        assertEquals(0, messageBus.messageHandlerMap.size());
     }
 
     //----------------------------------------------------------------------------------------------

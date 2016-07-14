@@ -11,6 +11,12 @@ import rx.Scheduler;
 public interface RxCommandBus<S extends State> extends CommandBus<S> {
 
     /**
+     * Unsubscribe remaining command handler subscriptions.
+     */
+    @Override
+    void dispose();
+
+    /**
      * Set the scheduler to observe command handler Observables on.
      *
      * @param observeOnScheduler The scheduler to observe on.

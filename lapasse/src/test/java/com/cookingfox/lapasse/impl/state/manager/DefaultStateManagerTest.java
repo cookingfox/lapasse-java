@@ -41,6 +41,30 @@ public class DefaultStateManagerTest {
     }
 
     //----------------------------------------------------------------------------------------------
+    // TESTS: dispose
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void dispose_should_unsubscribe_subscribers() throws Exception {
+        final AtomicBoolean called = new AtomicBoolean(false);
+
+        OnStateChanged<CountState> subscriber = new OnStateChanged<CountState>() {
+            @Override
+            public void onStateChanged(CountState state, Event event) {
+                called.set(true);
+            }
+        };
+
+        stateManager.subscribe(subscriber);
+
+        stateManager.dispose();
+
+        stateManager.handleNewState(new CountState(1), new CountIncremented(1));
+
+        assertFalse(called.get());
+    }
+
+    //----------------------------------------------------------------------------------------------
     // TESTS: getCurrentState
     //----------------------------------------------------------------------------------------------
 

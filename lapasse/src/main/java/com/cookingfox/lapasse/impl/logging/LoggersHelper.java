@@ -96,4 +96,10 @@ public class LoggersHelper<S extends State> implements LoggerCollection<S> {
         addEventLogger(logger);
     }
 
+    @Override
+    public void dispose() {
+        commandLoggers.clear();
+        eventLoggers.clear();
+    }
+
 }
