@@ -1,6 +1,3 @@
-Fixes - all modules:
-- FIXME: provide hooks for clean up, e.g. unsubscribing / clearing listeners.
-
 Wishlist - general:
 - TODO: support event sourcing using message store implementation (separate module)
 
