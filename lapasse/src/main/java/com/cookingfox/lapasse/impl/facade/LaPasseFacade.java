@@ -188,72 +188,54 @@ public class LaPasseFacade<S extends State> implements Facade<S> {
          * @return The created facade.
          */
         public LaPasseFacade<S> build() {
-            CommandBus<S> _commandBus = commandBus;
-            EventBus<S> _eventBus = eventBus;
-            LoggersHelper<S> _loggersHelper = loggersHelper;
-            MessageStore _messageStore = messageStore;
-            StateManager<S> _stateManager = stateManager;
-
-            if (_loggersHelper == null) {
-                _loggersHelper = createDefaultLoggersHelper();
-            }
-
-            // default to message store without storage
-            if (_messageStore == null) {
-                _messageStore = createDefaultMessageStore();
-            }
-
-            // pass initial state to state manager
-            if (_stateManager == null) {
-                _stateManager = createDefaultStateManager(initialState);
-            }
-
-            if (_eventBus == null) {
-                _eventBus = createDefaultEventBus(_messageStore, _loggersHelper, _stateManager);
-            }
-
-            if (_commandBus == null) {
-                _commandBus = createDefaultCommandBus(_messageStore, _eventBus, _loggersHelper, _stateManager);
-            }
-
-            return createFacade(_commandBus, _eventBus, _loggersHelper, _messageStore, _stateManager);
+            return new LaPasseFacade<>(getCommandBus(), getEventBus(), getLoggersHelper(),
+                    getMessageStore(), getStateManager());
         }
 
         //------------------------------------------------------------------------------------------
-        // PROTECTED METHODS
+        // GETTERS
         //------------------------------------------------------------------------------------------
 
-        protected CommandBus<S> createDefaultCommandBus(MessageStore messageStore,
-                                                        EventBus<S> eventBus,
-                                                        LoggersHelper<S> loggers,
-                                                        StateManager<S> stateManager) {
-            return new DefaultCommandBus<>(messageStore, eventBus, loggers, stateManager);
+        public CommandBus<S> getCommandBus() {
+            if (commandBus == null) {
+                commandBus = new DefaultCommandBus<>(getMessageStore(), getEventBus(),
+                        getLoggersHelper(), getStateManager());
+            }
+
+            return commandBus;
         }
 
-        protected EventBus<S> createDefaultEventBus(MessageStore messageStore,
-                                                    LoggersHelper<S> loggers,
-                                                    StateManager<S> stateManager) {
-            return new DefaultEventBus<>(messageStore, loggers, stateManager);
+        public EventBus<S> getEventBus() {
+            if (eventBus == null) {
+                eventBus = new DefaultEventBus<>(getMessageStore(), getLoggersHelper(),
+                        getStateManager());
+            }
+
+            return eventBus;
         }
 
-        protected LoggersHelper<S> createDefaultLoggersHelper() {
-            return new DefaultLoggersHelper<>();
+        public LoggersHelper<S> getLoggersHelper() {
+            if (loggersHelper == null) {
+                loggersHelper = new DefaultLoggersHelper<>();
+            }
+
+            return loggersHelper;
         }
 
-        protected MessageStore createDefaultMessageStore() {
-            return new NoStorageMessageStore();
+        public MessageStore getMessageStore() {
+            if (messageStore == null) {
+                messageStore = new NoStorageMessageStore();
+            }
+
+            return messageStore;
         }
 
-        protected StateManager<S> createDefaultStateManager(S initialState) {
-            return new DefaultStateManager<>(initialState);
-        }
+        public StateManager<S> getStateManager() {
+            if (stateManager == null) {
+                stateManager = new DefaultStateManager<>(initialState);
+            }
 
-        protected LaPasseFacade<S> createFacade(CommandBus<S> commandBus,
-                                                EventBus<S> eventBus,
-                                                LoggersHelper<S> loggers,
-                                                MessageStore messageStore,
-                                                StateManager<S> stateManager) {
-            return new LaPasseFacade<>(commandBus, eventBus, loggers, messageStore, stateManager);
+            return stateManager;
         }
 
         //------------------------------------------------------------------------------------------

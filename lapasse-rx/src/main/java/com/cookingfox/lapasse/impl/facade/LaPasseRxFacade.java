@@ -91,36 +91,37 @@ public class LaPasseRxFacade<S extends State> extends LaPasseFacade<S> implement
             super(initialState);
         }
 
+        //------------------------------------------------------------------------------------------
+        // PUBLIC METHODS
+        //------------------------------------------------------------------------------------------
+
         @Override
         public LaPasseRxFacade<S> build() {
-            return (LaPasseRxFacade<S>) super.build();
+            return new LaPasseRxFacade<>(getCommandBus(), getEventBus(), getLoggersHelper(),
+                    getMessageStore(), getStateManager());
         }
 
         //------------------------------------------------------------------------------------------
-        // PROTECTED METHODS
+        // GETTERS
         //------------------------------------------------------------------------------------------
 
         @Override
-        protected RxCommandBus<S> createDefaultCommandBus(MessageStore messageStore,
-                                                          EventBus<S> eventBus,
-                                                          LoggersHelper<S> loggers,
-                                                          StateManager<S> stateManager) {
-            return new DefaultRxCommandBus<>(messageStore, eventBus, loggers, (RxStateManager<S>) stateManager);
+        public RxCommandBus<S> getCommandBus() {
+            if (commandBus == null) {
+                commandBus = new DefaultRxCommandBus<>(getMessageStore(), getEventBus(),
+                        getLoggersHelper(), getStateManager());
+            }
+
+            return (RxCommandBus<S>) super.getCommandBus();
         }
 
         @Override
-        protected RxStateManager<S> createDefaultStateManager(S initialState) {
-            return new DefaultRxStateManager<>(initialState);
-        }
+        public RxStateManager<S> getStateManager() {
+            if (stateManager == null) {
+                stateManager = new DefaultRxStateManager<>(initialState);
+            }
 
-        @Override
-        protected LaPasseRxFacade<S> createFacade(CommandBus<S> commandBus,
-                                                  EventBus<S> eventBus,
-                                                  LoggersHelper<S> loggers,
-                                                  MessageStore messageStore,
-                                                  StateManager<S> stateManager) {
-            return new LaPasseRxFacade<>((RxCommandBus<S>) commandBus, eventBus, loggers,
-                    messageStore, (RxStateManager<S>) stateManager);
+            return (RxStateManager<S>) super.getStateManager();
         }
 
         //------------------------------------------------------------------------------------------

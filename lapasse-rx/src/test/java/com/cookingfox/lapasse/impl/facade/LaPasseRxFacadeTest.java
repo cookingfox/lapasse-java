@@ -53,36 +53,33 @@ public class LaPasseRxFacadeTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void setCommandBus_should_throw_if_not_rx_impl() throws Exception {
-        CountState initialState = new CountState(0);
-        LaPasseRxFacade<CountState> f = new LaPasseRxFacade.Builder<>(initialState).build();
-        LaPasseRxFacade.Builder<CountState> builder = new LaPasseRxFacade.Builder<>(initialState);
-        builder.setCommandBus(new DefaultCommandBus<>(
-                builder.createDefaultMessageStore(), f.eventBus, f.loggersHelper, f.stateManager
-        ));
+        LaPasseRxFacade.Builder<CountState> builder = new LaPasseRxFacade.Builder<>(new CountState(0));
+
+        builder.setCommandBus(new DefaultCommandBus<>(builder.getMessageStore(),
+                builder.getEventBus(), builder.getLoggersHelper(), builder.getStateManager()));
+    }
+
+    @Test
+    public void setCommandBus_should_accept_rx_impl() throws Exception {
+        LaPasseRxFacade.Builder<CountState> builder = new LaPasseRxFacade.Builder<>(new CountState(0));
+
+        builder.setCommandBus(new DefaultRxCommandBus<>(builder.getMessageStore(),
+                builder.getEventBus(), builder.getLoggersHelper(), builder.getStateManager()));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void setStateManager_should_throw_if_not_rx_impl() throws Exception {
         CountState initialState = new CountState(0);
         LaPasseRxFacade.Builder<CountState> builder = new LaPasseRxFacade.Builder<>(initialState);
-        builder.setStateManager(new DefaultStateManager<>(initialState));
-    }
 
-    @Test
-    public void setCommandBus_should_accept_rx_impl() throws Exception {
-        CountState initialState = new CountState(0);
-        LaPasseRxFacade<CountState> f = new LaPasseRxFacade.Builder<>(initialState).build();
-        LaPasseRxFacade.Builder<CountState> builder = new LaPasseRxFacade.Builder<>(initialState);
-        DefaultRxStateManager<CountState> stateManager = new DefaultRxStateManager<>(initialState);
-        builder.setCommandBus(new DefaultRxCommandBus<>(
-                builder.createDefaultMessageStore(), f.eventBus, f.loggersHelper, stateManager
-        ));
+        builder.setStateManager(new DefaultStateManager<>(initialState));
     }
 
     @Test
     public void setStateManager_should_accept_rx_impl() throws Exception {
         CountState initialState = new CountState(0);
         LaPasseRxFacade.Builder<CountState> builder = new LaPasseRxFacade.Builder<>(initialState);
+
         builder.setStateManager(new DefaultRxStateManager<>(initialState));
     }
 
