@@ -1,5 +1,9 @@
 # LaPasse for Java: Change Log
 
+## [0.4.1](../../tree/0.4.1) (2016-07-15)
+
+- Adds convenience getter methods to facade Builder implementations.
+
 ## [0.4.0](../../tree/0.4.0) (2016-07-14)
 
 - Introduces `Disposable` interface with implementations across LaPasse components that perform
