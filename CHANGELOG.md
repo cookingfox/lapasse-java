@@ -1,5 +1,10 @@
 # LaPasse for Java: Change Log
 
+## [0.4.2](../../tree/0.4.2) (2016-08-04)
+
+- Fixes bug where `DefaultRxStateManager` would throw on observable unsubscribe if state listener
+was already removed.
+
 ## [0.4.1](../../tree/0.4.1) (2016-07-15)
 
 - Adds convenience getter methods to facade Builder implementations.
