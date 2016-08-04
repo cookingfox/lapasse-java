@@ -71,4 +71,13 @@ public class DefaultRxStateManagerTest {
         subscriber.assertUnsubscribed();
     }
 
+    @Test
+    public void observeStateChanges_should_not_throw_on_unsubscribe_already_removed_listener() throws Exception {
+        Subscription subscription = stateManager.observeStateChanges().subscribe();
+
+        stateManager.stateChangedListeners.clear();
+
+        subscription.unsubscribe();
+    }
+
 }

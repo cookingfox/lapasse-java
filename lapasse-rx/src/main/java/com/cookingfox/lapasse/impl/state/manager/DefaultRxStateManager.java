@@ -6,9 +6,9 @@ import com.cookingfox.lapasse.api.state.manager.RxStateManager;
 import com.cookingfox.lapasse.api.state.manager.StateManager;
 import com.cookingfox.lapasse.api.state.observer.OnStateChanged;
 import com.cookingfox.lapasse.api.state.observer.StateChanged;
+import com.cookingfox.lapasse.impl.state.observer.StateChangedVo;
 import rx.Observable;
 import rx.Subscriber;
-import rx.Subscription;
 import rx.functions.Action0;
 import rx.subscriptions.Subscriptions;
 
@@ -43,42 +43,24 @@ public class DefaultRxStateManager<S extends State>
                     @Override
                     public void onStateChanged(final S state, final Event event) {
                         // wrap parameters with VO
-                        subscriber.onNext(new StateChanged<S>() {
-                            @Override
-                            public Event getEvent() {
-                                return event;
-                            }
-
-                            @Override
-                            public S getState() {
-                                return state;
-                            }
-
-                            @Override
-                            public String toString() {
-                                return "StateChanged{" +
-                                        "state=" + state +
-                                        ", event=" + event +
-                                        '}';
-                            }
-                        });
+                        subscriber.onNext(new StateChangedVo<>(event, state));
                     }
                 };
 
                 // add listener
                 addStateChangedListener(listener);
 
-                /**
-                 * Unsubscribe listener on {@link Subscription#unsubscribe()}.
-                 */
+                // remove listener on unsubscribe
                 subscriber.add(Subscriptions.create(new Action0() {
                     @Override
                     public void call() {
                         // complete subscriber
                         subscriber.onCompleted();
 
-                        // remove listener
-                        removeStateChangedListener(listener);
+                        // remove listener, if not yet cleared
+                        if (stateChangedListeners.contains(listener)) {
+                            removeStateChangedListener(listener);
+                        }
                     }
                 }));
             }
