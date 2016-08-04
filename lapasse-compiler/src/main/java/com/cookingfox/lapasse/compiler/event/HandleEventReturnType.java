@@ -2,6 +2,7 @@ package com.cookingfox.lapasse.compiler.event;
 
 import com.cookingfox.lapasse.annotation.HandleEvent;
 import com.cookingfox.lapasse.api.state.State;
+import com.squareup.javapoet.TypeName;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
@@ -47,6 +48,10 @@ public class HandleEventReturnType extends AbstractHandleEvent {
         }
 
         return String.format("%s is invalid", prefix);
+    }
+
+    public TypeName getTypeName() {
+        return TypeName.get(returnType);
     }
 
     @Override

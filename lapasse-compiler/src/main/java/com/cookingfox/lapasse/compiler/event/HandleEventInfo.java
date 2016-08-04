@@ -59,7 +59,7 @@ public class HandleEventInfo extends AbstractHandleEvent {
     }
 
     public TypeName getStateName() {
-        return firstParam.getParamName();
+        return returns.getTypeName();
     }
 
     @Override

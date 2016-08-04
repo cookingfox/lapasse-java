@@ -79,6 +79,7 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
         // map of enclosing element (class info) to handler registry
         final Map<TypeElement, Registry> map = new LinkedHashMap<>();
 
+        // process `@HandleCommand` annotated methods
         for (Element element : roundEnv.getElementsAnnotatedWith(HandleCommand.class)) {
             HandleCommandInfo info = new HandleCommandInfo(element);
             info.process();
@@ -91,6 +92,7 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
             }
         }
 
+        // process `@HandleEvent` annotated methods
         for (Element element : roundEnv.getElementsAnnotatedWith(HandleEvent.class)) {
             HandleEventInfo info = new HandleEventInfo(element);
             info.process();
