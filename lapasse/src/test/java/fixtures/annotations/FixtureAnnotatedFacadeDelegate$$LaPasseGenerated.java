@@ -14,7 +14,7 @@ import fixtures.example.state.CountState;
 public class FixtureAnnotatedFacadeDelegate$$LaPasseGenerated<T extends FixtureAnnotatedFacadeDelegate> implements HandlerMapper {
 
     final T origin;
-    final Facade facade;
+    final Facade<CountState> facade;
 
     final SyncCommandHandler<CountState, IncrementCount, CountIncremented> _1 = new SyncCommandHandler<CountState, IncrementCount, CountIncremented>() {
         @Override
@@ -30,7 +30,7 @@ public class FixtureAnnotatedFacadeDelegate$$LaPasseGenerated<T extends FixtureA
         }
     };
 
-    public FixtureAnnotatedFacadeDelegate$$LaPasseGenerated(T origin, Facade facade) {
+    public FixtureAnnotatedFacadeDelegate$$LaPasseGenerated(T origin, Facade<CountState> facade) {
         this.origin = origin;
         this.facade = facade;
     }

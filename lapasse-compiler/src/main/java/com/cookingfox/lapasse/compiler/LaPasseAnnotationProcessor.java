@@ -125,6 +125,7 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
         for (Map.Entry<TypeElement, Registry> entry : map.entrySet()) {
             TypeElement origin = entry.getKey();
             Registry registry = entry.getValue();
+            TypeName targetStateName = registry.getTargetStateName();
 
             // get original package and class name
             String packageName = elements.getPackageOf(origin).getQualifiedName().toString();
@@ -142,11 +143,15 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
             TypeVariableName originGeneric = TypeVariableName.get("T",
                     ClassName.get(packageName, originClassName));
 
+            // create facade type with concrete state generic
+            ParameterizedTypeName facadeConcrete =
+                    ParameterizedTypeName.get(ClassName.get(Facade.class), targetStateName);
+
             // create constructor
             MethodSpec constructor = MethodSpec.constructorBuilder()
                     .addModifiers(Modifier.PUBLIC)
                     .addParameter(originGeneric, VAR_ORIGIN)
-                    .addParameter(Facade.class, VAR_FACADE)
+                    .addParameter(facadeConcrete, VAR_FACADE)
                     .addStatement("this.$N = $N", VAR_ORIGIN, VAR_ORIGIN)
                     .addStatement("this.$N = $N", VAR_FACADE, VAR_FACADE)
                     .build();
@@ -157,7 +162,7 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
                     .addTypeVariable(originGeneric)
                     .addSuperinterface(HandlerMapper.class)
                     .addField(originGeneric, VAR_ORIGIN, Modifier.FINAL)
-                    .addField(Facade.class, VAR_FACADE, Modifier.FINAL)
+                    .addField(facadeConcrete, VAR_FACADE, Modifier.FINAL)
                     .addMethod(constructor);
 
             // create HandlerMapper (builder)
