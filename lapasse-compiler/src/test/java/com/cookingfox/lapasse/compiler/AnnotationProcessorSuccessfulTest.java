@@ -53,7 +53,7 @@ public class AnnotationProcessorSuccessfulTest {
                 "",
                 "    final Facade<CountState> facade;",
                 "",
-                "    final VoidCommandHandler<CountState, IncrementCount> _1 = new VoidCommandHandler<CountState, IncrementCount>() {",
+                "    final VoidCommandHandler<CountState, IncrementCount> handler1 = new VoidCommandHandler<CountState, IncrementCount>() {",
                 "        @Override",
                 "        public void handle(CountState state, IncrementCount command) {",
                 "            origin.handle(state, command);",
@@ -67,7 +67,7 @@ public class AnnotationProcessorSuccessfulTest {
                 "",
                 "    @Override",
                 "    public void mapHandlers() {",
-                "        facade.mapCommandHandler(IncrementCount.class, _1);",
+                "        facade.mapCommandHandler(IncrementCount.class, handler1);",
                 "    }",
                 "}"
         );
@@ -121,7 +121,7 @@ public class AnnotationProcessorSuccessfulTest {
                 "",
                 "    final Facade<CountState> facade;",
                 "",
-                "    final SyncCommandHandler<CountState, IncrementCount, CountIncremented> _1 = new SyncCommandHandler<CountState, IncrementCount, CountIncremented>() {",
+                "    final SyncCommandHandler<CountState, IncrementCount, CountIncremented> handler1 = new SyncCommandHandler<CountState, IncrementCount, CountIncremented>() {",
                 "        @Override",
                 "        public CountIncremented handle(CountState state, IncrementCount command) {",
                 "            return origin.handle(state, command);",
@@ -135,7 +135,7 @@ public class AnnotationProcessorSuccessfulTest {
                 "",
                 "    @Override",
                 "    public void mapHandlers() {",
-                "        facade.mapCommandHandler(IncrementCount.class, _1);",
+                "        facade.mapCommandHandler(IncrementCount.class, handler1);",
                 "    }",
                 "}"
         );
@@ -192,7 +192,7 @@ public class AnnotationProcessorSuccessfulTest {
                 "",
                 "    final Facade<CountState> facade;",
                 "",
-                "    final SyncMultiCommandHandler<CountState, IncrementCount, CountIncremented> _1 = new SyncMultiCommandHandler<CountState, IncrementCount, CountIncremented>() {",
+                "    final SyncMultiCommandHandler<CountState, IncrementCount, CountIncremented> handler1 = new SyncMultiCommandHandler<CountState, IncrementCount, CountIncremented>() {",
                 "        @Override",
                 "        public Collection<CountIncremented> handle(CountState state, IncrementCount command) {",
                 "            return origin.handle(state, command);",
@@ -206,7 +206,7 @@ public class AnnotationProcessorSuccessfulTest {
                 "",
                 "    @Override",
                 "    public void mapHandlers() {",
-                "        facade.mapCommandHandler(IncrementCount.class, _1);",
+                "        facade.mapCommandHandler(IncrementCount.class, handler1);",
                 "    }",
                 "}"
         );
@@ -267,7 +267,7 @@ public class AnnotationProcessorSuccessfulTest {
                 "",
                 "    final Facade<CountState> facade;",
                 "",
-                "    final AsyncCommandHandler<CountState, IncrementCount, CountIncremented> _1 = new AsyncCommandHandler<CountState, IncrementCount, CountIncremented>() {",
+                "    final AsyncCommandHandler<CountState, IncrementCount, CountIncremented> handler1 = new AsyncCommandHandler<CountState, IncrementCount, CountIncremented>() {",
                 "        @Override",
                 "        public Callable<CountIncremented> handle(CountState state, IncrementCount command) {",
                 "            return origin.handle(state, command);",
@@ -281,7 +281,7 @@ public class AnnotationProcessorSuccessfulTest {
                 "",
                 "    @Override",
                 "    public void mapHandlers() {",
-                "        facade.mapCommandHandler(IncrementCount.class, _1);",
+                "        facade.mapCommandHandler(IncrementCount.class, handler1);",
                 "    }",
                 "}"
         );
@@ -345,7 +345,7 @@ public class AnnotationProcessorSuccessfulTest {
                 "",
                 "    final Facade<CountState> facade;",
                 "",
-                "    final AsyncMultiCommandHandler<CountState, IncrementCount, CountIncremented> _1 = new AsyncMultiCommandHandler<CountState, IncrementCount, CountIncremented>() {",
+                "    final AsyncMultiCommandHandler<CountState, IncrementCount, CountIncremented> handler1 = new AsyncMultiCommandHandler<CountState, IncrementCount, CountIncremented>() {",
                 "        @Override",
                 "        public Callable<Collection<CountIncremented>> handle(CountState state, IncrementCount command) {",
                 "            return origin.handle(state, command);",
@@ -359,7 +359,7 @@ public class AnnotationProcessorSuccessfulTest {
                 "",
                 "    @Override",
                 "    public void mapHandlers() {",
-                "        facade.mapCommandHandler(IncrementCount.class, _1);",
+                "        facade.mapCommandHandler(IncrementCount.class, handler1);",
                 "    }",
                 "}"
         );
@@ -415,7 +415,7 @@ public class AnnotationProcessorSuccessfulTest {
                 "",
                 "    final Facade<CountState> facade;",
                 "",
-                "    final RxCommandHandler<CountState, IncrementCount, CountIncremented> _1 = new RxCommandHandler<CountState, IncrementCount, CountIncremented>() {",
+                "    final RxCommandHandler<CountState, IncrementCount, CountIncremented> handler1 = new RxCommandHandler<CountState, IncrementCount, CountIncremented>() {",
                 "        @Override",
                 "        public Observable<CountIncremented> handle(CountState state, IncrementCount command) {",
                 "            return origin.handle(state, command);",
@@ -429,7 +429,7 @@ public class AnnotationProcessorSuccessfulTest {
                 "",
                 "    @Override",
                 "    public void mapHandlers() {",
-                "        facade.mapCommandHandler(IncrementCount.class, _1);",
+                "        facade.mapCommandHandler(IncrementCount.class, handler1);",
                 "    }",
                 "}"
         );
@@ -488,7 +488,7 @@ public class AnnotationProcessorSuccessfulTest {
                 "",
                 "    final Facade<CountState> facade;",
                 "",
-                "    final RxMultiCommandHandler<CountState, IncrementCount, CountIncremented> _1 = new RxMultiCommandHandler<CountState, IncrementCount, CountIncremented>() {",
+                "    final RxMultiCommandHandler<CountState, IncrementCount, CountIncremented> handler1 = new RxMultiCommandHandler<CountState, IncrementCount, CountIncremented>() {",
                 "        @Override",
                 "        public Observable<Collection<CountIncremented>> handle(CountState state, IncrementCount command) {",
                 "            return origin.handle(state, command);",
@@ -502,7 +502,7 @@ public class AnnotationProcessorSuccessfulTest {
                 "",
                 "    @Override",
                 "    public void mapHandlers() {",
-                "        facade.mapCommandHandler(IncrementCount.class, _1);",
+                "        facade.mapCommandHandler(IncrementCount.class, handler1);",
                 "    }",
                 "}"
         );
@@ -554,7 +554,7 @@ public class AnnotationProcessorSuccessfulTest {
                 "",
                 "    final Facade<CountState> facade;",
                 "",
-                "    final EventHandler<CountState, CountIncremented> _1 = new EventHandler<CountState, CountIncremented>() {",
+                "    final EventHandler<CountState, CountIncremented> handler1 = new EventHandler<CountState, CountIncremented>() {",
                 "        @Override",
                 "        public CountState handle(CountState state, CountIncremented event) {",
                 "            return origin.handle(state, event);",
@@ -568,7 +568,7 @@ public class AnnotationProcessorSuccessfulTest {
                 "",
                 "    @Override",
                 "    public void mapHandlers() {",
-                "        facade.mapEventHandler(CountIncremented.class, _1);",
+                "        facade.mapEventHandler(CountIncremented.class, handler1);",
                 "    }",
                 "}"
         );

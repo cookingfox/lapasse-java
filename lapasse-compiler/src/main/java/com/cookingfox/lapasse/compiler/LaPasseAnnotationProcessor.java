@@ -33,7 +33,7 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
     // CONSTANTS
     //----------------------------------------------------------------------------------------------
 
-    private static final String FIELD_PREFIX = "_";
+    private static final String FIELD_PREFIX = "handler";
     private static final String METHOD_HANDLE = "handle";
     private static final String VAR_COMMAND = "command";
     private static final String VAR_EVENT = "event";
