@@ -9,6 +9,7 @@ import com.cookingfox.lapasse.compiler.command.HandleCommandInfo;
 import com.cookingfox.lapasse.compiler.command.HandleCommandReturnType;
 import com.cookingfox.lapasse.compiler.event.HandleEventInfo;
 import com.cookingfox.lapasse.compiler.exception.HandlerTargetStateConflictException;
+import com.cookingfox.lapasse.compiler.processor.event.HandleEventProcessor;
 import com.cookingfox.lapasse.impl.helper.LaPasse;
 import com.cookingfox.lapasse.impl.internal.HandlerMapper;
 import com.squareup.javapoet.*;
@@ -103,23 +104,33 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
 
         // process `@HandleEvent` annotated methods
         for (Element element : roundEnv.getElementsAnnotatedWith(HandleEvent.class)) {
-            HandleEventInfo info = new HandleEventInfo(element);
-            info.process();
-
-            if (!info.isValid()) {
-                return error(element, info.getError());
-            }
-
             TypeElement enclosingElement = (TypeElement) element.getEnclosingElement();
 
-            Registry registry = getRegistry(map, enclosingElement);
-            registry.addHandleEventInfo(info);
+            HandleEventProcessor processor = new HandleEventProcessor(element);
 
             try {
-                registry.detectTargetStateConflict();
-            } catch (HandlerTargetStateConflictException e) {
+                processor.process();
+            } catch (Exception e) {
                 return error(enclosingElement, e.getMessage());
             }
+
+//            HandleEventInfo info = new HandleEventInfo(element);
+//            info.process();
+//
+//            if (!info.isValid()) {
+//                return error(element, info.getError());
+//            }
+//
+//            TypeElement enclosingElement = (TypeElement) element.getEnclosingElement();
+//
+//            Registry registry = getRegistry(map, enclosingElement);
+//            registry.addHandleEventInfo(info);
+//
+//            try {
+//                registry.detectTargetStateConflict();
+//            } catch (HandlerTargetStateConflictException e) {
+//                return error(enclosingElement, e.getMessage());
+//            }
         }
 
         for (Map.Entry<TypeElement, Registry> entry : map.entrySet()) {

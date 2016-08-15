@@ -14,6 +14,37 @@ import static com.google.testing.compile.JavaSourceSubjectFactory.javaSource;
 public class AnnotationProcessorErrorsTest {
 
     //----------------------------------------------------------------------------------------------
+    // COMMAND HANDLER METHOD NOT ACCESSIBLE
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void command_handler_method_not_accessible() throws Exception {
+        JavaFileObject source = JavaFileObjects.forSourceLines("test.Test",
+                "package test;",
+                "",
+                "import com.cookingfox.lapasse.annotation.HandleCommand;",
+                "import fixtures.example.command.IncrementCount;",
+                "import fixtures.example.event.CountIncremented;",
+                "import fixtures.example.state.CountState;",
+                "import fixtures.example2.command.ExampleCommand;",
+                "import fixtures.example2.event.ExampleEvent;",
+                "import fixtures.example2.state.ExampleState;",
+                "",
+                "public class Test {",
+                "    @HandleCommand",
+                "    private CountIncremented handle(CountState state, IncrementCount command) {",
+                "        return new CountIncremented(command.getCount());",
+                "    }",
+                "}"
+        );
+
+        assertAbout(javaSource()).that(source)
+                .processedWith(new LaPasseAnnotationProcessor())
+                .failsToCompile()
+                .withErrorContaining("has private access");
+    }
+
+    //----------------------------------------------------------------------------------------------
     // COMMAND HANDLERS TARGET STATE CONFLICT
     //----------------------------------------------------------------------------------------------
 
@@ -47,6 +78,33 @@ public class AnnotationProcessorErrorsTest {
                 .processedWith(new LaPasseAnnotationProcessor())
                 .failsToCompile()
                 .withErrorContaining("Mapped command handler does not match expected concrete State");
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // EVENT HANDLER METHOD NOT ACCESSIBLE
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void event_handler_method_not_accessible() throws Exception {
+        JavaFileObject source = JavaFileObjects.forSourceLines("test.Test",
+                "package test;",
+                "",
+                "import com.cookingfox.lapasse.annotation.HandleEvent;",
+                "import fixtures.example.event.CountIncremented;",
+                "import fixtures.example.state.CountState;",
+                "",
+                "public class Test {",
+                "    @HandleEvent",
+                "    private State handle(CountState state, CountIncremented event) {",
+                "        return new CountState(state.getCount() + event.getCount());",
+                "    }",
+                "}"
+        );
+
+        assertAbout(javaSource()).that(source)
+                .processedWith(new LaPasseAnnotationProcessor())
+                .failsToCompile()
+                .withErrorContaining("Method is not accessible");
     }
 
     //----------------------------------------------------------------------------------------------

@@ -12,6 +12,11 @@ import java.util.List;
  */
 public final class TypeUtils {
 
+    public static boolean equalsType(TypeMirror typeMirror, Class<?> aClass) {
+        // clean class name and compare to type mirror
+        return aClass.getName().replace('$', '.').equals(typeMirror.toString());
+    }
+
     /**
      * Performs operations to determine whether the first argument (generic parameter) of `type` is
      * a subtype of `otherType`.
@@ -36,6 +41,10 @@ public final class TypeUtils {
 
         // check sub type
         return isSubtype(typeArguments.get(0), otherType);
+    }
+
+    public static boolean isSubtype(Element element, Class<?> aClass) {
+        return isSubtype(element.asType(), aClass);
     }
 
     /**
