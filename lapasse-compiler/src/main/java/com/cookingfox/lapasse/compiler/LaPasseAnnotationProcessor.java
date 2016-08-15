@@ -8,6 +8,7 @@ import com.cookingfox.lapasse.api.facade.Facade;
 import com.cookingfox.lapasse.compiler.command.HandleCommandInfo;
 import com.cookingfox.lapasse.compiler.command.HandleCommandReturnType;
 import com.cookingfox.lapasse.compiler.event.HandleEventInfo;
+import com.cookingfox.lapasse.compiler.exception.HandlerTargetStateConflictException;
 import com.cookingfox.lapasse.impl.helper.LaPasse;
 import com.cookingfox.lapasse.impl.internal.HandlerMapper;
 import com.squareup.javapoet.*;
@@ -84,11 +85,19 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
             HandleCommandInfo info = new HandleCommandInfo(element);
             info.process();
 
-            if (info.isValid()) {
-                TypeElement enclosingElement = (TypeElement) element.getEnclosingElement();
-                getRegistry(map, enclosingElement).addHandleCommandInfo(info);
-            } else {
-                error(element, info.getError());
+            if (!info.isValid()) {
+                return error(element, info.getError());
+            }
+
+            TypeElement enclosingElement = (TypeElement) element.getEnclosingElement();
+
+            Registry registry = getRegistry(map, enclosingElement);
+            registry.addHandleCommandInfo(info);
+
+            try {
+                registry.detectTargetStateConflict();
+            } catch (HandlerTargetStateConflictException e) {
+                return error(enclosingElement, e.getMessage());
             }
         }
 
@@ -97,11 +106,19 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
             HandleEventInfo info = new HandleEventInfo(element);
             info.process();
 
-            if (info.isValid()) {
-                TypeElement enclosingElement = (TypeElement) element.getEnclosingElement();
-                getRegistry(map, enclosingElement).addHandleEventInfo(info);
-            } else {
-                error(element, info.getError());
+            if (!info.isValid()) {
+                return error(element, info.getError());
+            }
+
+            TypeElement enclosingElement = (TypeElement) element.getEnclosingElement();
+
+            Registry registry = getRegistry(map, enclosingElement);
+            registry.addHandleEventInfo(info);
+
+            try {
+                registry.detectTargetStateConflict();
+            } catch (HandlerTargetStateConflictException e) {
+                return error(enclosingElement, e.getMessage());
             }
         }
 
@@ -353,9 +370,12 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
      * @param element The element that could not be processed.
      * @param msg     The error message.
      * @param args    Arguments to parse in the message.
+     * @return False, so it is easier to exit the processing process.
      */
-    private void error(Element element, String msg, Object... args) {
+    private boolean error(Element element, String msg, Object... args) {
         messager.printMessage(Diagnostic.Kind.ERROR, String.format(msg, args), element);
+
+        return false;
     }
 
 }

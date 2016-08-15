@@ -10,9 +10,9 @@ import static com.google.common.truth.Truth.assertAbout;
 import static com.google.testing.compile.JavaSourceSubjectFactory.javaSource;
 
 /**
- * Unit tests for {@link LaPasseAnnotationProcessor}.
+ * Integration tests for {@link LaPasseAnnotationProcessor} with successful scenarios.
  */
-public class LaPasseAnnotationProcessorTest {
+public class AnnotationProcessorSuccessfulTest {
 
     //----------------------------------------------------------------------------------------------
     // VOID COMMAND HANDLER
