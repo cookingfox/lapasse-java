@@ -63,13 +63,13 @@ public class HandleCommandReturnType extends AbstractHandleCommand {
         }
 
         return String.format("%1$s is expected to be one of the following: " +
-                        "`void`, " +
-                        "`%2$s`, " +
-                        "`%3$s<%2$s>`, " +
-                        "`%4$s<%2$s>`, " +
-                        "`%4$s<%3$s<%2$s>>`, " +
-                        "`%5$s<%2$s>`, " +
-                        "`%5$s<%3$s<%2$s>>`",
+                        "`void`, " + // void
+                        "`%2$s`, " + // Event
+                        "`%3$s<%2$s>`, " + // Collection<Event>
+                        "`%4$s<%2$s>`, " + // Callable<Event>
+                        "`%4$s<%3$s<%2$s>>`, " + // Callable<Collection<Event>>
+                        "`%5$s<%2$s>`, " + // Observable<Event>
+                        "`%5$s<%3$s<%2$s>>`", // Observable<Collection<Event>>
                 prefix,
                 Event.class.getSimpleName(),
                 Collection.class.getSimpleName(),

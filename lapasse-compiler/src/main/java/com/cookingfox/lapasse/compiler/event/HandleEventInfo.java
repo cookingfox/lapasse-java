@@ -26,9 +26,9 @@ public class HandleEventInfo extends AbstractHandleEvent implements HandleInfo {
     public HandleEventInfo(Element element) {
         super(element);
 
+        returns = new HandleEventReturnType(element);
         firstParam = new HandleEventFirstParam(element);
         general = new HandleEventGeneral(element);
-        returns = new HandleEventReturnType(element);
         secondParam = new HandleEventSecondParam(element);
     }
 
@@ -40,12 +40,12 @@ public class HandleEventInfo extends AbstractHandleEvent implements HandleInfo {
     public String getError() {
         if (!general.isValid()) {
             return general.getError();
+        } else if (!returns.isValid()) {
+            return returns.getError();
         } else if (!firstParam.isValid()) {
             return firstParam.getError();
         } else if (!secondParam.isValid()) {
             return secondParam.getError();
-        } else if (!returns.isValid()) {
-            return returns.getError();
         }
 
         return "No error";
@@ -67,9 +67,9 @@ public class HandleEventInfo extends AbstractHandleEvent implements HandleInfo {
     @Override
     public boolean isValid() {
         return general.isValid() &&
+                returns.isValid() &&
                 firstParam.isValid() &&
-                secondParam.isValid() &&
-                returns.isValid();
+                secondParam.isValid();
     }
 
     //----------------------------------------------------------------------------------------------
@@ -83,19 +83,19 @@ public class HandleEventInfo extends AbstractHandleEvent implements HandleInfo {
         if (general.isValid()) {
             // get and set executable element
             executableElement = general.getExecutableElement();
+            returns.setExecutableElement(executableElement);
             firstParam.setExecutableElement(executableElement);
             secondParam.setExecutableElement(executableElement);
-            returns.setExecutableElement(executableElement);
 
+            returns.process();
+        }
+
+        if (returns.isValid()) {
             firstParam.process();
         }
 
         if (firstParam.isValid()) {
             secondParam.process();
-        }
-
-        if (secondParam.isValid()) {
-            returns.process();
         }
     }
 
@@ -107,9 +107,9 @@ public class HandleEventInfo extends AbstractHandleEvent implements HandleInfo {
     public String toString() {
         return "HandleEventInfo{\n\t" +
                 "general=" + general +
+                ",\n\treturns=" + returns +
                 ",\n\tfirstParam=" + firstParam +
                 ",\n\tsecondParam=" + secondParam +
-                ",\n\treturns=" + returns +
                 "\n}";
     }
 

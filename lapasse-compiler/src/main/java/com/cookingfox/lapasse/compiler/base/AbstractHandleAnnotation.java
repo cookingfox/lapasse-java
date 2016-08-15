@@ -9,7 +9,7 @@ import java.util.Objects;
 public abstract class AbstractHandleAnnotation implements Validator {
 
     protected final Element element;
-    private boolean isProcessed = false;
+    private boolean processed = false;
 
     //----------------------------------------------------------------------------------------------
     // CONSTRUCTOR
@@ -24,18 +24,25 @@ public abstract class AbstractHandleAnnotation implements Validator {
     //----------------------------------------------------------------------------------------------
 
     /**
+     * @return Whether this annotation element has been processed.
+     */
+    public boolean isProcessed() {
+        return processed;
+    }
+
+    /**
      * Process the annotated element. Calls {@link #doProcess()} to do the actual processing and
      * makes sure that method is called only once.
      */
     public final void process() {
         // ensure we only run `doProcess()` once
-        if (isProcessed) {
+        if (processed) {
             return;
         }
 
         doProcess();
 
-        isProcessed = true;
+        processed = true;
     }
 
     //----------------------------------------------------------------------------------------------
