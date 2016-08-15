@@ -1,6 +1,7 @@
 package com.cookingfox.lapasse.compiler.event;
 
 import com.cookingfox.lapasse.annotation.HandleEvent;
+import com.cookingfox.lapasse.compiler.base.HandleInfo;
 import com.squareup.javapoet.TypeName;
 
 import javax.lang.model.element.Element;
@@ -10,7 +11,7 @@ import javax.lang.model.element.Name;
 /**
  * Provides information about a {@link HandleEvent} annotated element.
  */
-public class HandleEventInfo extends AbstractHandleEvent {
+public class HandleEventInfo extends AbstractHandleEvent implements HandleInfo {
 
     protected ExecutableElement executableElement;
     protected final HandleEventFirstParam firstParam;
@@ -58,6 +59,7 @@ public class HandleEventInfo extends AbstractHandleEvent {
         return executableElement.getSimpleName();
     }
 
+    @Override
     public TypeName getStateName() {
         return returns.getTypeName();
     }

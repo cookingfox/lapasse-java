@@ -1,6 +1,7 @@
 package com.cookingfox.lapasse.compiler.command;
 
 import com.cookingfox.lapasse.annotation.HandleCommand;
+import com.cookingfox.lapasse.compiler.base.HandleInfo;
 import com.squareup.javapoet.TypeName;
 
 import javax.lang.model.element.Element;
@@ -10,7 +11,7 @@ import javax.lang.model.element.Name;
 /**
  * Provides information about a {@link HandleCommand} annotated element.
  */
-public class HandleCommandInfo extends AbstractHandleCommand {
+public class HandleCommandInfo extends AbstractHandleCommand implements HandleInfo {
 
     protected ExecutableElement executableElement;
     protected final HandleCommandFirstParam firstParam;
@@ -75,6 +76,7 @@ public class HandleCommandInfo extends AbstractHandleCommand {
         return returnType;
     }
 
+    @Override
     public TypeName getStateName() {
         return firstParam.getParamName();
     }
