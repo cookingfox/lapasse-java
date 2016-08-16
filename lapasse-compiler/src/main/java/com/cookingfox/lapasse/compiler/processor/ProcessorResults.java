@@ -32,7 +32,9 @@ public class ProcessorResults {
     public void detectTargetStateNameConflict() throws Exception {
         TypeName targetState = getTargetStateName();
 
-        // TODO: handle `null` target state
+        if (targetState == null) {
+            throw new Exception("Can not determine target state");
+        }
 
         for (HandleEventResult eventResult : handleEventResults) {
             TypeName eventState = ClassName.get(eventResult.getStateType());
@@ -43,14 +45,14 @@ public class ProcessorResults {
         }
 
         for (HandleCommandResult commandResult : handleCommandResults) {
-            TypeMirror stateType = commandResult.getStateType();
+            TypeMirror commandStateType = commandResult.getStateType();
 
             // it is allowed for handle command results to return a `null` state type
-            if (stateType == null) {
+            if (commandStateType == null) {
                 continue;
             }
 
-            TypeName commandState = ClassName.get(stateType);
+            TypeName commandState = ClassName.get(commandStateType);
 
             if (!commandState.equals(targetState)) {
                 throw new Exception("Mapped command handler does not match expected concrete State");

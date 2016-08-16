@@ -26,9 +26,6 @@ public class AnnotationProcessorErrorsTest {
                 "import fixtures.example.command.IncrementCount;",
                 "import fixtures.example.event.CountIncremented;",
                 "import fixtures.example.state.CountState;",
-                "import fixtures.example2.command.ExampleCommand;",
-                "import fixtures.example2.event.ExampleEvent;",
-                "import fixtures.example2.state.ExampleState;",
                 "",
                 "public class Test {",
                 "    @HandleCommand",
@@ -42,6 +39,31 @@ public class AnnotationProcessorErrorsTest {
                 .processedWith(new LaPasseAnnotationProcessor())
                 .failsToCompile()
                 .withErrorContaining("has private access");
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // COMMAND HANDLER STATE NOT DETERMINABLE
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void command_handler_state_not_determinable() throws Exception {
+        JavaFileObject source = JavaFileObjects.forSourceLines("test.Test",
+                "package test;",
+                "",
+                "import com.cookingfox.lapasse.annotation.HandleCommand;",
+                "import fixtures.example.command.IncrementCount;",
+                "",
+                "public class Test {",
+                "    @HandleCommand",
+                "    public void handle(IncrementCount command) {",
+                "    }",
+                "}"
+        );
+
+        assertAbout(javaSource()).that(source)
+                .processedWith(new LaPasseAnnotationProcessor())
+                .failsToCompile()
+                .withErrorContaining("Can not determine target state");
     }
 
     //----------------------------------------------------------------------------------------------
@@ -95,7 +117,7 @@ public class AnnotationProcessorErrorsTest {
                 "",
                 "public class Test {",
                 "    @HandleEvent",
-                "    private State handle(CountState state, CountIncremented event) {",
+                "    private CountState handle(CountState state, CountIncremented event) {",
                 "        return new CountState(state.getCount() + event.getCount());",
                 "    }",
                 "}"
