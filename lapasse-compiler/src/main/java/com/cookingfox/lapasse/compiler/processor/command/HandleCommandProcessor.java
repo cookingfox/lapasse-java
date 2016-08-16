@@ -153,8 +153,10 @@ public class HandleCommandProcessor {
                 return result.getParameters().get(1).asType();
         }
 
-        if (result.getAnnotationType() == ANNOTATION_ONE_PARAM_COMMAND) {
-            return result.getAnnotationCommandType();
+        switch (result.getAnnotationType()) {
+            case ANNOTATION_ONE_PARAM_COMMAND:
+            case ANNOTATION_TWO_PARAMS_COMMAND_STATE:
+                return result.getAnnotationCommandType();
         }
 
         throw new Exception("Could not determine command type");
@@ -171,14 +173,16 @@ public class HandleCommandProcessor {
 
         VariableElement firstParam = parameters.get(0);
         boolean firstIsCommand = isSubtype(firstParam, Command.class);
+        boolean firstIsState = isSubtype(firstParam, State.class);
 
-        // TODO: support state as single parameter?
         if (numParams == 1) {
             if (firstIsCommand) {
                 return METHOD_ONE_PARAM_COMMAND;
+            } else if (firstIsState) {
+                return METHOD_ONE_PARAM_STATE;
             }
 
-            throw new Exception("Single parameter must be command");
+            throw new Exception("Single parameter is of incorrect type");
         }
 
         VariableElement secondParam = parameters.get(1);
@@ -248,13 +252,14 @@ public class HandleCommandProcessor {
 
     protected TypeMirror determineStateType() throws Exception {
         switch (result.getMethodType()) {
-            case METHOD_TWO_PARAMS_COMMAND_STATE:
-                // second param
-                return result.getParameters().get(1).asType();
-
+            case METHOD_ONE_PARAM_STATE:
             case METHOD_TWO_PARAMS_STATE_COMMAND:
                 // first param
                 return result.getParameters().get(0).asType();
+
+            case METHOD_TWO_PARAMS_COMMAND_STATE:
+                // second param
+                return result.getParameters().get(1).asType();
         }
 
         switch (result.getAnnotationType()) {

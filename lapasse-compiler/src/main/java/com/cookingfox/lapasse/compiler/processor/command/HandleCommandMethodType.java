@@ -16,6 +16,11 @@ public enum HandleCommandMethodType {
     METHOD_ONE_PARAM_COMMAND,
 
     /**
+     * Annotated method has one parameter: the state.
+     */
+    METHOD_ONE_PARAM_STATE,
+
+    /**
      * Annotated method has two parameters: the first is the command and the second is the state.
      */
     METHOD_TWO_PARAMS_COMMAND_STATE,

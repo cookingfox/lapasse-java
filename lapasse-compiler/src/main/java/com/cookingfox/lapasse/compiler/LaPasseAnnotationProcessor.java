@@ -248,6 +248,12 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
                                 VAR_ORIGIN, methodName, VAR_COMMAND);
                         break;
 
+                    case METHOD_ONE_PARAM_STATE:
+                        callerStatement += "$N.$N($N)";
+                        handlerMethodBuilder.addStatement(callerStatement,
+                                VAR_ORIGIN, methodName, VAR_STATE);
+                        break;
+
                     case METHOD_TWO_PARAMS_COMMAND_STATE:
                         callerStatement += "$N.$N($N, $N)";
                         handlerMethodBuilder.addStatement(callerStatement,
