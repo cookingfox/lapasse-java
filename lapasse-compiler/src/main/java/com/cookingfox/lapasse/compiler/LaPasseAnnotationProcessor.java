@@ -125,7 +125,9 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
             ProcessorResults processorResults = entry.getValue();
             TypeName targetStateName = processorResults.getTargetStateName();
 
-            // TODO: handle `null` target state
+            if (targetStateName == null) {
+                return error(origin, "Target state name is null");
+            }
 
             // get original package and class name
             String packageName = elements.getPackageOf(origin).getQualifiedName().toString();
@@ -181,7 +183,6 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
 
                 // collect handler specific parameters
                 Name methodName = result.getMethodName();
-                TypeName stateName = ClassName.get(result.getStateType());
                 TypeName commandName = ClassName.get(result.getCommandType());
                 TypeName eventTypeName = result.getEventTypeName();
                 HandleCommandMethodType methodType = result.getMethodType();
@@ -194,7 +195,7 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
                 MethodSpec.Builder handlerMethodBuilder = MethodSpec.methodBuilder(METHOD_HANDLE)
                         .addAnnotation(Override.class)
                         .addModifiers(Modifier.PUBLIC)
-                        .addParameter(stateName, VAR_STATE)
+                        .addParameter(targetStateName, VAR_STATE)
                         .addParameter(commandName, VAR_COMMAND)
                         .returns(returnTypeName);
 
@@ -202,7 +203,7 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
 
                 if (returnType == HandleCommandReturnType.RETURNS_VOID) {
                     handlerType = ParameterizedTypeName.get(ClassName.get(VoidCommandHandler.class),
-                            stateName, commandName);
+                            targetStateName, commandName);
                 } else {
                     callerStatement = "return ";
 
@@ -232,7 +233,7 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
                     }
 
                     handlerType = ParameterizedTypeName.get(ClassName.get(commandHandlerClass),
-                            stateName, commandName, eventTypeName);
+                            targetStateName, commandName, eventTypeName);
                 }
 
                 switch (methodType) {
@@ -300,14 +301,13 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
 
                 // collect handler specific parameters
                 Name methodName = result.getMethodName();
-                TypeName stateName = ClassName.get(result.getStateType());
                 TypeName eventName = ClassName.get(result.getEventType());
 
                 // build handler method
                 MethodSpec.Builder handlerMethodBuilder = MethodSpec.methodBuilder(METHOD_HANDLE)
                         .addAnnotation(Override.class)
                         .addModifiers(Modifier.PUBLIC)
-                        .addParameter(stateName, VAR_STATE)
+                        .addParameter(targetStateName, VAR_STATE)
                         .addParameter(eventName, VAR_EVENT);
 
                 switch (result.getMethodType()) {
@@ -332,12 +332,12 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
                         break;
                 }
 
-                MethodSpec handlerMethod = handlerMethodBuilder.returns(stateName)
+                MethodSpec handlerMethod = handlerMethodBuilder.returns(targetStateName)
                         .build();
 
                 // create parameterized name for handler
                 ParameterizedTypeName handlerType = ParameterizedTypeName.get(
-                        ClassName.get(EventHandler.class), stateName, eventName);
+                        ClassName.get(EventHandler.class), targetStateName, eventName);
 
                 // create anonymous handler implementation
                 TypeSpec handlerImpl = TypeSpec.anonymousClassBuilder("")

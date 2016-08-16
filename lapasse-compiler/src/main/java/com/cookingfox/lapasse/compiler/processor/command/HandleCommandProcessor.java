@@ -268,7 +268,7 @@ public class HandleCommandProcessor {
                 return result.getAnnotationStateType();
         }
 
-        throw new Exception("Could not determine state type");
+        return null;
     }
 
     protected void checkAnnotationAndMethodType() throws Exception {

@@ -907,85 +907,87 @@ public class AnnotationProcessorSuccessfulTest {
                 .generatesSources(expected);
     }
 
-//    //----------------------------------------------------------------------------------------------
-//    // EVENT HANDLER DETERMINES CONCRETE STATE OF COMMAND HANDLER
-//    //----------------------------------------------------------------------------------------------
-//
-//    @Test
-//    public void event_handler_determines_concrete_state_of_command_handler() throws Exception {
-//        String sourceFqcn = "test.Test";
-//        String expectedFqcn = sourceFqcn + LaPasse.GENERATED_SUFFIX;
-//
-//        JavaFileObject source = JavaFileObjects.forSourceLines(sourceFqcn,
-//                "package test;",
-//                "",
-//                "import com.cookingfox.lapasse.annotation.HandleCommand;",
-//                "import com.cookingfox.lapasse.annotation.HandleEvent;",
-//                "import fixtures.example.command.IncrementCount;",
-//                "import fixtures.example.event.CountIncremented;",
-//                "import fixtures.example.state.CountState;",
-//                "",
-//                "public class Test {",
-//                "    @HandleCommand",
-//                "    public CountIncremented handle(IncrementCount command) {",
-//                "        return new CountIncremented(command.getCount());",
-//                "    }",
-//                "",
-//                "    @HandleEvent(event = CountIncremented.class)",
-//                "    public CountState handle() {",
-//                "        return new CountState(0);",
-//                "    }",
-//                "}"
-//        );
-//
-//        JavaFileObject expected = JavaFileObjects.forSourceLines(expectedFqcn,
-//                "// Generated code from LaPasse - do not modify!",
-//                "package test;",
-//                "",
-//                "import com.cookingfox.lapasse.api.event.handler.EventHandler;",
-//                "import com.cookingfox.lapasse.api.facade.Facade;",
-//                "import com.cookingfox.lapasse.impl.internal.HandlerMapper;",
-//                "import fixtures.example.command.IncrementCount;",
-//                "import fixtures.example.event.CountIncremented;",
-//                "import fixtures.example.state.CountState;",
-//                "import java.lang.Override;",
-//                "",
-//                "public class Test$$LaPasseGenerated<T extends Test> implements HandlerMapper {",
-//                "    final T origin;",
-//                "",
-//                "    final Facade<CountState> facade;",
-//                "",
-//                "    final EventHandler<CountState, CountIncremented> handler1 = new EventHandler<CountState, CountIncremented>() {",
-//                "        @Override",
-//                "        public CountState handle(CountState state, CountIncremented event) {",
-//                "            return origin.handle();",
-//                "        }",
-//                "    };",
-//                "",
-//                "    final SyncCommandHandler<CountState, IncrementCount, CountIncremented> handler2 = new SyncCommandHandler<CountState, IncrementCount, CountIncremented>() {",
-//                "        @Override",
-//                "        public CountIncremented handle(CountState state, IncrementCount command) {",
-//                "            origin.handle(command);",
-//                "        }",
-//                "    };",
-//                "",
-//                "    public Test$$LaPasseGenerated(T origin, Facade<CountState> facade) {",
-//                "        this.origin = origin;",
-//                "        this.facade = facade;",
-//                "    }",
-//                "",
-//                "    @Override",
-//                "    public void mapHandlers() {",
-//                "        facade.mapEventHandler(CountIncremented.class, handler1);",
-//                "    }",
-//                "}"
-//        );
-//
-//        assertAbout(javaSource()).that(source)
-//                .processedWith(new LaPasseAnnotationProcessor())
-//                .compilesWithoutError()
-//                .and()
-//                .generatesSources(expected);
-//    }
+    //----------------------------------------------------------------------------------------------
+    // EVENT HANDLER DETERMINES CONCRETE STATE OF COMMAND HANDLER
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void event_handler_determines_concrete_state_of_command_handler() throws Exception {
+        String sourceFqcn = "test.Test";
+        String expectedFqcn = sourceFqcn + LaPasse.GENERATED_SUFFIX;
+
+        JavaFileObject source = JavaFileObjects.forSourceLines(sourceFqcn,
+                "package test;",
+                "",
+                "import com.cookingfox.lapasse.annotation.HandleCommand;",
+                "import com.cookingfox.lapasse.annotation.HandleEvent;",
+                "import fixtures.example.command.IncrementCount;",
+                "import fixtures.example.event.CountIncremented;",
+                "import fixtures.example.state.CountState;",
+                "",
+                "public class Test {",
+                "    @HandleCommand",
+                "    public CountIncremented handle(IncrementCount command) {",
+                "        return new CountIncremented(command.getCount());",
+                "    }",
+                "",
+                "    @HandleEvent",
+                "    public CountState handle(CountIncremented event) {",
+                "        return new CountState(event.getCount());",
+                "    }",
+                "}"
+        );
+
+        JavaFileObject expected = JavaFileObjects.forSourceLines(expectedFqcn,
+                "// Generated code from LaPasse - do not modify!",
+                "package test;",
+                "",
+                "import com.cookingfox.lapasse.api.command.handler.SyncCommandHandler;",
+                "import com.cookingfox.lapasse.api.event.handler.EventHandler;",
+                "import com.cookingfox.lapasse.api.facade.Facade;",
+                "import com.cookingfox.lapasse.impl.internal.HandlerMapper;",
+                "import fixtures.example.command.IncrementCount;",
+                "import fixtures.example.event.CountIncremented;",
+                "import fixtures.example.state.CountState;",
+                "import java.lang.Override;",
+                "",
+                "public class Test$$LaPasseGenerated<T extends Test> implements HandlerMapper {",
+                "    final T origin;",
+                "",
+                "    final Facade<CountState> facade;",
+                "",
+                "    final SyncCommandHandler<CountState, IncrementCount, CountIncremented> handler1 = new SyncCommandHandler<CountState, IncrementCount, CountIncremented>() {",
+                "        @Override",
+                "        public CountIncremented handle(CountState state, IncrementCount command) {",
+                "            return origin.handle(command);",
+                "        }",
+                "    };",
+                "",
+                "    final EventHandler<CountState, CountIncremented> handler2 = new EventHandler<CountState, CountIncremented>() {",
+                "        @Override",
+                "        public CountState handle(CountState state, CountIncremented event) {",
+                "            return origin.handle(event);",
+                "        }",
+                "    };",
+                "",
+                "    public Test$$LaPasseGenerated(T origin, Facade<CountState> facade) {",
+                "        this.origin = origin;",
+                "        this.facade = facade;",
+                "    }",
+                "",
+                "    @Override",
+                "    public void mapHandlers() {",
+                "        facade.mapCommandHandler(IncrementCount.class, handler1);",
+                "        facade.mapEventHandler(CountIncremented.class, handler2);",
+                "    }",
+                "}"
+        );
+
+        assertAbout(javaSource()).that(source)
+                .processedWith(new LaPasseAnnotationProcessor())
+                .compilesWithoutError()
+                .and()
+                .generatesSources(expected);
+    }
 
 }

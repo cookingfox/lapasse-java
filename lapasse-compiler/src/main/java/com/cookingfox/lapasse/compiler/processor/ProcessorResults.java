@@ -43,7 +43,14 @@ public class ProcessorResults {
         }
 
         for (HandleCommandResult commandResult : handleCommandResults) {
-            TypeName commandState = ClassName.get(commandResult.getStateType());
+            TypeMirror stateType = commandResult.getStateType();
+
+            // it is allowed for handle command results to return a `null` state type
+            if (stateType == null) {
+                continue;
+            }
+
+            TypeName commandState = ClassName.get(stateType);
 
             if (!commandState.equals(targetState)) {
                 throw new Exception("Mapped command handler does not match expected concrete State");
