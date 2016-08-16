@@ -17,12 +17,38 @@ public class ProcessorResults {
     protected final List<HandleCommandResult> handleCommandResults = new LinkedList<>();
     protected final List<HandleEventResult> handleEventResults = new LinkedList<>();
 
+    //----------------------------------------------------------------------------------------------
+    // PUBLIC METHODS
+    //----------------------------------------------------------------------------------------------
+
     public void addHandleCommandResult(HandleCommandResult result) {
         handleCommandResults.add(result);
     }
 
     public void addHandleEventResult(HandleEventResult result) {
         handleEventResults.add(result);
+    }
+
+    public void detectTargetStateNameConflict() throws Exception {
+        TypeName targetState = getTargetStateName();
+
+        // TODO: handle `null` target state
+
+        for (HandleEventResult eventResult : handleEventResults) {
+            TypeName eventState = ClassName.get(eventResult.getStateType());
+
+            if (!eventState.equals(targetState)) {
+                throw new Exception("Mapped event handler does not match expected concrete State");
+            }
+        }
+
+        for (HandleCommandResult commandResult : handleCommandResults) {
+            TypeName commandState = ClassName.get(commandResult.getStateType());
+
+            if (!commandState.equals(targetState)) {
+                throw new Exception("Mapped command handler does not match expected concrete State");
+            }
+        }
     }
 
     public List<HandleCommandResult> getHandleCommandResults() {
@@ -47,14 +73,6 @@ public class ProcessorResults {
         }
 
         return null;
-    }
-
-    @Override
-    public String toString() {
-        return "ProcessorResults{" +
-                "handleCommandResults=" + handleCommandResults +
-                ", handleEventResults=" + handleEventResults +
-                '}';
     }
 
 }

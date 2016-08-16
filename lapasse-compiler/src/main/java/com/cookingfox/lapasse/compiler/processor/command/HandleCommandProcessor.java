@@ -62,7 +62,7 @@ public class HandleCommandProcessor {
         return result;
     }
 
-    public void process() throws Exception {
+    public HandleCommandResult process() throws Exception {
         checkMethod();
 
         ExecutableElement method = (ExecutableElement) element;
@@ -83,6 +83,8 @@ public class HandleCommandProcessor {
         result.parameters = parameters;
         result.commandType = determineCommandType();
         result.stateType = determineStateType();
+
+        return result;
     }
 
     private TypeMirror getReturnType(TypeMirror returnType) throws Exception {

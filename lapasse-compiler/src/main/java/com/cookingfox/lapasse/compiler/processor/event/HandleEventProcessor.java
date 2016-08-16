@@ -57,7 +57,7 @@ public class HandleEventProcessor {
         return result;
     }
 
-    public void process() throws Exception {
+    public HandleEventResult process() throws Exception {
         checkMethod();
 
         ExecutableElement method = (ExecutableElement) element;
@@ -75,6 +75,8 @@ public class HandleEventProcessor {
         result.parameters = parameters;
         result.stateType = returnType;
         result.eventType = determineEventType();
+
+        return result;
     }
 
     //----------------------------------------------------------------------------------------------

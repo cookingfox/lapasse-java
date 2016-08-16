@@ -38,21 +38,21 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
     // CONSTANTS
     //----------------------------------------------------------------------------------------------
 
-    private static final String FIELD_PREFIX = "handler";
-    private static final String METHOD_HANDLE = "handle";
-    private static final String VAR_COMMAND = "command";
-    private static final String VAR_EVENT = "event";
-    private static final String VAR_FACADE = "facade";
-    private static final String VAR_ORIGIN = "origin";
-    private static final String VAR_STATE = "state";
+    protected static final String FIELD_PREFIX = "handler";
+    protected static final String METHOD_HANDLE = "handle";
+    protected static final String VAR_COMMAND = "command";
+    protected static final String VAR_EVENT = "event";
+    protected static final String VAR_FACADE = "facade";
+    protected static final String VAR_ORIGIN = "origin";
+    protected static final String VAR_STATE = "state";
 
     //----------------------------------------------------------------------------------------------
     // PROPERTIES
     //----------------------------------------------------------------------------------------------
 
-    private Elements elements;
-    private Filer filer;
-    private Messager messager;
+    protected Elements elements;
+    protected Filer filer;
+    protected Messager messager;
 
     //----------------------------------------------------------------------------------------------
     // PUBLIC METHODS
@@ -82,42 +82,50 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        final Map<TypeElement, ProcessorResults> map2 = new LinkedHashMap<>();
-
-        // process `@HandleCommand` annotated methods
-        for (Element element : roundEnv.getElementsAnnotatedWith(HandleCommand.class)) {
-            TypeElement enclosingElement = (TypeElement) element.getEnclosingElement();
-            HandleCommandProcessor processor = new HandleCommandProcessor(element);
-
-            try {
-                processor.process();
-
-                ProcessorResults processorResults = getProcessorResults(map2, enclosingElement);
-                processorResults.addHandleCommandResult(processor.getResult());
-            } catch (Exception e) {
-                return error(enclosingElement, e.getMessage());
-            }
-        }
+        // processor results by 'origin' (the enclosing element - the class containing the
+        // annotated method)
+        final Map<TypeElement, ProcessorResults> results = new LinkedHashMap<>();
 
         // process `@HandleEvent` annotated methods
+        // events first, because they have a better chance of determining the concrete facade state
         for (Element element : roundEnv.getElementsAnnotatedWith(HandleEvent.class)) {
-            TypeElement enclosingElement = (TypeElement) element.getEnclosingElement();
+            TypeElement origin = (TypeElement) element.getEnclosingElement();
             HandleEventProcessor processor = new HandleEventProcessor(element);
 
             try {
-                processor.process();
+                HandleEventResult result = processor.process();
 
-                ProcessorResults processorResults = getProcessorResults(map2, enclosingElement);
-                processorResults.addHandleEventResult(processor.getResult());
+                ProcessorResults processorResults = getProcessorResults(results, origin);
+                processorResults.addHandleEventResult(result);
+                processorResults.detectTargetStateNameConflict();
             } catch (Exception e) {
-                return error(enclosingElement, e.getMessage());
+                return error(origin, e.getMessage());
             }
         }
 
-        for (Map.Entry<TypeElement, ProcessorResults> entry : map2.entrySet()) {
+        // process `@HandleCommand` annotated methods
+        for (Element element : roundEnv.getElementsAnnotatedWith(HandleCommand.class)) {
+            TypeElement origin = (TypeElement) element.getEnclosingElement();
+            HandleCommandProcessor processor = new HandleCommandProcessor(element);
+
+            try {
+                HandleCommandResult result = processor.process();
+
+                ProcessorResults processorResults = getProcessorResults(results, origin);
+                processorResults.addHandleCommandResult(result);
+                processorResults.detectTargetStateNameConflict();
+            } catch (Exception e) {
+                return error(origin, e.getMessage());
+            }
+        }
+
+        // generate code with processor results
+        for (Map.Entry<TypeElement, ProcessorResults> entry : results.entrySet()) {
             TypeElement origin = entry.getKey();
             ProcessorResults processorResults = entry.getValue();
             TypeName targetStateName = processorResults.getTargetStateName();
+
+            // TODO: handle `null` target state
 
             // get original package and class name
             String packageName = elements.getPackageOf(origin).getQualifiedName().toString();
@@ -372,7 +380,7 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
         return false;
     }
 
-    private ProcessorResults getProcessorResults(Map<TypeElement, ProcessorResults> map, TypeElement element) {
+    protected ProcessorResults getProcessorResults(Map<TypeElement, ProcessorResults> map, TypeElement element) {
         ProcessorResults processorResults = map.get(requireNonNull(element));
 
         if (processorResults == null) {
@@ -384,26 +392,8 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
     }
 
     //----------------------------------------------------------------------------------------------
-    // PRIVATE METHODS
+    // PROTECTED METHODS
     //----------------------------------------------------------------------------------------------
-
-    /**
-     * Returns the registry for the provided type and creates a new one if it doesn't exist yet.
-     *
-     * @param map              The map containing the registries.
-     * @param enclosingElement The element to return the registry for.
-     * @return The registry.
-     */
-    private Registry getRegistry(Map<TypeElement, Registry> map, TypeElement enclosingElement) {
-        Registry registry = map.get(enclosingElement);
-
-        if (registry == null) {
-            registry = new Registry();
-            map.put(enclosingElement, registry);
-        }
-
-        return registry;
-    }
 
     /**
      * Generates a class name using the provided type and package name.
@@ -412,7 +402,7 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
      * @param packageName The name of the type's package.
      * @return The class name.
      */
-    private String getClassName(TypeElement type, String packageName) {
+    protected String getClassName(TypeElement type, String packageName) {
         return type.getQualifiedName()
                 .toString()
                 .substring(packageName.length() + 1)
@@ -427,7 +417,7 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
      * @param args    Arguments to parse in the message.
      * @return False, so it is easier to exit the processing process.
      */
-    private boolean error(Element element, String msg, Object... args) {
+    protected boolean error(Element element, String msg, Object... args) {
         messager.printMessage(Diagnostic.Kind.ERROR, String.format(msg, args), element);
 
         return false;
