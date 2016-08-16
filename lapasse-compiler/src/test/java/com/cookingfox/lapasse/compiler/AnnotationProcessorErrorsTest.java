@@ -135,6 +135,114 @@ public class AnnotationProcessorErrorsTest {
     }
 
     //----------------------------------------------------------------------------------------------
+    // EVENT HANDLER NO METHOD OR ANNOTATION PARAMS
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void event_handler_no_method_or_annotation_params() throws Exception {
+        JavaFileObject source = JavaFileObjects.forSourceLines("test.Test",
+                "package test;",
+                "",
+                "import com.cookingfox.lapasse.annotation.HandleEvent;",
+                "import fixtures.example.event.CountIncremented;",
+                "import fixtures.example.state.CountState;",
+                "",
+                "public class Test {",
+                "    @HandleEvent",
+                "    public CountState handle() {",
+                "        return new CountState(0);",
+                "    }",
+                "}"
+        );
+
+        assertAbout(javaSource()).that(source)
+                .processedWith(new LaPasseAnnotationProcessor())
+                .failsToCompile()
+                .withErrorContaining("Method has no params, so annotation should set event type");
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // EVENT HANDLER METHOD PARAMS INVALID NUMBER
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void event_handler_method_params_invalid_number() throws Exception {
+        JavaFileObject source = JavaFileObjects.forSourceLines("test.Test",
+                "package test;",
+                "",
+                "import com.cookingfox.lapasse.annotation.HandleEvent;",
+                "import fixtures.example.event.CountIncremented;",
+                "import fixtures.example.state.CountState;",
+                "",
+                "public class Test {",
+                "    @HandleEvent",
+                "    public CountState handle(CountState state, CountIncremented event, Object foo) {",
+                "        return new CountState(0);",
+                "    }",
+                "}"
+        );
+
+        assertAbout(javaSource()).that(source)
+                .processedWith(new LaPasseAnnotationProcessor())
+                .failsToCompile()
+                .withErrorContaining("Invalid number of parameters");
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // EVENT HANDLER METHOD PARAMS INVALID TYPES
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void event_handler_method_params_invalid_types() throws Exception {
+        JavaFileObject source = JavaFileObjects.forSourceLines("test.Test",
+                "package test;",
+                "",
+                "import com.cookingfox.lapasse.annotation.HandleEvent;",
+                "import fixtures.example.event.CountIncremented;",
+                "import fixtures.example.state.CountState;",
+                "",
+                "public class Test {",
+                "    @HandleEvent",
+                "    public CountState handle(Integer foo, String bar) {",
+                "        return new CountState(0);",
+                "    }",
+                "}"
+        );
+
+        assertAbout(javaSource()).that(source)
+                .processedWith(new LaPasseAnnotationProcessor())
+                .failsToCompile()
+                .withErrorContaining("Invalid parameters - expected event and state");
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // EVENT HANDLER SINGLE METHOD PARAM NOT EVENT
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void event_handler_single_method_param_not_event() throws Exception {
+        JavaFileObject source = JavaFileObjects.forSourceLines("test.Test",
+                "package test;",
+                "",
+                "import com.cookingfox.lapasse.annotation.HandleEvent;",
+                "import fixtures.example.event.CountIncremented;",
+                "import fixtures.example.state.CountState;",
+                "",
+                "public class Test {",
+                "    @HandleEvent",
+                "    public CountState handle(CountState state) {",
+                "        return new CountState(0);",
+                "    }",
+                "}"
+        );
+
+        assertAbout(javaSource()).that(source)
+                .processedWith(new LaPasseAnnotationProcessor())
+                .failsToCompile()
+                .withErrorContaining("Single parameter must be event");
+    }
+
+    //----------------------------------------------------------------------------------------------
     // EVENT HANDLERS TARGET STATE CONFLICT
     //----------------------------------------------------------------------------------------------
 

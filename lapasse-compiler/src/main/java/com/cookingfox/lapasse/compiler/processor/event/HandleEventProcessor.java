@@ -5,7 +5,10 @@ import com.cookingfox.lapasse.api.event.Event;
 import com.cookingfox.lapasse.api.state.State;
 import com.cookingfox.lapasse.compiler.utils.TypeUtils;
 
-import javax.lang.model.element.*;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.Modifier;
+import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.MirroredTypeException;
 import javax.lang.model.type.TypeMirror;
 import java.util.Arrays;
@@ -28,6 +31,7 @@ public class HandleEventProcessor {
         MODIFIERS = Collections.unmodifiableList(Arrays.asList(
                 Modifier.ABSTRACT,
                 Modifier.NATIVE,
+                Modifier.PRIVATE,
                 Modifier.STATIC,
                 Modifier.STRICTFP,
                 Modifier.VOLATILE
@@ -35,63 +39,104 @@ public class HandleEventProcessor {
     }
 
     protected final Element element;
-    protected HandleEventAnnotationType annotationType;
-    protected HandleEventMethodType methodType;
+    protected final HandleEventResult result = new HandleEventResult();
+
+    //----------------------------------------------------------------------------------------------
+    // CONSTRUCTOR
+    //----------------------------------------------------------------------------------------------
 
     public HandleEventProcessor(Element element) {
         this.element = element;
     }
 
+    //----------------------------------------------------------------------------------------------
+    // PUBLIC METHODS
+    //----------------------------------------------------------------------------------------------
+
+    public HandleEventResult getResult() {
+        return result;
+    }
+
     public void process() throws Exception {
         checkMethod();
 
-        ExecutableElement method = (ExecutableElement) this.element;
+        ExecutableElement method = (ExecutableElement) element;
         HandleEvent annotation = method.getAnnotation(HandleEvent.class);
         List<? extends VariableElement> parameters = method.getParameters();
         TypeMirror returnType = method.getReturnType();
 
-        annotationType = determineAnnotationType(annotation);
-        methodType = determineMethodType(parameters);
+        result.annotationType = determineAnnotationType(annotation);
+        result.methodType = determineMethodType(parameters);
 
         checkAnnotationAndMethodType();
-
         checkReturnType(returnType);
+
+        result.methodName = element.getSimpleName();
+        result.parameters = parameters;
+        result.stateType = returnType;
+        result.eventType = determineEventType();
     }
 
+    //----------------------------------------------------------------------------------------------
+    // PROTECTED METHODS
+    //----------------------------------------------------------------------------------------------
+
     protected void checkAnnotationAndMethodType() throws Exception {
-        if (methodType == METHOD_NO_PARAMS && annotationType == ANNOTATION_NO_PARAMS) {
+        if (result.methodType == METHOD_NO_PARAMS && result.annotationType == ANNOTATION_NO_PARAMS) {
             throw new Exception("Method has no params, so annotation should set event type");
         }
     }
 
     protected void checkMethod() throws Exception {
-        if (element.getKind() != ElementKind.METHOD) {
-            throw new Exception("Annotated element must be a method");
-        }
-
-        if (Collections.disjoint(element.getModifiers(), MODIFIERS)) {
+        if (!Collections.disjoint(element.getModifiers(), MODIFIERS)) {
             throw new Exception("Method is not accessible");
         }
     }
 
-    protected void checkReturnType(TypeMirror returnType) throws Exception {
+    protected TypeMirror checkReturnType(TypeMirror returnType) throws Exception {
         if (!isSubtype(returnType, State.class)) {
             throw new Exception("Return type of @HandleEvent annotated method must extend " + State.class.getName());
         }
+
+        return returnType;
     }
 
     protected HandleEventAnnotationType determineAnnotationType(HandleEvent annotation) throws Exception {
         try {
             annotation.event(); // this should throw
         } catch (MirroredTypeException e) {
-            if (TypeUtils.equalsType(e.getTypeMirror(), HandleEvent.EmptyEvent.class)) {
+            TypeMirror annotationEventType = e.getTypeMirror();
+
+            if (TypeUtils.equalsType(annotationEventType, HandleEvent.EmptyEvent.class)) {
                 return ANNOTATION_NO_PARAMS;
             }
+
+            result.annotationEventType = annotationEventType;
 
             return ANNOTATION_ONE_PARAM_EVENT;
         }
 
-        throw new Exception("Expected exception");
+        // we should never get here
+        throw new Exception("Could not determine annotation type");
+    }
+
+    protected TypeMirror determineEventType() throws Exception {
+        switch (result.methodType) {
+            case METHOD_ONE_PARAM_EVENT:
+            case METHOD_TWO_PARAMS_EVENT_STATE:
+                // first param
+                return result.parameters.get(0).asType();
+
+            case METHOD_TWO_PARAMS_STATE_EVENT:
+                // second param
+                return result.parameters.get(1).asType();
+        }
+
+        if (result.annotationType == ANNOTATION_ONE_PARAM_EVENT) {
+            return result.getAnnotationEventType();
+        }
+
+        throw new Exception("Could not determine event type");
     }
 
     protected HandleEventMethodType determineMethodType(List<? extends VariableElement> parameters) throws Exception {
