@@ -87,17 +87,21 @@ public class HandleCommandProcessor {
         return result;
     }
 
-    private TypeMirror getReturnType(TypeMirror returnType) throws Exception {
-        if (returnType.getKind() != TypeKind.VOID && returnType.getKind() != TypeKind.DECLARED) {
-            throw new Exception("Return type is invalid");
-        }
-
-        return returnType;
-    }
-
     //----------------------------------------------------------------------------------------------
     // PROTECTED METHODS
     //----------------------------------------------------------------------------------------------
+
+    protected void checkAnnotationAndMethodType() throws Exception {
+        if (result.methodType == METHOD_NO_PARAMS && result.annotationType == ANNOTATION_NO_PARAMS) {
+            throw new Exception("Method has no params, so annotation should set command type");
+        }
+    }
+
+    protected void checkMethod() throws Exception {
+        if (!Collections.disjoint(element.getModifiers(), MODIFIERS)) {
+            throw new Exception("Method is not accessible");
+        }
+    }
 
     protected HandleCommandAnnotationType determineAnnotationType(HandleCommand annotation) throws Exception {
         TypeMirror annotationCommandType = null;
@@ -115,6 +119,7 @@ public class HandleCommandProcessor {
             annotationStateType = e.getTypeMirror();
         }
 
+        // this should never happen
         if (annotationCommandType == null || annotationStateType == null) {
             throw new Exception("Could not extract command or state type from annotation");
         }
@@ -165,7 +170,7 @@ public class HandleCommandProcessor {
     protected HandleCommandMethodType determineMethodType(List<? extends VariableElement> parameters) throws Exception {
         int numParams = parameters.size();
 
-        if (numParams < 1) {
+        if (numParams == 0) {
             return METHOD_NO_PARAMS;
         } else if (numParams > 2) {
             throw new Exception("Invalid number of parameters");
@@ -175,14 +180,16 @@ public class HandleCommandProcessor {
         boolean firstIsCommand = isSubtype(firstParam, Command.class);
         boolean firstIsState = isSubtype(firstParam, State.class);
 
+        if (!firstIsCommand && !firstIsState) {
+            throw new Exception("Invalid parameters - expected command and state");
+        }
+
         if (numParams == 1) {
             if (firstIsCommand) {
                 return METHOD_ONE_PARAM_COMMAND;
-            } else if (firstIsState) {
-                return METHOD_ONE_PARAM_STATE;
             }
 
-            throw new Exception("Single parameter is of incorrect type");
+            return METHOD_ONE_PARAM_STATE;
         }
 
         VariableElement secondParam = parameters.get(1);
@@ -223,12 +230,9 @@ public class HandleCommandProcessor {
                 return RETURNS_EVENT_CALLABLE;
             } else if (returnsCollection) {
                 return RETURNS_EVENT_COLLECTION;
-            } else if (returnsObservable) {
-                return RETURNS_EVENT_OBSERVABLE;
             }
 
-            // TODO: is this ever reachable?
-            throw new Exception("Invalid return type");
+            return RETURNS_EVENT_OBSERVABLE;
         } else if (returnsCollection || !firstArgIsSubType(returnType, Collection.class)) {
             // throw: below expects callable or observable of collection
             throw new Exception("Invalid return type");
@@ -236,7 +240,7 @@ public class HandleCommandProcessor {
 
         DeclaredType firstArgFirstArg = (DeclaredType) firstArg.getTypeArguments().get(0);
 
-        // check whether the generic type of the callable is `Collection<Event>`
+        // check whether the generic type of the callable / observable is `Collection<Event>`
         if (isSubtype(firstArgFirstArg, Event.class)) {
             result.eventType = firstArgFirstArg;
 
@@ -271,16 +275,12 @@ public class HandleCommandProcessor {
         return null;
     }
 
-    protected void checkAnnotationAndMethodType() throws Exception {
-        if (result.methodType == METHOD_NO_PARAMS && result.annotationType == ANNOTATION_NO_PARAMS) {
-            throw new Exception("Method has no params, so annotation should set command type");
+    protected TypeMirror getReturnType(TypeMirror returnType) throws Exception {
+        if (returnType.getKind() != TypeKind.VOID && returnType.getKind() != TypeKind.DECLARED) {
+            throw new Exception("Return type is invalid");
         }
-    }
 
-    protected void checkMethod() throws Exception {
-        if (!Collections.disjoint(element.getModifiers(), MODIFIERS)) {
-            throw new Exception("Method is not accessible");
-        }
+        return returnType;
     }
 
 }
