@@ -58,10 +58,6 @@ public class HandleCommandProcessor {
     // PUBLIC METHODS
     //----------------------------------------------------------------------------------------------
 
-    public HandleCommandResult getResult() {
-        return result;
-    }
-
     public HandleCommandResult process() throws Exception {
         checkMethod();
 
@@ -185,11 +181,7 @@ public class HandleCommandProcessor {
         }
 
         if (numParams == 1) {
-            if (firstIsCommand) {
-                return METHOD_ONE_PARAM_COMMAND;
-            }
-
-            return METHOD_ONE_PARAM_STATE;
+            return firstIsCommand ? METHOD_ONE_PARAM_COMMAND : METHOD_ONE_PARAM_STATE;
         }
 
         VariableElement secondParam = parameters.get(1);

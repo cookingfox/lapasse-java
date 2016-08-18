@@ -53,10 +53,6 @@ public class HandleEventProcessor {
     // PUBLIC METHODS
     //----------------------------------------------------------------------------------------------
 
-    public HandleEventResult getResult() {
-        return result;
-    }
-
     public HandleEventResult process() throws Exception {
         checkMethod();
 
@@ -152,20 +148,21 @@ public class HandleEventProcessor {
 
         VariableElement firstParam = parameters.get(0);
         boolean firstIsEvent = isSubtype(firstParam, Event.class);
+        boolean firstIsState = isSubtype(firstParam, State.class);
+
+        if (!firstIsEvent && !firstIsState) {
+            throw new Exception("Invalid parameters - expected event and state");
+        }
 
         if (numParams == 1) {
-            if (firstIsEvent) {
-                return METHOD_ONE_PARAM_EVENT;
-            }
-
-            throw new Exception("Single parameter must be event");
+            return firstIsEvent ? METHOD_ONE_PARAM_EVENT : METHOD_ONE_PARAM_STATE;
         }
 
         VariableElement secondParam = parameters.get(1);
 
         if (firstIsEvent && isSubtype(secondParam, State.class)) {
             return METHOD_TWO_PARAMS_EVENT_STATE;
-        } else if (isSubtype(firstParam, State.class) && isSubtype(secondParam, Event.class)) {
+        } else if (firstIsState && isSubtype(secondParam, Event.class)) {
             return METHOD_TWO_PARAMS_STATE_EVENT;
         }
 

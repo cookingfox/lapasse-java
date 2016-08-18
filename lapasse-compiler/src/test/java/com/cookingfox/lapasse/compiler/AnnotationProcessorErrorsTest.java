@@ -120,11 +120,69 @@ public class AnnotationProcessorErrorsTest {
     }
 
     //----------------------------------------------------------------------------------------------
-    // COMMAND HANDLER RETURN TYPE INVALID DEEP GENERIC
+    // COMMAND HANDLER RETURN TYPE INVALID CALLABLE TYPE
     //----------------------------------------------------------------------------------------------
 
     @Test
-    public void command_handler_return_type_invalid_deep_generic() throws Exception {
+    public void command_handler_return_type_invalid_callable_type() throws Exception {
+        JavaFileObject source = JavaFileObjects.forSourceLines("test.Test",
+                "package test;",
+                "",
+                "import com.cookingfox.lapasse.annotation.HandleCommand;",
+                "import fixtures.example.command.IncrementCount;",
+                "import fixtures.example.state.CountState;",
+                "import java.util.Arrays;",
+                "import java.util.concurrent.Callable;",
+                "",
+                "public class Test {",
+                "    @HandleCommand",
+                "    public Callable<String> handle(CountState state, final IncrementCount command) {",
+                "        return null;",
+                "    }",
+                "}"
+        );
+
+        assertAbout(javaSource()).that(source)
+                .processedWith(new LaPasseAnnotationProcessor())
+                .failsToCompile()
+                .withErrorContaining("Invalid return type");
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // COMMAND HANDLER RETURN TYPE INVALID OBSERVABLE TYPE
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void command_handler_return_type_invalid_observable_type() throws Exception {
+        JavaFileObject source = JavaFileObjects.forSourceLines("test.Test",
+                "package test;",
+                "",
+                "import com.cookingfox.lapasse.annotation.HandleCommand;",
+                "import fixtures.example.command.IncrementCount;",
+                "import fixtures.example.state.CountState;",
+                "import java.util.Arrays;",
+                "import rx.Observable;",
+                "",
+                "public class Test {",
+                "    @HandleCommand",
+                "    public Observable<String> handle(CountState state, final IncrementCount command) {",
+                "        return null;",
+                "    }",
+                "}"
+        );
+
+        assertAbout(javaSource()).that(source)
+                .processedWith(new LaPasseAnnotationProcessor())
+                .failsToCompile()
+                .withErrorContaining("Invalid return type");
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // COMMAND HANDLER RETURN TYPE INVALID CALLABLE COLLECTION TYPE
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void command_handler_return_type_invalid_callable_collection_type() throws Exception {
         JavaFileObject source = JavaFileObjects.forSourceLines("test.Test",
                 "package test;",
                 "",
@@ -147,6 +205,60 @@ public class AnnotationProcessorErrorsTest {
                 .processedWith(new LaPasseAnnotationProcessor())
                 .failsToCompile()
                 .withErrorContaining("Invalid return type");
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // COMMAND HANDLER RETURN TYPE INVALID OBSERVABLE COLLECTION TYPE
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void command_handler_return_type_invalid_observable_collection_type() throws Exception {
+        JavaFileObject source = JavaFileObjects.forSourceLines("test.Test",
+                "package test;",
+                "",
+                "import com.cookingfox.lapasse.annotation.HandleCommand;",
+                "import fixtures.example.command.IncrementCount;",
+                "import fixtures.example.state.CountState;",
+                "import java.util.Arrays;",
+                "import java.util.Collection;",
+                "import rx.Observable;",
+                "",
+                "public class Test {",
+                "    @HandleCommand",
+                "    public Observable<Collection<String>> handle(CountState state, final IncrementCount command) {",
+                "        return null;",
+                "    }",
+                "}"
+        );
+
+        assertAbout(javaSource()).that(source)
+                .processedWith(new LaPasseAnnotationProcessor())
+                .failsToCompile()
+                .withErrorContaining("Invalid return type");
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // COMMAND HANDLER NO METHOD OR ANNOTATION PARAMS
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void command_handler_no_method_or_annotation_params() throws Exception {
+        JavaFileObject source = JavaFileObjects.forSourceLines("test.Test",
+                "package test;",
+                "",
+                "import com.cookingfox.lapasse.annotation.HandleCommand;",
+                "",
+                "public class Test {",
+                "    @HandleCommand",
+                "    public void handle() {",
+                "    }",
+                "}"
+        );
+
+        assertAbout(javaSource()).that(source)
+                .processedWith(new LaPasseAnnotationProcessor())
+                .failsToCompile()
+                .withErrorContaining("Method has no params, so annotation should set command type");
     }
 
     //----------------------------------------------------------------------------------------------
@@ -292,6 +404,33 @@ public class AnnotationProcessorErrorsTest {
     }
 
     //----------------------------------------------------------------------------------------------
+    // EVENT HANDLER EVENT TYPE NOT DETERMINABLE
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void event_handler_event_type_not_determinable() throws Exception {
+        JavaFileObject source = JavaFileObjects.forSourceLines("test.Test",
+                "package test;",
+                "",
+                "import com.cookingfox.lapasse.annotation.HandleEvent;",
+                "import fixtures.example.event.CountIncremented;",
+                "import fixtures.example.state.CountState;",
+                "",
+                "public class Test {",
+                "    @HandleEvent",
+                "    public CountState handle(CountState state) {",
+                "        return new CountState(0);",
+                "    }",
+                "}"
+        );
+
+        assertAbout(javaSource()).that(source)
+                .processedWith(new LaPasseAnnotationProcessor())
+                .failsToCompile()
+                .withErrorContaining("Could not determine event type");
+    }
+
+    //----------------------------------------------------------------------------------------------
     // EVENT HANDLER METHOD PARAMS INVALID NUMBER
     //----------------------------------------------------------------------------------------------
 
@@ -343,33 +482,6 @@ public class AnnotationProcessorErrorsTest {
                 .processedWith(new LaPasseAnnotationProcessor())
                 .failsToCompile()
                 .withErrorContaining("Invalid parameters - expected event and state");
-    }
-
-    //----------------------------------------------------------------------------------------------
-    // EVENT HANDLER SINGLE METHOD PARAM NOT EVENT
-    //----------------------------------------------------------------------------------------------
-
-    @Test
-    public void event_handler_single_method_param_not_event() throws Exception {
-        JavaFileObject source = JavaFileObjects.forSourceLines("test.Test",
-                "package test;",
-                "",
-                "import com.cookingfox.lapasse.annotation.HandleEvent;",
-                "import fixtures.example.event.CountIncremented;",
-                "import fixtures.example.state.CountState;",
-                "",
-                "public class Test {",
-                "    @HandleEvent",
-                "    public CountState handle(CountState state) {",
-                "        return new CountState(0);",
-                "    }",
-                "}"
-        );
-
-        assertAbout(javaSource()).that(source)
-                .processedWith(new LaPasseAnnotationProcessor())
-                .failsToCompile()
-                .withErrorContaining("Single parameter must be event");
     }
 
     //----------------------------------------------------------------------------------------------

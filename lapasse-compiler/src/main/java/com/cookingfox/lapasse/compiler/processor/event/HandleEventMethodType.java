@@ -16,6 +16,11 @@ public enum HandleEventMethodType {
     METHOD_ONE_PARAM_EVENT,
 
     /**
+     * Annotated method has one parameter: the state.
+     */
+    METHOD_ONE_PARAM_STATE,
+
+    /**
      * Annotated method has two parameters: the first is the event and the second is the state.
      */
     METHOD_TWO_PARAMS_EVENT_STATE,
