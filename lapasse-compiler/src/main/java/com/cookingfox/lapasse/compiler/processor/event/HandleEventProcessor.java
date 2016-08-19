@@ -3,16 +3,14 @@ package com.cookingfox.lapasse.compiler.processor.event;
 import com.cookingfox.lapasse.annotation.HandleEvent;
 import com.cookingfox.lapasse.api.event.Event;
 import com.cookingfox.lapasse.api.state.State;
+import com.cookingfox.lapasse.compiler.processor.ProcessorHelper;
 import com.cookingfox.lapasse.compiler.utils.TypeUtils;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.element.Modifier;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.MirroredTypeException;
 import javax.lang.model.type.TypeMirror;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import static com.cookingfox.lapasse.compiler.processor.event.HandleEventAnnotationType.ANNOTATION_NO_PARAMS;
@@ -24,19 +22,6 @@ import static com.cookingfox.lapasse.compiler.utils.TypeUtils.isSubtype;
  * Processes a {@link HandleEvent} annotated handler method.
  */
 public class HandleEventProcessor {
-
-    protected static final List<Modifier> MODIFIERS;
-
-    static {
-        MODIFIERS = Collections.unmodifiableList(Arrays.asList(
-                Modifier.ABSTRACT,
-                Modifier.NATIVE,
-                Modifier.PRIVATE,
-                Modifier.STATIC,
-                Modifier.STRICTFP,
-                Modifier.VOLATILE
-        ));
-    }
 
     protected final Element element;
     protected final HandleEventResult result = new HandleEventResult();
@@ -86,8 +71,9 @@ public class HandleEventProcessor {
     }
 
     protected void checkMethod() throws Exception {
-        if (!Collections.disjoint(element.getModifiers(), MODIFIERS)) {
-            throw new Exception("Method is not accessible");
+        if (!ProcessorHelper.isAccessible(element)) {
+            throw new Exception("Method is not accessible - it must be a non-static method with " +
+                    "public, protected or package-level access");
         }
     }
 
@@ -97,6 +83,10 @@ public class HandleEventProcessor {
         }
 
         return returnType;
+    }
+
+    protected Exception createInvalidMethodParamsException(List<? extends VariableElement> parameters) {
+        return new Exception("Invalid parameters - expected event and state");
     }
 
     protected HandleEventAnnotationType determineAnnotationType(HandleEvent annotation) throws Exception {
@@ -143,7 +133,7 @@ public class HandleEventProcessor {
         if (numParams < 1) {
             return METHOD_NO_PARAMS;
         } else if (numParams > 2) {
-            throw new Exception("Invalid number of parameters");
+            throw createInvalidMethodParamsException(parameters);
         }
 
         VariableElement firstParam = parameters.get(0);
@@ -151,7 +141,7 @@ public class HandleEventProcessor {
         boolean firstIsState = isSubtype(firstParam, State.class);
 
         if (!firstIsEvent && !firstIsState) {
-            throw new Exception("Invalid parameters - expected event and state");
+            throw createInvalidMethodParamsException(parameters);
         }
 
         if (numParams == 1) {
@@ -166,8 +156,7 @@ public class HandleEventProcessor {
             return METHOD_TWO_PARAMS_STATE_EVENT;
         }
 
-        throw new Exception("Invalid parameters - expected event and state");
+        throw createInvalidMethodParamsException(parameters);
     }
-
 
 }

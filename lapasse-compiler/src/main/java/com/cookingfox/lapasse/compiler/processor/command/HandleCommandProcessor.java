@@ -4,19 +4,17 @@ import com.cookingfox.lapasse.annotation.HandleCommand;
 import com.cookingfox.lapasse.api.command.Command;
 import com.cookingfox.lapasse.api.event.Event;
 import com.cookingfox.lapasse.api.state.State;
+import com.cookingfox.lapasse.compiler.processor.ProcessorHelper;
 import rx.Observable;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.element.Modifier;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.MirroredTypeException;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -29,19 +27,6 @@ import static com.cookingfox.lapasse.compiler.utils.TypeUtils.*;
  * Processes a {@link HandleCommand} annotated handler method.
  */
 public class HandleCommandProcessor {
-
-    protected static final List<Modifier> MODIFIERS;
-
-    static {
-        MODIFIERS = Collections.unmodifiableList(Arrays.asList(
-                Modifier.ABSTRACT,
-                Modifier.NATIVE,
-                Modifier.PROTECTED,
-                Modifier.STATIC,
-                Modifier.STRICTFP,
-                Modifier.VOLATILE
-        ));
-    }
 
     protected final Element element;
     protected final HandleCommandResult result = new HandleCommandResult();
@@ -89,14 +74,25 @@ public class HandleCommandProcessor {
 
     protected void checkAnnotationAndMethodType() throws Exception {
         if (result.methodParams == METHOD_NO_PARAMS && result.annotationType == ANNOTATION_NO_PARAMS) {
-            throw new Exception("Method has no params, so annotation should set command type");
+            throw new Exception(String.format("The command handler method has no parameters, " +
+                    "set the target command class using the annotation: " +
+                    "`@%s(command = MyCommand.class)`", HandleCommand.class.getSimpleName()));
         }
     }
 
     protected void checkMethod() throws Exception {
-        if (!Collections.disjoint(element.getModifiers(), MODIFIERS)) {
-            throw new Exception("Method is not accessible");
+        if (!ProcessorHelper.isAccessible(element)) {
+            throw new Exception("Method is not accessible - it must be a non-static method with " +
+                    "public, protected or package-level access");
         }
+    }
+
+    protected Exception createInvalidMethodParamsException(List<? extends VariableElement> parameters) {
+        return new Exception("Invalid parameters - expected command and state");
+    }
+
+    protected Exception createInvalidReturnTypeException(TypeMirror returnType) {
+        return new Exception("Invalid return type");
     }
 
     protected HandleCommandAnnotationType determineAnnotationType(HandleCommand annotation) throws Exception {
@@ -160,7 +156,10 @@ public class HandleCommandProcessor {
                 return result.getAnnotationCommandType();
         }
 
-        throw new Exception("Could not determine command type");
+        throw new Exception(String.format("Could not determine command --- type based on the " +
+                "method's parameters or annotation. Make sure at least the target command class " +
+                "is available as a method parameter or as an annotation value: " +
+                "`@%s(command = MyCommand.class)`", HandleCommand.class.getSimpleName()));
     }
 
     protected HandleCommandMethodParams determineMethodParams(List<? extends VariableElement> parameters) throws Exception {
@@ -169,7 +168,7 @@ public class HandleCommandProcessor {
         if (numParams == 0) {
             return METHOD_NO_PARAMS;
         } else if (numParams > 2) {
-            throw new Exception("Invalid number of parameters");
+            throw createInvalidMethodParamsException(parameters);
         }
 
         VariableElement firstParam = parameters.get(0);
@@ -177,7 +176,7 @@ public class HandleCommandProcessor {
         boolean firstIsState = isSubtype(firstParam, State.class);
 
         if (!firstIsCommand && !firstIsState) {
-            throw new Exception("Invalid parameters - expected command and state");
+            throw createInvalidMethodParamsException(parameters);
         }
 
         if (numParams == 1) {
@@ -192,7 +191,7 @@ public class HandleCommandProcessor {
             return METHOD_TWO_PARAMS_STATE_COMMAND;
         }
 
-        throw new Exception("Invalid parameters - expected command and state");
+        throw createInvalidMethodParamsException(parameters);
     }
 
     protected HandleCommandReturnType determineReturnType(TypeMirror returnType) throws Exception {
@@ -209,7 +208,7 @@ public class HandleCommandProcessor {
         boolean returnsObservable = isSubtype(returnType, Observable.class);
 
         if (!returnsCallable && !returnsCollection && !returnsObservable) {
-            throw new Exception("Invalid return type");
+            throw createInvalidReturnTypeException(returnType);
         }
 
         List<? extends TypeMirror> typeArguments = ((DeclaredType) returnType).getTypeArguments();
@@ -227,7 +226,7 @@ public class HandleCommandProcessor {
             return RETURNS_EVENT_OBSERVABLE;
         } else if (returnsCollection || !firstArgIsSubType(returnType, Collection.class)) {
             // throw: below expects callable or observable of collection
-            throw new Exception("Invalid return type");
+            throw createInvalidReturnTypeException(returnType);
         }
 
         DeclaredType firstArgFirstArg = (DeclaredType) firstArg.getTypeArguments().get(0);
@@ -243,7 +242,7 @@ public class HandleCommandProcessor {
             }
         }
 
-        throw new Exception("Invalid return type");
+        throw createInvalidReturnTypeException(returnType);
     }
 
     protected TypeMirror determineStateType() throws Exception {
@@ -269,7 +268,7 @@ public class HandleCommandProcessor {
 
     protected TypeMirror getReturnType(TypeMirror returnType) throws Exception {
         if (returnType.getKind() != TypeKind.VOID && returnType.getKind() != TypeKind.DECLARED) {
-            throw new Exception("Return type is invalid");
+            throw createInvalidReturnTypeException(returnType);
         }
 
         return returnType;

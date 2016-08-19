@@ -38,7 +38,7 @@ public class AnnotationProcessorErrorsTest {
         assertAbout(javaSource()).that(source)
                 .processedWith(new LaPasseAnnotationProcessor())
                 .failsToCompile()
-                .withErrorContaining("has private access");
+                .withErrorContaining("Method is not accessible");
     }
 
     //----------------------------------------------------------------------------------------------
@@ -64,7 +64,7 @@ public class AnnotationProcessorErrorsTest {
         assertAbout(javaSource()).that(source)
                 .processedWith(new LaPasseAnnotationProcessor())
                 .failsToCompile()
-                .withErrorContaining("Invalid number of parameters");
+                .withErrorContaining("Invalid parameters - expected command and state");
     }
 
     //----------------------------------------------------------------------------------------------
@@ -258,7 +258,7 @@ public class AnnotationProcessorErrorsTest {
         assertAbout(javaSource()).that(source)
                 .processedWith(new LaPasseAnnotationProcessor())
                 .failsToCompile()
-                .withErrorContaining("Method has no params, so annotation should set command type");
+                .withErrorContaining("set the target command class using the annotation");
     }
 
     //----------------------------------------------------------------------------------------------
@@ -454,7 +454,7 @@ public class AnnotationProcessorErrorsTest {
         assertAbout(javaSource()).that(source)
                 .processedWith(new LaPasseAnnotationProcessor())
                 .failsToCompile()
-                .withErrorContaining("Invalid number of parameters");
+                .withErrorContaining("Invalid parameters - expected event and state");
     }
 
     //----------------------------------------------------------------------------------------------
