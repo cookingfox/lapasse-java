@@ -391,7 +391,7 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
                 processorResults.addHandleCommandResult(result);
                 processorResults.detectTargetStateNameConflict();
             } catch (Exception e) {
-                throw new AnnotationProcessorException(e.getMessage(), origin);
+                throw new AnnotationProcessorException(e.getMessage(), element);
             }
         }
     }
@@ -408,7 +408,7 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
                 processorResults.addHandleEventResult(result);
                 processorResults.detectTargetStateNameConflict();
             } catch (Exception e) {
-                throw new AnnotationProcessorException(e.getMessage(), origin);
+                throw new AnnotationProcessorException(e.getMessage(), element);
             }
         }
     }

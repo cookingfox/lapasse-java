@@ -8,7 +8,8 @@ import com.cookingfox.lapasse.api.exception.LaPasseException;
 public class NoGeneratedClassException extends LaPasseException {
 
     public NoGeneratedClassException(String generatedClassName) {
-        super("Generated class does not exist: " + generatedClassName);
+        super("Generated class does not exist. Does the class contain LaPasse annotations? " +
+                "Expected: " + generatedClassName);
     }
 
 }

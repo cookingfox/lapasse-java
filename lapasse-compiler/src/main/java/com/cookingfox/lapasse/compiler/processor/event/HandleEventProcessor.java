@@ -49,7 +49,6 @@ public class HandleEventProcessor {
         result.annotationType = determineAnnotationType(annotation);
         result.methodParams = determineMethodParams(parameters);
 
-        checkAnnotationAndMethodType();
         checkReturnType(returnType);
 
         result.methodName = element.getSimpleName();
@@ -63,12 +62,6 @@ public class HandleEventProcessor {
     //----------------------------------------------------------------------------------------------
     // PROTECTED METHODS
     //----------------------------------------------------------------------------------------------
-
-    protected void checkAnnotationAndMethodType() throws Exception {
-        if (result.methodParams == METHOD_NO_PARAMS && result.annotationType == ANNOTATION_NO_PARAMS) {
-            throw new Exception("Method has no params, so annotation should set event type");
-        }
-    }
 
     protected void checkMethod() throws Exception {
         if (!ProcessorHelper.isAccessible(element)) {
@@ -124,7 +117,9 @@ public class HandleEventProcessor {
             return result.getAnnotationEventType();
         }
 
-        throw new Exception("Could not determine event type");
+        throw new Exception(String.format("Could not determine the target event type. Add an " +
+                "event method parameter or add the type to the annotation: " +
+                "`@%s(event = MyEvent.class)`", HandleEvent.class.getSimpleName()));
     }
 
     protected HandleEventMethodParams determineMethodParams(List<? extends VariableElement> parameters) throws Exception {

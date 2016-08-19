@@ -258,7 +258,7 @@ public class AnnotationProcessorErrorsTest {
         assertAbout(javaSource()).that(source)
                 .processedWith(new LaPasseAnnotationProcessor())
                 .failsToCompile()
-                .withErrorContaining("set the target command class using the annotation");
+                .withErrorContaining("Could not determine command type");
     }
 
     //----------------------------------------------------------------------------------------------
@@ -284,6 +284,32 @@ public class AnnotationProcessorErrorsTest {
                 .processedWith(new LaPasseAnnotationProcessor())
                 .failsToCompile()
                 .withErrorContaining("Can not determine target state");
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // COMMAND HANDLER COMMAND NOT DETERMINABLE
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void command_handler_command_not_determinable() throws Exception {
+        JavaFileObject source = JavaFileObjects.forSourceLines("test.Test",
+                "package test;",
+                "",
+                "import com.cookingfox.lapasse.annotation.HandleCommand;",
+                "import fixtures.example.command.IncrementCount;",
+                "import fixtures.example.state.CountState;",
+                "",
+                "public class Test {",
+                "    @HandleCommand",
+                "    public void handle(CountState state) {",
+                "    }",
+                "}"
+        );
+
+        assertAbout(javaSource()).that(source)
+                .processedWith(new LaPasseAnnotationProcessor())
+                .failsToCompile()
+                .withErrorContaining("Could not determine command type");
     }
 
     //----------------------------------------------------------------------------------------------
@@ -400,7 +426,34 @@ public class AnnotationProcessorErrorsTest {
         assertAbout(javaSource()).that(source)
                 .processedWith(new LaPasseAnnotationProcessor())
                 .failsToCompile()
-                .withErrorContaining("Method has no params, so annotation should set event type");
+                .withErrorContaining("Could not determine the target event type");
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // EVENT HANDLER NO EVENT METHOD PARAM NO ANNOTATION PARAMS
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void event_handler_no_event_method_param_no_annotation_params() throws Exception {
+        JavaFileObject source = JavaFileObjects.forSourceLines("test.Test",
+                "package test;",
+                "",
+                "import com.cookingfox.lapasse.annotation.HandleEvent;",
+                "import fixtures.example.event.CountIncremented;",
+                "import fixtures.example.state.CountState;",
+                "",
+                "public class Test {",
+                "    @HandleEvent",
+                "    public CountState handle(CountState state) {",
+                "        return new CountState(0);",
+                "    }",
+                "}"
+        );
+
+        assertAbout(javaSource()).that(source)
+                .processedWith(new LaPasseAnnotationProcessor())
+                .failsToCompile()
+                .withErrorContaining("Could not determine the target event type");
     }
 
     //----------------------------------------------------------------------------------------------
@@ -427,7 +480,7 @@ public class AnnotationProcessorErrorsTest {
         assertAbout(javaSource()).that(source)
                 .processedWith(new LaPasseAnnotationProcessor())
                 .failsToCompile()
-                .withErrorContaining("Could not determine event type");
+                .withErrorContaining("Could not determine the target event type");
     }
 
     //----------------------------------------------------------------------------------------------

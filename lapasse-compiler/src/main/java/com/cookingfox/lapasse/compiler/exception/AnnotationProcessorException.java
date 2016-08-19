@@ -1,33 +1,33 @@
 package com.cookingfox.lapasse.compiler.exception;
 
-import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.Element;
 
 /**
  * Thrown when an annotation processor exception occurs.
  */
 public class AnnotationProcessorException extends Exception {
 
-    protected final TypeElement origin;
+    protected final Element origin;
 
     //----------------------------------------------------------------------------------------------
     // CONSTRUCTORS
     //----------------------------------------------------------------------------------------------
 
-    public AnnotationProcessorException(TypeElement origin) {
+    public AnnotationProcessorException(Element origin) {
         this.origin = origin;
     }
 
-    public AnnotationProcessorException(String message, TypeElement origin) {
+    public AnnotationProcessorException(String message, Element origin) {
         super(message);
         this.origin = origin;
     }
 
-    public AnnotationProcessorException(String message, Throwable cause, TypeElement origin) {
+    public AnnotationProcessorException(String message, Throwable cause, Element origin) {
         super(message, cause);
         this.origin = origin;
     }
 
-    public AnnotationProcessorException(Throwable cause, TypeElement origin) {
+    public AnnotationProcessorException(Throwable cause, Element origin) {
         super(cause);
         this.origin = origin;
     }
@@ -36,7 +36,7 @@ public class AnnotationProcessorException extends Exception {
     // GETTERS
     //----------------------------------------------------------------------------------------------
 
-    public TypeElement getOrigin() {
+    public Element getOrigin() {
         return origin;
     }
 

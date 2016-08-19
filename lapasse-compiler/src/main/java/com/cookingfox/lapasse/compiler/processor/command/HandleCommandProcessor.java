@@ -56,8 +56,6 @@ public class HandleCommandProcessor {
         result.returnType = determineReturnType(returnType);
         result.returnTypeName = returnType;
 
-        checkAnnotationAndMethodType();
-
         // note: event type is set by `determineReturnType`
 
         result.methodName = element.getSimpleName();
@@ -71,14 +69,6 @@ public class HandleCommandProcessor {
     //----------------------------------------------------------------------------------------------
     // PROTECTED METHODS
     //----------------------------------------------------------------------------------------------
-
-    protected void checkAnnotationAndMethodType() throws Exception {
-        if (result.methodParams == METHOD_NO_PARAMS && result.annotationType == ANNOTATION_NO_PARAMS) {
-            throw new Exception(String.format("The command handler method has no parameters, " +
-                    "set the target command class using the annotation: " +
-                    "`@%s(command = MyCommand.class)`", HandleCommand.class.getSimpleName()));
-        }
-    }
 
     protected void checkMethod() throws Exception {
         if (!ProcessorHelper.isAccessible(element)) {
@@ -156,7 +146,7 @@ public class HandleCommandProcessor {
                 return result.getAnnotationCommandType();
         }
 
-        throw new Exception(String.format("Could not determine command --- type based on the " +
+        throw new Exception(String.format("Could not determine command type based on the " +
                 "method's parameters or annotation. Make sure at least the target command class " +
                 "is available as a method parameter or as an annotation value: " +
                 "`@%s(command = MyCommand.class)`", HandleCommand.class.getSimpleName()));
@@ -237,7 +227,7 @@ public class HandleCommandProcessor {
 
             if (returnsCallable) {
                 return RETURNS_EVENT_COLLECTION_CALLABLE;
-            } else if (returnsObservable) {
+            } else {
                 return RETURNS_EVENT_COLLECTION_OBSERVABLE;
             }
         }
