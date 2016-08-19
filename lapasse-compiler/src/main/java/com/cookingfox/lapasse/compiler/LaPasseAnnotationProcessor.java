@@ -5,6 +5,7 @@ import com.cookingfox.lapasse.annotation.HandleEvent;
 import com.cookingfox.lapasse.api.command.handler.*;
 import com.cookingfox.lapasse.api.event.handler.EventHandler;
 import com.cookingfox.lapasse.api.facade.Facade;
+import com.cookingfox.lapasse.compiler.exception.AnnotationProcessorException;
 import com.cookingfox.lapasse.compiler.processor.ProcessorResults;
 import com.cookingfox.lapasse.compiler.processor.command.HandleCommandMethodType;
 import com.cookingfox.lapasse.compiler.processor.command.HandleCommandProcessor;
@@ -82,28 +83,303 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
+        try {
+            doProcess(roundEnv);
+        } catch (AnnotationProcessorException e) {
+            error(e.getOrigin(), e.getMessage());
+        }
+
+        return false;
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // PROTECTED METHODS
+    //----------------------------------------------------------------------------------------------
+
+    protected void doProcess(RoundEnvironment roundEnv) throws AnnotationProcessorException {
         // processor results by 'origin' (the enclosing element - the class containing the
         // annotated method)
         final Map<TypeElement, ProcessorResults> results = new LinkedHashMap<>();
 
-        // process `@HandleEvent` annotated methods
         // events first, because they have a better chance of determining the concrete facade state
-        for (Element element : roundEnv.getElementsAnnotatedWith(HandleEvent.class)) {
-            TypeElement origin = (TypeElement) element.getEnclosingElement();
-            HandleEventProcessor processor = new HandleEventProcessor(element);
+        processHandleEventAnnotations(results, roundEnv);
+        processHandleCommandAnnotations(results, roundEnv);
+
+        // generate code with processor results
+        for (Map.Entry<TypeElement, ProcessorResults> entry : results.entrySet()) {
+            TypeElement origin = entry.getKey();
+            ProcessorResults processorResults = entry.getValue();
+            TypeName targetStateName = processorResults.getTargetStateName();
+
+            if (targetStateName == null) {
+                throw new AnnotationProcessorException("Target state name is null", origin);
+            }
+
+            OriginModel model = new OriginModel();
+            model.fieldNameCounter = 0;
+            model.targetStateName = targetStateName;
+            model.processorResults = processorResults;
+            model.origin = origin;
+
+            generateHandlersType(model);
+
+            // generate handlers
+            generateCommandHandlers(model);
+            generateEventHandlers(model);
+
+            // build type spec
+            TypeSpec typeSpec = model.buildTypeSpec();
 
             try {
-                HandleEventResult result = processor.process();
+                // create java file from type spec
+                JavaFile javaFile = JavaFile.builder(model.packageName, typeSpec)
+                        .addFileComment("Generated code from LaPasse - do not modify!")
+                        .build();
 
-                ProcessorResults processorResults = getProcessorResults(results, origin);
-                processorResults.addHandleEventResult(result);
-                processorResults.detectTargetStateNameConflict();
-            } catch (Exception e) {
-                return error(origin, e.getMessage());
+                // write file
+                javaFile.writeTo(filer);
+            } catch (IOException e) {
+                error(origin, "Unable to generate handlers for %s: %s", origin, e.getMessage());
             }
         }
+    }
 
-        // process `@HandleCommand` annotated methods
+    protected void generateHandlersType(OriginModel model) {
+        // get original package and class name
+        String packageName = elements.getPackageOf(model.origin).getQualifiedName().toString();
+        String originClassName = getClassName(model.origin, packageName);
+
+        // create new class name
+        String generatedClassName = originClassName + LaPasse.GENERATED_SUFFIX;
+        ClassName className = ClassName.get(packageName, generatedClassName);
+
+        // create generic type parameter for origin
+        TypeVariableName originGeneric = TypeVariableName.get("T",
+                ClassName.get(packageName, originClassName));
+
+        // create facade type with concrete state generic
+        ParameterizedTypeName facadeConcrete =
+                ParameterizedTypeName.get(ClassName.get(Facade.class), model.targetStateName);
+
+        // create constructor
+        MethodSpec constructor = MethodSpec.constructorBuilder()
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(originGeneric, VAR_ORIGIN)
+                .addParameter(facadeConcrete, VAR_FACADE)
+                .addStatement("this.$N = $N", VAR_ORIGIN, VAR_ORIGIN)
+                .addStatement("this.$N = $N", VAR_FACADE, VAR_FACADE)
+                .build();
+
+        // create class (builder)
+        TypeSpec.Builder typeSpecBuilder = TypeSpec.classBuilder(className)
+                .addModifiers(Modifier.PUBLIC)
+                .addTypeVariable(originGeneric)
+                .addSuperinterface(HandlerMapper.class)
+                .addField(originGeneric, VAR_ORIGIN, Modifier.FINAL)
+                .addField(facadeConcrete, VAR_FACADE, Modifier.FINAL)
+                .addMethod(constructor);
+
+        // create HandlerMapper (builder)
+        MethodSpec.Builder mapHandlersBuilder = MethodSpec.methodBuilder("mapHandlers")
+                .addModifiers(Modifier.PUBLIC)
+                .addAnnotation(Override.class);
+
+        model.packageName = packageName;
+        model.typeSpecBuilder = typeSpecBuilder;
+        model.mapHandlersBuilder = mapHandlersBuilder;
+    }
+
+    protected void generateCommandHandlers(OriginModel model) {
+        for (HandleCommandResult result : model.processorResults.getHandleCommandResults()) {
+            String fieldName = FIELD_PREFIX + (++model.fieldNameCounter);
+
+            // collect handler specific parameters
+            Name methodName = result.getMethodName();
+            TypeName commandName = ClassName.get(result.getCommandType());
+            TypeName eventTypeName = result.getEventTypeName();
+            HandleCommandMethodType methodType = result.getMethodType();
+            HandleCommandReturnType returnType = result.getReturnType();
+            TypeName returnTypeName = ClassName.get(result.getReturnTypeName());
+
+            ParameterizedTypeName handlerType;
+
+            // build handler method
+            MethodSpec.Builder handlerMethodBuilder = MethodSpec.methodBuilder(METHOD_HANDLE)
+                    .addAnnotation(Override.class)
+                    .addModifiers(Modifier.PUBLIC)
+                    .addParameter(model.targetStateName, VAR_STATE)
+                    .addParameter(commandName, VAR_COMMAND)
+                    .returns(returnTypeName);
+
+            String callerStatement = "";
+
+            if (returnType == HandleCommandReturnType.RETURNS_VOID) {
+                handlerType = ParameterizedTypeName.get(ClassName.get(VoidCommandHandler.class),
+                        model.targetStateName, commandName);
+            } else {
+                callerStatement = "return ";
+
+                // default: returns event
+                Class<? extends CommandHandler> commandHandlerClass = SyncCommandHandler.class;
+
+                switch (returnType) {
+                    case RETURNS_EVENT_COLLECTION:
+                        commandHandlerClass = SyncMultiCommandHandler.class;
+                        break;
+
+                    case RETURNS_EVENT_CALLABLE:
+                        commandHandlerClass = AsyncCommandHandler.class;
+                        break;
+
+                    case RETURNS_EVENT_COLLECTION_CALLABLE:
+                        commandHandlerClass = AsyncMultiCommandHandler.class;
+                        break;
+
+                    case RETURNS_EVENT_OBSERVABLE:
+                        commandHandlerClass = RxCommandHandler.class;
+                        break;
+
+                    case RETURNS_EVENT_COLLECTION_OBSERVABLE:
+                        commandHandlerClass = RxMultiCommandHandler.class;
+                        break;
+                }
+
+                handlerType = ParameterizedTypeName.get(ClassName.get(commandHandlerClass),
+                        model.targetStateName, commandName, eventTypeName);
+            }
+
+            switch (methodType) {
+                case METHOD_NO_PARAMS:
+                    callerStatement += "$N.$N()";
+                    handlerMethodBuilder.addStatement(callerStatement,
+                            VAR_ORIGIN, methodName);
+                    break;
+
+                case METHOD_ONE_PARAM_COMMAND:
+                    callerStatement += "$N.$N($N)";
+                    handlerMethodBuilder.addStatement(callerStatement,
+                            VAR_ORIGIN, methodName, VAR_COMMAND);
+                    break;
+
+                case METHOD_ONE_PARAM_STATE:
+                    callerStatement += "$N.$N($N)";
+                    handlerMethodBuilder.addStatement(callerStatement,
+                            VAR_ORIGIN, methodName, VAR_STATE);
+                    break;
+
+                case METHOD_TWO_PARAMS_COMMAND_STATE:
+                    callerStatement += "$N.$N($N, $N)";
+                    handlerMethodBuilder.addStatement(callerStatement,
+                            VAR_ORIGIN, methodName, VAR_COMMAND, VAR_STATE);
+                    break;
+
+                case METHOD_TWO_PARAMS_STATE_COMMAND:
+                    callerStatement += "$N.$N($N, $N)";
+                    handlerMethodBuilder.addStatement(callerStatement,
+                            VAR_ORIGIN, methodName, VAR_STATE, VAR_COMMAND);
+                    break;
+            }
+
+            // add handler implementation
+            TypeSpec handlerImpl = TypeSpec.anonymousClassBuilder("")
+                    .addSuperinterface(handlerType)
+                    .addMethod(handlerMethodBuilder.build())
+                    .build();
+
+            // create field for handler
+            FieldSpec handlerField = FieldSpec.builder(handlerType, fieldName)
+                    .addModifiers(Modifier.FINAL)
+                    .initializer("$L", handlerImpl)
+                    .build();
+
+            // add field to class
+            model.typeSpecBuilder.addField(handlerField);
+
+            // add handler mapping to HandlerMapper
+            model.mapHandlersBuilder.addStatement(
+                    "$N.mapCommandHandler($T.class, $N)",
+                    VAR_FACADE,
+                    commandName,
+                    fieldName
+            );
+        }
+    }
+
+    protected void generateEventHandlers(OriginModel model) {
+        for (HandleEventResult result : model.processorResults.getHandleEventResults()) {
+            String fieldName = FIELD_PREFIX + (++model.fieldNameCounter);
+
+            // collect handler specific parameters
+            Name methodName = result.getMethodName();
+            TypeName eventName = ClassName.get(result.getEventType());
+
+            // build handler method
+            MethodSpec.Builder handlerMethodBuilder = MethodSpec.methodBuilder(METHOD_HANDLE)
+                    .addAnnotation(Override.class)
+                    .addModifiers(Modifier.PUBLIC)
+                    .addParameter(model.targetStateName, VAR_STATE)
+                    .addParameter(eventName, VAR_EVENT);
+
+            switch (result.getMethodType()) {
+                case METHOD_NO_PARAMS:
+                    handlerMethodBuilder.addStatement("return $N.$N()",
+                            VAR_ORIGIN, methodName);
+                    break;
+
+                case METHOD_ONE_PARAM_EVENT:
+                    handlerMethodBuilder.addStatement("return $N.$N($N)",
+                            VAR_ORIGIN, methodName, VAR_EVENT);
+                    break;
+
+                case METHOD_ONE_PARAM_STATE:
+                    handlerMethodBuilder.addStatement("return $N.$N($N)",
+                            VAR_ORIGIN, methodName, VAR_STATE);
+                    break;
+
+                case METHOD_TWO_PARAMS_EVENT_STATE:
+                    handlerMethodBuilder.addStatement("return $N.$N($N, $N)",
+                            VAR_ORIGIN, methodName, VAR_EVENT, VAR_STATE);
+                    break;
+
+                case METHOD_TWO_PARAMS_STATE_EVENT:
+                    handlerMethodBuilder.addStatement("return $N.$N($N, $N)",
+                            VAR_ORIGIN, methodName, VAR_STATE, VAR_EVENT);
+                    break;
+            }
+
+            MethodSpec handlerMethod = handlerMethodBuilder.returns(model.targetStateName)
+                    .build();
+
+            // create parameterized name for handler
+            ParameterizedTypeName handlerType = ParameterizedTypeName.get(
+                    ClassName.get(EventHandler.class), model.targetStateName, eventName);
+
+            // create anonymous handler implementation
+            TypeSpec handlerImpl = TypeSpec.anonymousClassBuilder("")
+                    .addSuperinterface(handlerType)
+                    .addMethod(handlerMethod)
+                    .build();
+
+            // create field for handler
+            FieldSpec handlerField = FieldSpec.builder(handlerType, fieldName)
+                    .addModifiers(Modifier.FINAL)
+                    .initializer("$L", handlerImpl)
+                    .build();
+
+            // add field to class
+            model.typeSpecBuilder.addField(handlerField);
+
+            // add handler mapping to HandlerMapper
+            model.mapHandlersBuilder.addStatement(
+                    "$N.mapEventHandler($T.class, $N)",
+                    VAR_FACADE,
+                    eventName,
+                    fieldName
+            );
+        }
+    }
+
+    protected void processHandleCommandAnnotations(Map<TypeElement, ProcessorResults> results, RoundEnvironment roundEnv) throws AnnotationProcessorException {
         for (Element element : roundEnv.getElementsAnnotatedWith(HandleCommand.class)) {
             TypeElement origin = (TypeElement) element.getEnclosingElement();
             HandleCommandProcessor processor = new HandleCommandProcessor(element);
@@ -115,280 +391,26 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
                 processorResults.addHandleCommandResult(result);
                 processorResults.detectTargetStateNameConflict();
             } catch (Exception e) {
-                return error(origin, e.getMessage());
+                throw new AnnotationProcessorException(e.getMessage(), origin);
             }
         }
+    }
 
-        // generate code with processor results
-        for (Map.Entry<TypeElement, ProcessorResults> entry : results.entrySet()) {
-            TypeElement origin = entry.getKey();
-            ProcessorResults processorResults = entry.getValue();
-            TypeName targetStateName = processorResults.getTargetStateName();
-
-            if (targetStateName == null) {
-                return error(origin, "Target state name is null");
-            }
-
-            // get original package and class name
-            String packageName = elements.getPackageOf(origin).getQualifiedName().toString();
-            String originClassName = getClassName(origin, packageName);
-
-            // create new class name
-            String generatedClassName = originClassName + LaPasse.GENERATED_SUFFIX;
-            ClassName className = ClassName.get(packageName, generatedClassName);
-
-            //--------------------------------------------------------------------------------------
-            // CREATE CLASS SPECIFICATION
-            //--------------------------------------------------------------------------------------
-
-            // create generic type parameter for origin
-            TypeVariableName originGeneric = TypeVariableName.get("T",
-                    ClassName.get(packageName, originClassName));
-
-            // create facade type with concrete state generic
-            ParameterizedTypeName facadeConcrete =
-                    ParameterizedTypeName.get(ClassName.get(Facade.class), targetStateName);
-
-            // create constructor
-            MethodSpec constructor = MethodSpec.constructorBuilder()
-                    .addModifiers(Modifier.PUBLIC)
-                    .addParameter(originGeneric, VAR_ORIGIN)
-                    .addParameter(facadeConcrete, VAR_FACADE)
-                    .addStatement("this.$N = $N", VAR_ORIGIN, VAR_ORIGIN)
-                    .addStatement("this.$N = $N", VAR_FACADE, VAR_FACADE)
-                    .build();
-
-            // create class (builder)
-            TypeSpec.Builder typeSpecBuilder = TypeSpec.classBuilder(className)
-                    .addModifiers(Modifier.PUBLIC)
-                    .addTypeVariable(originGeneric)
-                    .addSuperinterface(HandlerMapper.class)
-                    .addField(originGeneric, VAR_ORIGIN, Modifier.FINAL)
-                    .addField(facadeConcrete, VAR_FACADE, Modifier.FINAL)
-                    .addMethod(constructor);
-
-            // create HandlerMapper (builder)
-            MethodSpec.Builder mapHandlersBuilder = MethodSpec.methodBuilder("mapHandlers")
-                    .addModifiers(Modifier.PUBLIC)
-                    .addAnnotation(Override.class);
-
-            int fieldNameCounter = 0;
-
-            //--------------------------------------------------------------------------------------
-            // PROCESS COMMAND HANDLERS
-            //--------------------------------------------------------------------------------------
-
-            for (HandleCommandResult result : processorResults.getHandleCommandResults()) {
-                String fieldName = FIELD_PREFIX + (++fieldNameCounter);
-
-                // collect handler specific parameters
-                Name methodName = result.getMethodName();
-                TypeName commandName = ClassName.get(result.getCommandType());
-                TypeName eventTypeName = result.getEventTypeName();
-                HandleCommandMethodType methodType = result.getMethodType();
-                HandleCommandReturnType returnType = result.getReturnType();
-                TypeName returnTypeName = ClassName.get(result.getReturnTypeName());
-
-                ParameterizedTypeName handlerType;
-
-                // build handler method
-                MethodSpec.Builder handlerMethodBuilder = MethodSpec.methodBuilder(METHOD_HANDLE)
-                        .addAnnotation(Override.class)
-                        .addModifiers(Modifier.PUBLIC)
-                        .addParameter(targetStateName, VAR_STATE)
-                        .addParameter(commandName, VAR_COMMAND)
-                        .returns(returnTypeName);
-
-                String callerStatement = "";
-
-                if (returnType == HandleCommandReturnType.RETURNS_VOID) {
-                    handlerType = ParameterizedTypeName.get(ClassName.get(VoidCommandHandler.class),
-                            targetStateName, commandName);
-                } else {
-                    callerStatement = "return ";
-
-                    // default: returns event
-                    Class<? extends CommandHandler> commandHandlerClass = SyncCommandHandler.class;
-
-                    switch (returnType) {
-                        case RETURNS_EVENT_COLLECTION:
-                            commandHandlerClass = SyncMultiCommandHandler.class;
-                            break;
-
-                        case RETURNS_EVENT_CALLABLE:
-                            commandHandlerClass = AsyncCommandHandler.class;
-                            break;
-
-                        case RETURNS_EVENT_COLLECTION_CALLABLE:
-                            commandHandlerClass = AsyncMultiCommandHandler.class;
-                            break;
-
-                        case RETURNS_EVENT_OBSERVABLE:
-                            commandHandlerClass = RxCommandHandler.class;
-                            break;
-
-                        case RETURNS_EVENT_COLLECTION_OBSERVABLE:
-                            commandHandlerClass = RxMultiCommandHandler.class;
-                            break;
-                    }
-
-                    handlerType = ParameterizedTypeName.get(ClassName.get(commandHandlerClass),
-                            targetStateName, commandName, eventTypeName);
-                }
-
-                switch (methodType) {
-                    case METHOD_NO_PARAMS:
-                        callerStatement += "$N.$N()";
-                        handlerMethodBuilder.addStatement(callerStatement,
-                                VAR_ORIGIN, methodName);
-                        break;
-
-                    case METHOD_ONE_PARAM_COMMAND:
-                        callerStatement += "$N.$N($N)";
-                        handlerMethodBuilder.addStatement(callerStatement,
-                                VAR_ORIGIN, methodName, VAR_COMMAND);
-                        break;
-
-                    case METHOD_ONE_PARAM_STATE:
-                        callerStatement += "$N.$N($N)";
-                        handlerMethodBuilder.addStatement(callerStatement,
-                                VAR_ORIGIN, methodName, VAR_STATE);
-                        break;
-
-                    case METHOD_TWO_PARAMS_COMMAND_STATE:
-                        callerStatement += "$N.$N($N, $N)";
-                        handlerMethodBuilder.addStatement(callerStatement,
-                                VAR_ORIGIN, methodName, VAR_COMMAND, VAR_STATE);
-                        break;
-
-                    case METHOD_TWO_PARAMS_STATE_COMMAND:
-                        callerStatement += "$N.$N($N, $N)";
-                        handlerMethodBuilder.addStatement(callerStatement,
-                                VAR_ORIGIN, methodName, VAR_STATE, VAR_COMMAND);
-                        break;
-                }
-
-                // add handler implementation
-                TypeSpec handlerImpl = TypeSpec.anonymousClassBuilder("")
-                        .addSuperinterface(handlerType)
-                        .addMethod(handlerMethodBuilder.build())
-                        .build();
-
-                // create field for handler
-                FieldSpec handlerField = FieldSpec.builder(handlerType, fieldName)
-                        .addModifiers(Modifier.FINAL)
-                        .initializer("$L", handlerImpl)
-                        .build();
-
-                // add field to class
-                typeSpecBuilder.addField(handlerField);
-
-                // add handler mapping to HandlerMapper
-                mapHandlersBuilder.addStatement(
-                        "$N.mapCommandHandler($T.class, $N)",
-                        VAR_FACADE,
-                        commandName,
-                        fieldName
-                );
-            }
-
-            //--------------------------------------------------------------------------------------
-            // PROCESS EVENT HANDLERS
-            //--------------------------------------------------------------------------------------
-
-            for (HandleEventResult result : processorResults.getHandleEventResults()) {
-                String fieldName = FIELD_PREFIX + (++fieldNameCounter);
-
-                // collect handler specific parameters
-                Name methodName = result.getMethodName();
-                TypeName eventName = ClassName.get(result.getEventType());
-
-                // build handler method
-                MethodSpec.Builder handlerMethodBuilder = MethodSpec.methodBuilder(METHOD_HANDLE)
-                        .addAnnotation(Override.class)
-                        .addModifiers(Modifier.PUBLIC)
-                        .addParameter(targetStateName, VAR_STATE)
-                        .addParameter(eventName, VAR_EVENT);
-
-                switch (result.getMethodType()) {
-                    case METHOD_NO_PARAMS:
-                        handlerMethodBuilder.addStatement("return $N.$N()",
-                                VAR_ORIGIN, methodName);
-                        break;
-
-                    case METHOD_ONE_PARAM_EVENT:
-                        handlerMethodBuilder.addStatement("return $N.$N($N)",
-                                VAR_ORIGIN, methodName, VAR_EVENT);
-                        break;
-
-                    case METHOD_ONE_PARAM_STATE:
-                        handlerMethodBuilder.addStatement("return $N.$N($N)",
-                                VAR_ORIGIN, methodName, VAR_STATE);
-                        break;
-
-                    case METHOD_TWO_PARAMS_EVENT_STATE:
-                        handlerMethodBuilder.addStatement("return $N.$N($N, $N)",
-                                VAR_ORIGIN, methodName, VAR_EVENT, VAR_STATE);
-                        break;
-
-                    case METHOD_TWO_PARAMS_STATE_EVENT:
-                        handlerMethodBuilder.addStatement("return $N.$N($N, $N)",
-                                VAR_ORIGIN, methodName, VAR_STATE, VAR_EVENT);
-                        break;
-                }
-
-                MethodSpec handlerMethod = handlerMethodBuilder.returns(targetStateName)
-                        .build();
-
-                // create parameterized name for handler
-                ParameterizedTypeName handlerType = ParameterizedTypeName.get(
-                        ClassName.get(EventHandler.class), targetStateName, eventName);
-
-                // create anonymous handler implementation
-                TypeSpec handlerImpl = TypeSpec.anonymousClassBuilder("")
-                        .addSuperinterface(handlerType)
-                        .addMethod(handlerMethod)
-                        .build();
-
-                // create field for handler
-                FieldSpec handlerField = FieldSpec.builder(handlerType, fieldName)
-                        .addModifiers(Modifier.FINAL)
-                        .initializer("$L", handlerImpl)
-                        .build();
-
-                // add field to class
-                typeSpecBuilder.addField(handlerField);
-
-                // add handler mapping to HandlerMapper
-                mapHandlersBuilder.addStatement(
-                        "$N.mapEventHandler($T.class, $N)",
-                        VAR_FACADE,
-                        eventName,
-                        fieldName
-                );
-            }
-
-            //--------------------------------------------------------------------------------------
-            // BUILD JAVA FILE
-            //--------------------------------------------------------------------------------------
-
-            // add populated HandlerMapper method to class
-            typeSpecBuilder.addMethod(mapHandlersBuilder.build());
+    protected void processHandleEventAnnotations(Map<TypeElement, ProcessorResults> results, RoundEnvironment roundEnv) throws AnnotationProcessorException {
+        for (Element element : roundEnv.getElementsAnnotatedWith(HandleEvent.class)) {
+            TypeElement origin = (TypeElement) element.getEnclosingElement();
+            HandleEventProcessor processor = new HandleEventProcessor(element);
 
             try {
-                // create java file from type spec
-                JavaFile javaFile = JavaFile.builder(packageName, typeSpecBuilder.build())
-                        .addFileComment("Generated code from LaPasse - do not modify!")
-                        .build();
+                HandleEventResult result = processor.process();
 
-                // write file
-                javaFile.writeTo(filer);
-            } catch (IOException e) {
-                error(origin, "Unable to generate handlers for %s: %s", origin, e.getMessage());
+                ProcessorResults processorResults = getProcessorResults(results, origin);
+                processorResults.addHandleEventResult(result);
+                processorResults.detectTargetStateNameConflict();
+            } catch (Exception e) {
+                throw new AnnotationProcessorException(e.getMessage(), origin);
             }
         }
-
-        return false;
     }
 
     protected ProcessorResults getProcessorResults(Map<TypeElement, ProcessorResults> map, TypeElement element) {
@@ -401,10 +423,6 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
 
         return processorResults;
     }
-
-    //----------------------------------------------------------------------------------------------
-    // PROTECTED METHODS
-    //----------------------------------------------------------------------------------------------
 
     /**
      * Generates a class name using the provided type and package name.
@@ -432,6 +450,29 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
         messager.printMessage(Diagnostic.Kind.ERROR, String.format(msg, args), element);
 
         return false;
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // MEMBER CLASSES
+    //----------------------------------------------------------------------------------------------
+
+    protected static class OriginModel {
+
+        public int fieldNameCounter;
+        public TypeSpec.Builder typeSpecBuilder;
+        public MethodSpec.Builder mapHandlersBuilder;
+        public TypeName targetStateName;
+        public ProcessorResults processorResults;
+        public TypeElement origin;
+        public String packageName;
+
+        public TypeSpec buildTypeSpec() {
+            // add populated HandlerMapper method to class
+            typeSpecBuilder.addMethod(mapHandlersBuilder.build());
+
+            return typeSpecBuilder.build();
+        }
+
     }
 
 }
