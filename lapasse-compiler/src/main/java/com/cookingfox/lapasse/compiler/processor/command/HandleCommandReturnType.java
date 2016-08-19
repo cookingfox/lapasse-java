@@ -1,5 +1,6 @@
 package com.cookingfox.lapasse.compiler.processor.command;
 
+import com.cookingfox.lapasse.annotation.HandleCommand;
 import com.cookingfox.lapasse.api.event.Event;
 import rx.Observable;
 
@@ -7,7 +8,7 @@ import java.util.Collection;
 import java.util.concurrent.Callable;
 
 /**
- * Created by abeldebeer on 16/08/16.
+ * Indicates the return type for a {@link HandleCommand} annotated handler method.
  */
 public enum HandleCommandReturnType {
 

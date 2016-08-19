@@ -1,5 +1,6 @@
 package com.cookingfox.lapasse.compiler.processor.command;
 
+import com.cookingfox.lapasse.annotation.HandleCommand;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
 
@@ -9,7 +10,7 @@ import javax.lang.model.type.TypeMirror;
 import java.util.List;
 
 /**
- * Created by abeldebeer on 15/08/16.
+ * Result of a processed {@link HandleCommand} annotated handler method.
  */
 public class HandleCommandResult {
 
@@ -19,11 +20,15 @@ public class HandleCommandResult {
     protected TypeMirror commandType;
     protected TypeMirror eventType;
     protected Name methodName;
-    protected HandleCommandMethodType methodType;
+    protected HandleCommandMethodParams methodParams;
     protected List<? extends VariableElement> parameters;
     protected HandleCommandReturnType returnType;
-    protected TypeMirror stateType;
     protected TypeMirror returnTypeName;
+    protected TypeMirror stateType;
+
+    //----------------------------------------------------------------------------------------------
+    // GETTERS
+    //----------------------------------------------------------------------------------------------
 
     public TypeMirror getAnnotationCommandType() {
         return annotationCommandType;
@@ -57,8 +62,8 @@ public class HandleCommandResult {
         return methodName;
     }
 
-    public HandleCommandMethodType getMethodType() {
-        return methodType;
+    public HandleCommandMethodParams getMethodParams() {
+        return methodParams;
     }
 
     public List<? extends VariableElement> getParameters() {

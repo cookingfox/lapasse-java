@@ -1,12 +1,14 @@
 package com.cookingfox.lapasse.compiler.processor.event;
 
+import com.cookingfox.lapasse.annotation.HandleEvent;
+
 import javax.lang.model.element.Name;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 import java.util.List;
 
 /**
- * Created by abeldebeer on 15/08/16.
+ * Result of a processed {@link HandleEvent} annotated handler method.
  */
 public class HandleEventResult {
 
@@ -14,7 +16,7 @@ public class HandleEventResult {
     protected HandleEventAnnotationType annotationType;
     protected TypeMirror eventType;
     protected Name methodName;
-    protected HandleEventMethodType methodType;
+    protected HandleEventMethodParams methodParams;
     protected List<? extends VariableElement> parameters;
     protected TypeMirror stateType;
 
@@ -38,8 +40,8 @@ public class HandleEventResult {
         return methodName;
     }
 
-    public HandleEventMethodType getMethodType() {
-        return methodType;
+    public HandleEventMethodParams getMethodParams() {
+        return methodParams;
     }
 
     public List<? extends VariableElement> getParameters() {

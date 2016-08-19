@@ -10,7 +10,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * Created by abeldebeer on 15/08/16.
+ * Value Object for all processed annotated handler methods, for one origin (class).
  */
 public class ProcessorResults {
 

@@ -21,12 +21,12 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 import static com.cookingfox.lapasse.compiler.processor.command.HandleCommandAnnotationType.*;
-import static com.cookingfox.lapasse.compiler.processor.command.HandleCommandMethodType.*;
+import static com.cookingfox.lapasse.compiler.processor.command.HandleCommandMethodParams.*;
 import static com.cookingfox.lapasse.compiler.processor.command.HandleCommandReturnType.*;
 import static com.cookingfox.lapasse.compiler.utils.TypeUtils.*;
 
 /**
- * Created by abeldebeer on 16/08/16.
+ * Processes a {@link HandleCommand} annotated handler method.
  */
 public class HandleCommandProcessor {
 
@@ -67,7 +67,7 @@ public class HandleCommandProcessor {
         TypeMirror returnType = getReturnType(method.getReturnType());
 
         result.annotationType = determineAnnotationType(annotation);
-        result.methodType = determineMethodType(parameters);
+        result.methodParams = determineMethodParams(parameters);
         result.returnType = determineReturnType(returnType);
         result.returnTypeName = returnType;
 
@@ -88,7 +88,7 @@ public class HandleCommandProcessor {
     //----------------------------------------------------------------------------------------------
 
     protected void checkAnnotationAndMethodType() throws Exception {
-        if (result.methodType == METHOD_NO_PARAMS && result.annotationType == ANNOTATION_NO_PARAMS) {
+        if (result.methodParams == METHOD_NO_PARAMS && result.annotationType == ANNOTATION_NO_PARAMS) {
             throw new Exception("Method has no params, so annotation should set command type");
         }
     }
@@ -143,7 +143,7 @@ public class HandleCommandProcessor {
     }
 
     protected TypeMirror determineCommandType() throws Exception {
-        switch (result.getMethodType()) {
+        switch (result.getMethodParams()) {
             case METHOD_ONE_PARAM_COMMAND:
             case METHOD_TWO_PARAMS_COMMAND_STATE:
                 // first param
@@ -163,7 +163,7 @@ public class HandleCommandProcessor {
         throw new Exception("Could not determine command type");
     }
 
-    protected HandleCommandMethodType determineMethodType(List<? extends VariableElement> parameters) throws Exception {
+    protected HandleCommandMethodParams determineMethodParams(List<? extends VariableElement> parameters) throws Exception {
         int numParams = parameters.size();
 
         if (numParams == 0) {
@@ -247,7 +247,7 @@ public class HandleCommandProcessor {
     }
 
     protected TypeMirror determineStateType() throws Exception {
-        switch (result.getMethodType()) {
+        switch (result.getMethodParams()) {
             case METHOD_ONE_PARAM_STATE:
             case METHOD_TWO_PARAMS_STATE_COMMAND:
                 // first param

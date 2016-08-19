@@ -7,7 +7,7 @@ import com.cookingfox.lapasse.api.event.handler.EventHandler;
 import com.cookingfox.lapasse.api.facade.Facade;
 import com.cookingfox.lapasse.compiler.exception.AnnotationProcessorException;
 import com.cookingfox.lapasse.compiler.processor.ProcessorResults;
-import com.cookingfox.lapasse.compiler.processor.command.HandleCommandMethodType;
+import com.cookingfox.lapasse.compiler.processor.command.HandleCommandMethodParams;
 import com.cookingfox.lapasse.compiler.processor.command.HandleCommandProcessor;
 import com.cookingfox.lapasse.compiler.processor.command.HandleCommandResult;
 import com.cookingfox.lapasse.compiler.processor.command.HandleCommandReturnType;
@@ -197,7 +197,7 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
             Name methodName = result.getMethodName();
             TypeName commandName = ClassName.get(result.getCommandType());
             TypeName eventTypeName = result.getEventTypeName();
-            HandleCommandMethodType methodType = result.getMethodType();
+            HandleCommandMethodParams methodType = result.getMethodParams();
             HandleCommandReturnType returnType = result.getReturnType();
             TypeName returnTypeName = ClassName.get(result.getReturnTypeName());
 
@@ -320,7 +320,7 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
                     .addParameter(model.targetStateName, VAR_STATE)
                     .addParameter(eventName, VAR_EVENT);
 
-            switch (result.getMethodType()) {
+            switch (result.getMethodParams()) {
                 case METHOD_NO_PARAMS:
                     handlerMethodBuilder.addStatement("return $N.$N()",
                             VAR_ORIGIN, methodName);

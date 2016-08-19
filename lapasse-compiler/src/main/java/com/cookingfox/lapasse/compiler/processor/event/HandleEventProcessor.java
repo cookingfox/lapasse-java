@@ -17,11 +17,11 @@ import java.util.List;
 
 import static com.cookingfox.lapasse.compiler.processor.event.HandleEventAnnotationType.ANNOTATION_NO_PARAMS;
 import static com.cookingfox.lapasse.compiler.processor.event.HandleEventAnnotationType.ANNOTATION_ONE_PARAM_EVENT;
-import static com.cookingfox.lapasse.compiler.processor.event.HandleEventMethodType.*;
+import static com.cookingfox.lapasse.compiler.processor.event.HandleEventMethodParams.*;
 import static com.cookingfox.lapasse.compiler.utils.TypeUtils.isSubtype;
 
 /**
- * Created by abeldebeer on 15/08/16.
+ * Processes a {@link HandleEvent} annotated handler method.
  */
 public class HandleEventProcessor {
 
@@ -62,7 +62,7 @@ public class HandleEventProcessor {
         TypeMirror returnType = method.getReturnType();
 
         result.annotationType = determineAnnotationType(annotation);
-        result.methodType = determineMethodType(parameters);
+        result.methodParams = determineMethodParams(parameters);
 
         checkAnnotationAndMethodType();
         checkReturnType(returnType);
@@ -80,7 +80,7 @@ public class HandleEventProcessor {
     //----------------------------------------------------------------------------------------------
 
     protected void checkAnnotationAndMethodType() throws Exception {
-        if (result.methodType == METHOD_NO_PARAMS && result.annotationType == ANNOTATION_NO_PARAMS) {
+        if (result.methodParams == METHOD_NO_PARAMS && result.annotationType == ANNOTATION_NO_PARAMS) {
             throw new Exception("Method has no params, so annotation should set event type");
         }
     }
@@ -119,7 +119,7 @@ public class HandleEventProcessor {
     }
 
     protected TypeMirror determineEventType() throws Exception {
-        switch (result.methodType) {
+        switch (result.methodParams) {
             case METHOD_ONE_PARAM_EVENT:
             case METHOD_TWO_PARAMS_EVENT_STATE:
                 // first param
@@ -137,7 +137,7 @@ public class HandleEventProcessor {
         throw new Exception("Could not determine event type");
     }
 
-    protected HandleEventMethodType determineMethodType(List<? extends VariableElement> parameters) throws Exception {
+    protected HandleEventMethodParams determineMethodParams(List<? extends VariableElement> parameters) throws Exception {
         int numParams = parameters.size();
 
         if (numParams < 1) {

@@ -1,9 +1,11 @@
 package com.cookingfox.lapasse.compiler.processor.command;
 
+import com.cookingfox.lapasse.annotation.HandleCommand;
+
 /**
- * Created by abeldebeer on 15/08/16.
+ * Indicates the method parameters for a {@link HandleCommand} annotated handler method.
  */
-public enum HandleCommandMethodType {
+public enum HandleCommandMethodParams {
 
     /**
      * Annotated method has no parameters.

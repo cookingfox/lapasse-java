@@ -1,9 +1,11 @@
 package com.cookingfox.lapasse.compiler.processor.event;
 
+import com.cookingfox.lapasse.annotation.HandleEvent;
+
 /**
- * Created by abeldebeer on 15/08/16.
+ * Indicates the method parameters for a {@link HandleEvent} annotated handler method.
  */
-public enum HandleEventMethodType {
+public enum HandleEventMethodParams {
 
     /**
      * Annotated method has no parameters.
