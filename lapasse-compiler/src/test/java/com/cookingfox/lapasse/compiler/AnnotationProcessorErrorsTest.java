@@ -287,11 +287,11 @@ public class AnnotationProcessorErrorsTest {
     }
 
     //----------------------------------------------------------------------------------------------
-    // COMMAND HANDLER COMMAND NOT DETERMINABLE
+    // COMMAND HANDLER COMMAND NOT DETERMINABLE ONLY STATE METHOD PARAM
     //----------------------------------------------------------------------------------------------
 
     @Test
-    public void command_handler_command_not_determinable() throws Exception {
+    public void command_handler_command_not_determinable_only_state_method_param() throws Exception {
         JavaFileObject source = JavaFileObjects.forSourceLines("test.Test",
                 "package test;",
                 "",

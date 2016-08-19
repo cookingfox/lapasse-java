@@ -12,6 +12,13 @@ import java.util.List;
  */
 public final class TypeUtils {
 
+    /**
+     * Constructor disabled.
+     */
+    private TypeUtils() {
+        throw new UnsupportedOperationException();
+    }
+
     public static boolean equalsType(TypeMirror typeMirror, Class<?> aClass) {
         // clean class name and compare to type mirror
         return aClass.getName().replace('$', '.').equals(typeMirror.toString());
