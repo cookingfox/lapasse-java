@@ -5,7 +5,7 @@ import com.cookingfox.lapasse.annotation.HandleEvent;
 /**
  * Indicates the annotation parameters for a {@link HandleEvent} annotated handler method.
  */
-public enum HandleEventAnnotationType {
+public enum HandleEventAnnotationParams {
 
     /**
      * Annotation has no parameters.

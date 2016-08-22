@@ -13,8 +13,8 @@ import javax.lang.model.type.MirroredTypeException;
 import javax.lang.model.type.TypeMirror;
 import java.util.List;
 
-import static com.cookingfox.lapasse.compiler.processor.event.HandleEventAnnotationType.ANNOTATION_NO_PARAMS;
-import static com.cookingfox.lapasse.compiler.processor.event.HandleEventAnnotationType.ANNOTATION_ONE_PARAM_EVENT;
+import static com.cookingfox.lapasse.compiler.processor.event.HandleEventAnnotationParams.ANNOTATION_NO_PARAMS;
+import static com.cookingfox.lapasse.compiler.processor.event.HandleEventAnnotationParams.ANNOTATION_ONE_PARAM_EVENT;
 import static com.cookingfox.lapasse.compiler.processor.event.HandleEventMethodParams.*;
 import static com.cookingfox.lapasse.compiler.utils.TypeUtils.isSubtype;
 
@@ -46,7 +46,7 @@ public class HandleEventProcessor {
         List<? extends VariableElement> parameters = method.getParameters();
         TypeMirror returnType = method.getReturnType();
 
-        result.annotationType = determineAnnotationType(annotation);
+        result.annotationParams = determineAnnotationParams(annotation);
         result.methodParams = determineMethodParams(parameters);
 
         checkReturnType(returnType);
@@ -82,7 +82,7 @@ public class HandleEventProcessor {
         return new Exception("Invalid parameters - expected event and state");
     }
 
-    protected HandleEventAnnotationType determineAnnotationType(HandleEvent annotation) throws Exception {
+    protected HandleEventAnnotationParams determineAnnotationParams(HandleEvent annotation) throws Exception {
         try {
             annotation.event(); // this should throw
         } catch (MirroredTypeException e) {
@@ -113,7 +113,7 @@ public class HandleEventProcessor {
                 return result.parameters.get(1).asType();
         }
 
-        if (result.annotationType == ANNOTATION_ONE_PARAM_EVENT) {
+        if (result.annotationParams == ANNOTATION_ONE_PARAM_EVENT) {
             return result.getAnnotationEventType();
         }
 

@@ -13,12 +13,12 @@ import java.util.List;
 public final class TypeUtils {
 
     /**
-     * Constructor disabled.
+     * Returns whether the type mirror is for the provided class.
+     *
+     * @param typeMirror The type mirror model.
+     * @param aClass     The class to compare to.
+     * @return Whether the type mirror is for the provided class.
      */
-    private TypeUtils() {
-        throw new UnsupportedOperationException();
-    }
-
     public static boolean equalsType(TypeMirror typeMirror, Class<?> aClass) {
         // clean class name and compare to type mirror
         return aClass.getName().replace('$', '.').equals(typeMirror.toString());
@@ -50,8 +50,15 @@ public final class TypeUtils {
         return isSubtype(typeArguments.get(0), otherType);
     }
 
-    public static boolean isSubtype(Element element, Class<?> aClass) {
-        return isSubtype(element.asType(), aClass);
+    /**
+     * Performs operations to determine whether the type of `element` is a subtype of `otherType`.
+     *
+     * @param element   The element to validate.
+     * @param otherType The subtype.
+     * @return Whether `element` is a subtype of `otherType`.
+     */
+    public static boolean isSubtype(Element element, Class<?> otherType) {
+        return isSubtype(element.asType(), otherType);
     }
 
     /**
@@ -116,6 +123,13 @@ public final class TypeUtils {
 
         // no match found
         return false;
+    }
+
+    /**
+     * Constructor disabled.
+     */
+    private TypeUtils() {
+        throw new UnsupportedOperationException();
     }
 
 }

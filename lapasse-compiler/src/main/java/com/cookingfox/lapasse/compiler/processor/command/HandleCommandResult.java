@@ -16,7 +16,7 @@ public class HandleCommandResult {
 
     protected TypeMirror annotationCommandType;
     protected TypeMirror annotationStateType;
-    protected HandleCommandAnnotationType annotationType;
+    protected HandleCommandAnnotationParams annotationParams;
     protected TypeMirror commandType;
     protected TypeMirror eventType;
     protected Name methodName;
@@ -38,8 +38,8 @@ public class HandleCommandResult {
         return annotationStateType;
     }
 
-    public HandleCommandAnnotationType getAnnotationType() {
-        return annotationType;
+    public HandleCommandAnnotationParams getAnnotationParams() {
+        return annotationParams;
     }
 
     public TypeMirror getCommandType() {

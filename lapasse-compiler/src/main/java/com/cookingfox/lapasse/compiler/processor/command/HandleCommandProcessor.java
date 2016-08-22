@@ -18,7 +18,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-import static com.cookingfox.lapasse.compiler.processor.command.HandleCommandAnnotationType.*;
+import static com.cookingfox.lapasse.compiler.processor.command.HandleCommandAnnotationParams.*;
 import static com.cookingfox.lapasse.compiler.processor.command.HandleCommandMethodParams.*;
 import static com.cookingfox.lapasse.compiler.processor.command.HandleCommandReturnType.*;
 import static com.cookingfox.lapasse.compiler.utils.TypeUtils.*;
@@ -51,7 +51,7 @@ public class HandleCommandProcessor {
         List<? extends VariableElement> parameters = method.getParameters();
         TypeMirror returnType = getReturnType(method.getReturnType());
 
-        result.annotationType = determineAnnotationType(annotation);
+        result.annotationParams = determineAnnotationParams(annotation);
         result.methodParams = determineMethodParams(parameters);
         result.returnType = determineReturnType(returnType);
         result.returnTypeName = returnType;
@@ -85,7 +85,7 @@ public class HandleCommandProcessor {
         return new Exception("Invalid return type");
     }
 
-    protected HandleCommandAnnotationType determineAnnotationType(HandleCommand annotation) throws Exception {
+    protected HandleCommandAnnotationParams determineAnnotationParams(HandleCommand annotation) throws Exception {
         TypeMirror annotationCommandType = null;
         TypeMirror annotationStateType = null;
 
@@ -140,7 +140,7 @@ public class HandleCommandProcessor {
                 return result.getParameters().get(1).asType();
         }
 
-        switch (result.getAnnotationType()) {
+        switch (result.getAnnotationParams()) {
             case ANNOTATION_ONE_PARAM_COMMAND:
             case ANNOTATION_TWO_PARAMS_COMMAND_STATE:
                 return result.getAnnotationCommandType();
@@ -247,7 +247,7 @@ public class HandleCommandProcessor {
                 return result.getParameters().get(1).asType();
         }
 
-        switch (result.getAnnotationType()) {
+        switch (result.getAnnotationParams()) {
             case ANNOTATION_ONE_PARAM_STATE:
             case ANNOTATION_TWO_PARAMS_COMMAND_STATE:
                 return result.getAnnotationStateType();

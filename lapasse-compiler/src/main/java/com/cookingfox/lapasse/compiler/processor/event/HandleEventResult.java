@@ -13,7 +13,7 @@ import java.util.List;
 public class HandleEventResult {
 
     protected TypeMirror annotationEventType;
-    protected HandleEventAnnotationType annotationType;
+    protected HandleEventAnnotationParams annotationParams;
     protected TypeMirror eventType;
     protected Name methodName;
     protected HandleEventMethodParams methodParams;
@@ -28,8 +28,8 @@ public class HandleEventResult {
         return annotationEventType;
     }
 
-    public HandleEventAnnotationType getAnnotationType() {
-        return annotationType;
+    public HandleEventAnnotationParams getAnnotationParams() {
+        return annotationParams;
     }
 
     public TypeMirror getEventType() {
