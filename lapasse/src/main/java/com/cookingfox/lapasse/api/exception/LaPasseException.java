@@ -13,8 +13,4 @@ public class LaPasseException extends RuntimeException {
         super(message, cause);
     }
 
-    public LaPasseException(Throwable cause) {
-        super(cause);
-    }
-
 }
