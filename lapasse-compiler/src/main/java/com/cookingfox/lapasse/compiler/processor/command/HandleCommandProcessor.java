@@ -136,9 +136,9 @@ public class HandleCommandProcessor {
             throw new Exception("Could not extract command or state type from annotation");
         }
 
-        // should not be default "empty" type from annotation
-        boolean hasCommand = !equalsType(annotationCommandType, HandleCommand.EmptyCommand.class);
-        boolean hasState = !equalsType(annotationStateType, HandleCommand.EmptyState.class);
+        // should not be base type
+        boolean hasCommand = !equalsType(annotationCommandType, Command.class);
+        boolean hasState = !equalsType(annotationStateType, State.class);
 
         if (hasCommand) {
             result.annotationCommandType = annotationCommandType;

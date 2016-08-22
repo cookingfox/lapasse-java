@@ -23,7 +23,7 @@ public @interface HandleCommand {
      *
      * @return The concrete Command class.
      */
-    Class<? extends Command> command() default EmptyCommand.class;
+    Class<? extends Command> command() default Command.class;
 
     /**
      * Optionally specify the concrete State class that will be handled. This is only necessary
@@ -32,22 +32,6 @@ public @interface HandleCommand {
      *
      * @return The concrete State class.
      */
-    Class<? extends State> state() default EmptyState.class;
-
-    /**
-     * Empty Command implementation, for internal use.
-     */
-    class EmptyCommand implements Command {
-        private EmptyCommand() {
-        }
-    }
-
-    /**
-     * Empty State implementation, for internal use.
-     */
-    class EmptyState implements State {
-        private EmptyState() {
-        }
-    }
+    Class<? extends State> state() default State.class;
 
 }

@@ -104,7 +104,8 @@ public class HandleEventProcessor {
         } catch (MirroredTypeException e) {
             TypeMirror annotationEventType = e.getTypeMirror();
 
-            if (TypeUtils.equalsType(annotationEventType, HandleEvent.EmptyEvent.class)) {
+            // should not be base type
+            if (TypeUtils.equalsType(annotationEventType, Event.class)) {
                 return ANNOTATION_NO_PARAMS;
             }
 

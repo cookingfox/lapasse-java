@@ -22,14 +22,6 @@ public @interface HandleEvent {
      *
      * @return The concrete Event class.
      */
-    Class<? extends Event> event() default EmptyEvent.class;
-
-    /**
-     * Empty Event implementation, for internal use.
-     */
-    class EmptyEvent implements Event {
-        private EmptyEvent() {
-        }
-    }
+    Class<? extends Event> event() default Event.class;
 
 }
