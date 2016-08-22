@@ -58,13 +58,11 @@ public class HandleCommandProcessor {
         List<? extends VariableElement> parameters = method.getParameters();
         TypeMirror returnType = method.getReturnType();
 
+        // populate result
         result.annotationParams = determineAnnotationParams(annotation);
         result.methodParams = determineMethodParams(parameters);
         result.returnValue = determineReturnValue(returnType);
         result.returnType = returnType;
-
-        // note: event type is set by `determineReturnValue`
-
         result.methodName = element.getSimpleName();
         result.parameters = parameters;
         result.commandType = determineCommandType();

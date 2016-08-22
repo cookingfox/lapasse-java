@@ -53,14 +53,12 @@ public class HandleEventProcessor {
         List<? extends VariableElement> parameters = method.getParameters();
         TypeMirror returnType = method.getReturnType();
 
+        // populate result
         result.annotationParams = determineAnnotationParams(annotation);
         result.methodParams = determineMethodParams(parameters);
-
-        checkReturnType(returnType);
-
         result.methodName = element.getSimpleName();
         result.parameters = parameters;
-        result.stateType = returnType;
+        result.stateType = determineStateType(returnType);
         result.eventType = determineEventType();
 
         return result;
@@ -80,15 +78,6 @@ public class HandleEventProcessor {
             throw new Exception("Method is not accessible - it must be a non-static method with " +
                     "public, protected or package-level access");
         }
-    }
-
-    protected TypeMirror checkReturnType(TypeMirror returnType) throws Exception {
-        if (!isSubtype(returnType, State.class)) {
-            throw new Exception("Return type of @HandleEvent annotated method must extend "
-                    + State.class.getName());
-        }
-
-        return returnType;
     }
 
     /**
@@ -193,6 +182,22 @@ public class HandleEventProcessor {
         }
 
         throw createInvalidMethodParamsException(parameters);
+    }
+
+    /**
+     * Determines the concrete state type based on the handler method's return type.
+     *
+     * @param returnType The return type of the handler method
+     * @return The concrete state type of the handler method.
+     * @throws Exception when the return type is a valid state type.
+     */
+    protected TypeMirror determineStateType(TypeMirror returnType) throws Exception {
+        if (!isSubtype(returnType, State.class)) {
+            throw new Exception("Return type of @HandleEvent annotated method must extend "
+                    + State.class.getName());
+        }
+
+        return returnType;
     }
 
 }
