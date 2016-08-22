@@ -10,7 +10,7 @@ import java.util.concurrent.Callable;
 /**
  * Indicates the return type for a {@link HandleCommand} annotated handler method.
  */
-public enum HandleCommandReturnType {
+public enum HandleCommandReturnValue {
 
     /**
      * The method returns an {@link Event}.

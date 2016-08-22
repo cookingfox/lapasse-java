@@ -14,70 +14,151 @@ import java.util.List;
  */
 public class HandleCommandResult {
 
+    /**
+     * Command type, defined by the annotation.
+     */
     protected TypeMirror annotationCommandType;
+
+    /**
+     * State type, defined by the annotation.
+     */
     protected TypeMirror annotationStateType;
+
+    /**
+     * Indicates the annotation's parameters.
+     */
     protected HandleCommandAnnotationParams annotationParams;
+
+    /**
+     * Command type, defined by the handler method parameters.
+     */
     protected TypeMirror commandType;
+
+    /**
+     * Event type, defined by the handler method return type.
+     */
     protected TypeMirror eventType;
+
+    /**
+     * Name of the handler method.
+     */
     protected Name methodName;
+
+    /**
+     * Indicates the handler method's parameters.
+     */
     protected HandleCommandMethodParams methodParams;
+
+    /**
+     * The handler method parameters.
+     */
     protected List<? extends VariableElement> parameters;
-    protected HandleCommandReturnType returnType;
-    protected TypeMirror returnTypeName;
+
+    /**
+     * Return type of the handler method.
+     */
+    protected TypeMirror returnType;
+
+    /**
+     * Indicates the return value of the handler method.
+     */
+    protected HandleCommandReturnValue returnValue;
+
+    /**
+     * State type, defined by the handler method parameters.
+     */
     protected TypeMirror stateType;
 
     //----------------------------------------------------------------------------------------------
     // GETTERS
     //----------------------------------------------------------------------------------------------
 
+    /**
+     * @return Command type, defined by the annotation.
+     */
     public TypeMirror getAnnotationCommandType() {
         return annotationCommandType;
     }
 
+    /**
+     * @return State type, defined by the annotation.
+     */
     public TypeMirror getAnnotationStateType() {
         return annotationStateType;
     }
 
+    /**
+     * @return Indicates the annotation's parameters.
+     */
     public HandleCommandAnnotationParams getAnnotationParams() {
         return annotationParams;
     }
 
+    /**
+     * @return Command type, defined by the handler method parameters.
+     */
     public TypeMirror getCommandType() {
         return commandType;
     }
 
+    /**
+     * @return Event type, defined by the handler method return type.
+     */
     public TypeMirror getEventType() {
         return eventType;
     }
 
+    /**
+     * Determines the event type name based on the return type.
+     *
+     * @return The event type name.
+     */
     public TypeName getEventTypeName() {
-        if (getReturnType() == HandleCommandReturnType.RETURNS_VOID) {
+        if (getReturnValue() == HandleCommandReturnValue.RETURNS_VOID) {
             return TypeName.VOID;
         }
 
         return ClassName.get(getEventType());
     }
 
+    /**
+     * @return Name of the handler method.
+     */
     public Name getMethodName() {
         return methodName;
     }
 
+    /**
+     * @return Indicates the handler method's parameters.
+     */
     public HandleCommandMethodParams getMethodParams() {
         return methodParams;
     }
 
+    /**
+     * @return The handler method parameters.
+     */
     public List<? extends VariableElement> getParameters() {
         return parameters;
     }
 
-    public HandleCommandReturnType getReturnType() {
+    /**
+     * @return Return type of the handler method.
+     */
+    public TypeMirror getReturnType() {
         return returnType;
     }
 
-    public TypeMirror getReturnTypeName() {
-        return returnTypeName;
+    /**
+     * @return Indicates the return value of the handler method.
+     */
+    public HandleCommandReturnValue getReturnValue() {
+        return returnValue;
     }
 
+    /**
+     * @return State type, defined by the handler method parameters.
+     */
     public TypeMirror getStateType() {
         return stateType;
     }

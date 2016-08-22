@@ -20,7 +20,7 @@ import java.util.concurrent.Callable;
 
 import static com.cookingfox.lapasse.compiler.processor.command.HandleCommandAnnotationParams.*;
 import static com.cookingfox.lapasse.compiler.processor.command.HandleCommandMethodParams.*;
-import static com.cookingfox.lapasse.compiler.processor.command.HandleCommandReturnType.*;
+import static com.cookingfox.lapasse.compiler.processor.command.HandleCommandReturnValue.*;
 import static com.cookingfox.lapasse.compiler.utils.TypeUtils.*;
 
 /**
@@ -43,20 +43,27 @@ public class HandleCommandProcessor {
     // PUBLIC METHODS
     //----------------------------------------------------------------------------------------------
 
+    /**
+     * Process the {@link HandleCommand} annotated handler method and create a result object with
+     * the extracted values.
+     *
+     * @return The result object of process operation.
+     * @throws Exception when the handler method is invalid.
+     */
     public HandleCommandResult process() throws Exception {
         checkMethod();
 
         ExecutableElement method = (ExecutableElement) element;
         HandleCommand annotation = method.getAnnotation(HandleCommand.class);
         List<? extends VariableElement> parameters = method.getParameters();
-        TypeMirror returnType = getReturnType(method.getReturnType());
+        TypeMirror returnType = method.getReturnType();
 
         result.annotationParams = determineAnnotationParams(annotation);
         result.methodParams = determineMethodParams(parameters);
-        result.returnType = determineReturnType(returnType);
-        result.returnTypeName = returnType;
+        result.returnValue = determineReturnValue(returnType);
+        result.returnType = returnType;
 
-        // note: event type is set by `determineReturnType`
+        // note: event type is set by `determineReturnValue`
 
         result.methodName = element.getSimpleName();
         result.parameters = parameters;
@@ -70,6 +77,11 @@ public class HandleCommandProcessor {
     // PROTECTED METHODS
     //----------------------------------------------------------------------------------------------
 
+    /**
+     * Performs basic checks of the handler method, such as accessibility from LaPasse.
+     *
+     * @throws Exception when the handler method is invalid.
+     */
     protected void checkMethod() throws Exception {
         if (!ProcessorHelper.isAccessible(element)) {
             throw new Exception("Method is not accessible - it must be a non-static method with " +
@@ -77,14 +89,34 @@ public class HandleCommandProcessor {
         }
     }
 
+    /**
+     * Creates an exception for when the handler method's parameters are invalid.
+     *
+     * @param parameters The handler method's parameters.
+     * @return The exception with the formatted error message.
+     */
     protected Exception createInvalidMethodParamsException(List<? extends VariableElement> parameters) {
         return new Exception("Invalid parameters - expected command and state");
     }
 
+    /**
+     * Creates an exception for when the handler method's return type is invalid.
+     *
+     * @param returnType The handler method's return type.
+     * @return The exception with the formatted error message.
+     */
     protected Exception createInvalidReturnTypeException(TypeMirror returnType) {
         return new Exception("Invalid return type");
     }
 
+    /**
+     * Determines the type of parameters for the {@link HandleCommand} annotation. The annotation
+     * can hold references to concrete command and state classes that this method should handle.
+     *
+     * @param annotation The annotation object.
+     * @return An enum which indicates the annotation parameters.
+     * @throws Exception when the annotation parameters could not be determined.
+     */
     protected HandleCommandAnnotationParams determineAnnotationParams(HandleCommand annotation) throws Exception {
         TypeMirror annotationCommandType = null;
         TypeMirror annotationStateType = null;
@@ -128,6 +160,13 @@ public class HandleCommandProcessor {
         return ANNOTATION_NO_PARAMS;
     }
 
+    /**
+     * Determines the concrete command type of the handler method. The command type can be set by
+     * both the method parameters (command object) or the annotation (command class).
+     *
+     * @return The concrete command type of the handler method.
+     * @throws Exception when the concrete command type could not be determined.
+     */
     protected TypeMirror determineCommandType() throws Exception {
         switch (result.getMethodParams()) {
             case METHOD_ONE_PARAM_COMMAND:
@@ -152,6 +191,13 @@ public class HandleCommandProcessor {
                 "`@%s(command = MyCommand.class)`", HandleCommand.class.getSimpleName()));
     }
 
+    /**
+     * Validates and identifies the handler method parameters.
+     *
+     * @param parameters The method parameters.
+     * @return An indication of the method parameters.
+     * @throws Exception when the method parameters are invalid.
+     */
     protected HandleCommandMethodParams determineMethodParams(List<? extends VariableElement> parameters) throws Exception {
         int numParams = parameters.size();
 
@@ -184,9 +230,21 @@ public class HandleCommandProcessor {
         throw createInvalidMethodParamsException(parameters);
     }
 
-    protected HandleCommandReturnType determineReturnType(TypeMirror returnType) throws Exception {
-        if (returnType.getKind() == TypeKind.VOID) {
+    /**
+     * Determines the return value of the handler method. This also sets the event type on the
+     * processor result.
+     *
+     * @param returnType The handler method return type.
+     * @return An indication of the handler method's return value.
+     * @throws Exception when the return value is invalid.
+     */
+    protected HandleCommandReturnValue determineReturnValue(TypeMirror returnType) throws Exception {
+        TypeKind returnTypeKind = returnType.getKind();
+
+        if (returnTypeKind == TypeKind.VOID) {
             return RETURNS_VOID;
+        } else if (returnTypeKind != TypeKind.DECLARED) {
+            throw createInvalidReturnTypeException(returnType);
         } else if (isSubtype(returnType, Event.class)) {
             result.eventType = returnType;
 
@@ -235,7 +293,12 @@ public class HandleCommandProcessor {
         throw createInvalidReturnTypeException(returnType);
     }
 
-    protected TypeMirror determineStateType() throws Exception {
+    /**
+     * Determines the state type based on the handler method and annotation parameters.
+     *
+     * @return The concrete state type if available, or null.
+     */
+    protected TypeMirror determineStateType() {
         switch (result.getMethodParams()) {
             case METHOD_ONE_PARAM_STATE:
             case METHOD_TWO_PARAMS_STATE_COMMAND:
@@ -254,14 +317,6 @@ public class HandleCommandProcessor {
         }
 
         return null;
-    }
-
-    protected TypeMirror getReturnType(TypeMirror returnType) throws Exception {
-        if (returnType.getKind() != TypeKind.VOID && returnType.getKind() != TypeKind.DECLARED) {
-            throw createInvalidReturnTypeException(returnType);
-        }
-
-        return returnType;
     }
 
 }

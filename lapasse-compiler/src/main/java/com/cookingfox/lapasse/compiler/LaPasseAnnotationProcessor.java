@@ -7,10 +7,9 @@ import com.cookingfox.lapasse.api.event.handler.EventHandler;
 import com.cookingfox.lapasse.api.facade.Facade;
 import com.cookingfox.lapasse.compiler.exception.AnnotationProcessorException;
 import com.cookingfox.lapasse.compiler.processor.ProcessorResults;
-import com.cookingfox.lapasse.compiler.processor.command.HandleCommandMethodParams;
 import com.cookingfox.lapasse.compiler.processor.command.HandleCommandProcessor;
 import com.cookingfox.lapasse.compiler.processor.command.HandleCommandResult;
-import com.cookingfox.lapasse.compiler.processor.command.HandleCommandReturnType;
+import com.cookingfox.lapasse.compiler.processor.command.HandleCommandReturnValue;
 import com.cookingfox.lapasse.compiler.processor.event.HandleEventProcessor;
 import com.cookingfox.lapasse.compiler.processor.event.HandleEventResult;
 import com.cookingfox.lapasse.impl.helper.LaPasse;
@@ -197,11 +196,8 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
             Name methodName = result.getMethodName();
             TypeName commandName = ClassName.get(result.getCommandType());
             TypeName eventTypeName = result.getEventTypeName();
-            HandleCommandMethodParams methodType = result.getMethodParams();
-            HandleCommandReturnType returnType = result.getReturnType();
-            TypeName returnTypeName = ClassName.get(result.getReturnTypeName());
-
-            ParameterizedTypeName handlerType;
+            HandleCommandReturnValue returnValue = result.getReturnValue();
+            TypeName returnType = ClassName.get(result.getReturnType());
 
             // build handler method
             MethodSpec.Builder handlerMethodBuilder = MethodSpec.methodBuilder(METHOD_HANDLE)
@@ -209,11 +205,12 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
                     .addModifiers(Modifier.PUBLIC)
                     .addParameter(model.targetStateName, VAR_STATE)
                     .addParameter(commandName, VAR_COMMAND)
-                    .returns(returnTypeName);
+                    .returns(returnType);
 
+            ParameterizedTypeName handlerType;
             String callerStatement = "";
 
-            if (returnType == HandleCommandReturnType.RETURNS_VOID) {
+            if (returnValue == HandleCommandReturnValue.RETURNS_VOID) {
                 handlerType = ParameterizedTypeName.get(ClassName.get(VoidCommandHandler.class),
                         model.targetStateName, commandName);
             } else {
@@ -222,7 +219,8 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
                 // default: returns event
                 Class<? extends CommandHandler> commandHandlerClass = SyncCommandHandler.class;
 
-                switch (returnType) {
+                // set command handler class
+                switch (returnValue) {
                     case RETURNS_EVENT_COLLECTION:
                         commandHandlerClass = SyncMultiCommandHandler.class;
                         break;
@@ -248,7 +246,8 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
                         model.targetStateName, commandName, eventTypeName);
             }
 
-            switch (methodType) {
+            // add handler method statement (contents)
+            switch (result.getMethodParams()) {
                 case METHOD_NO_PARAMS:
                     callerStatement += "$N.$N()";
                     handlerMethodBuilder.addStatement(callerStatement,
@@ -311,15 +310,16 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
 
             // collect handler specific parameters
             Name methodName = result.getMethodName();
-            TypeName eventName = ClassName.get(result.getEventType());
+            TypeName eventType = ClassName.get(result.getEventType());
 
             // build handler method
             MethodSpec.Builder handlerMethodBuilder = MethodSpec.methodBuilder(METHOD_HANDLE)
                     .addAnnotation(Override.class)
                     .addModifiers(Modifier.PUBLIC)
                     .addParameter(model.targetStateName, VAR_STATE)
-                    .addParameter(eventName, VAR_EVENT);
+                    .addParameter(eventType, VAR_EVENT);
 
+            // add handler method statement (contents)
             switch (result.getMethodParams()) {
                 case METHOD_NO_PARAMS:
                     handlerMethodBuilder.addStatement("return $N.$N()",
@@ -352,7 +352,7 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
 
             // create parameterized name for handler
             ParameterizedTypeName handlerType = ParameterizedTypeName.get(
-                    ClassName.get(EventHandler.class), model.targetStateName, eventName);
+                    ClassName.get(EventHandler.class), model.targetStateName, eventType);
 
             // create anonymous handler implementation
             TypeSpec handlerImpl = TypeSpec.anonymousClassBuilder("")
@@ -373,7 +373,7 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
             model.mapHandlersBuilder.addStatement(
                     "$N.mapEventHandler($T.class, $N)",
                     VAR_FACADE,
-                    eventName,
+                    eventType,
                     fieldName
             );
         }

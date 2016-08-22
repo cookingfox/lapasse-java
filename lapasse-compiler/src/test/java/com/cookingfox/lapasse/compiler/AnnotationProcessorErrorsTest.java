@@ -68,11 +68,11 @@ public class AnnotationProcessorErrorsTest {
     }
 
     //----------------------------------------------------------------------------------------------
-    // COMMAND HANDLER METHOD PARAMS INVALID TYPE
+    // COMMAND HANDLER METHOD PARAMS BOTH INVALID TYPE
     //----------------------------------------------------------------------------------------------
 
     @Test
-    public void command_handler_method_params_invalid_type() throws Exception {
+    public void command_handler_method_params_both_invalid_type() throws Exception {
         JavaFileObject source = JavaFileObjects.forSourceLines("test.Test",
                 "package test;",
                 "",
@@ -89,6 +89,88 @@ public class AnnotationProcessorErrorsTest {
                 .processedWith(new LaPasseAnnotationProcessor())
                 .failsToCompile()
                 .withErrorContaining("Invalid parameters - expected command and state");
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // COMMAND HANDLER METHOD PARAMS COMMAND AND INVALID TYPE
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void command_handler_method_params_command_and_invalid_type() throws Exception {
+        JavaFileObject source = JavaFileObjects.forSourceLines("test.Test",
+                "package test;",
+                "",
+                "import com.cookingfox.lapasse.annotation.HandleCommand;",
+                "import fixtures.example.command.IncrementCount;",
+                "import fixtures.example.event.CountIncremented;",
+                "import fixtures.example.state.CountState;",
+                "",
+                "public class Test {",
+                "    @HandleCommand",
+                "    public void handle(IncrementCount command, String foo) {",
+                "    }",
+                "}"
+        );
+
+        assertAbout(javaSource()).that(source)
+                .processedWith(new LaPasseAnnotationProcessor())
+                .failsToCompile()
+                .withErrorContaining("Invalid parameters - expected command and state");
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // COMMAND HANDLER METHOD PARAMS STATE AND INVALID TYPE
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void command_handler_method_params_state_and_invalid_type() throws Exception {
+        JavaFileObject source = JavaFileObjects.forSourceLines("test.Test",
+                "package test;",
+                "",
+                "import com.cookingfox.lapasse.annotation.HandleCommand;",
+                "import fixtures.example.command.IncrementCount;",
+                "import fixtures.example.event.CountIncremented;",
+                "import fixtures.example.state.CountState;",
+                "",
+                "public class Test {",
+                "    @HandleCommand",
+                "    public void handle(CountState state, String foo) {",
+                "    }",
+                "}"
+        );
+
+        assertAbout(javaSource()).that(source)
+                .processedWith(new LaPasseAnnotationProcessor())
+                .failsToCompile()
+                .withErrorContaining("Invalid parameters - expected command and state");
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // COMMAND HANDLER RETURN TYPE NOT DECLARED
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void command_handler_return_type_not_declared() throws Exception {
+        JavaFileObject source = JavaFileObjects.forSourceLines("test.Test",
+                "package test;",
+                "",
+                "import com.cookingfox.lapasse.annotation.HandleCommand;",
+                "import fixtures.example.command.IncrementCount;",
+                "import fixtures.example.event.CountIncremented;",
+                "import fixtures.example.state.CountState;",
+                "",
+                "public class Test {",
+                "    @HandleCommand",
+                "    public FooBarBaz handle(CountState state, IncrementCount command) {",
+                "        return true;",
+                "    }",
+                "}"
+        );
+
+        assertAbout(javaSource()).that(source)
+                .processedWith(new LaPasseAnnotationProcessor())
+                .failsToCompile()
+                .withErrorContaining("Invalid return type");
     }
 
     //----------------------------------------------------------------------------------------------
@@ -515,7 +597,7 @@ public class AnnotationProcessorErrorsTest {
     //----------------------------------------------------------------------------------------------
 
     @Test
-    public void event_handler_method_params_invalid_types() throws Exception {
+    public void event_handler_method_params_both_invalid_types() throws Exception {
         JavaFileObject source = JavaFileObjects.forSourceLines("test.Test",
                 "package test;",
                 "",
@@ -526,6 +608,60 @@ public class AnnotationProcessorErrorsTest {
                 "public class Test {",
                 "    @HandleEvent",
                 "    public CountState handle(Integer foo, String bar) {",
+                "        return new CountState(0);",
+                "    }",
+                "}"
+        );
+
+        assertAbout(javaSource()).that(source)
+                .processedWith(new LaPasseAnnotationProcessor())
+                .failsToCompile()
+                .withErrorContaining("Invalid parameters - expected event and state");
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // EVENT HANDLER METHOD PARAMS EVENT AND INVALID TYPE
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void event_handler_method_params_event_and_invalid_type() throws Exception {
+        JavaFileObject source = JavaFileObjects.forSourceLines("test.Test",
+                "package test;",
+                "",
+                "import com.cookingfox.lapasse.annotation.HandleEvent;",
+                "import fixtures.example.event.CountIncremented;",
+                "import fixtures.example.state.CountState;",
+                "",
+                "public class Test {",
+                "    @HandleEvent",
+                "    public CountState handle(CountIncremented event, String foo) {",
+                "        return new CountState(0);",
+                "    }",
+                "}"
+        );
+
+        assertAbout(javaSource()).that(source)
+                .processedWith(new LaPasseAnnotationProcessor())
+                .failsToCompile()
+                .withErrorContaining("Invalid parameters - expected event and state");
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // EVENT HANDLER METHOD PARAMS STATE AND INVALID TYPE
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void event_handler_method_params_state_and_invalid_type() throws Exception {
+        JavaFileObject source = JavaFileObjects.forSourceLines("test.Test",
+                "package test;",
+                "",
+                "import com.cookingfox.lapasse.annotation.HandleEvent;",
+                "import fixtures.example.event.CountIncremented;",
+                "import fixtures.example.state.CountState;",
+                "",
+                "public class Test {",
+                "    @HandleEvent",
+                "    public CountState handle(CountState state, String foo) {",
                 "        return new CountState(0);",
                 "    }",
                 "}"
