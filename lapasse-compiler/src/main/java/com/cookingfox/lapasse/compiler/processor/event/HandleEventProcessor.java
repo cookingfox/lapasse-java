@@ -113,8 +113,8 @@ public class HandleEventProcessor {
             return ANNOTATION_ONE_PARAM_EVENT;
         }
 
-        // we should never get here
-        throw new Exception("Could not determine annotation type");
+        // this should never happen
+        throw new Exception("Could not extract event type from annotation");
     }
 
     /**

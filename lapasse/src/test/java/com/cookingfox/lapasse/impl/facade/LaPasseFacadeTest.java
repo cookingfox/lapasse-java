@@ -51,10 +51,12 @@ public class LaPasseFacadeTest {
         /* COMBINED LOGGER */
 
         facade.addLogger(logger);
+        facade.removeLogger(logger);
 
         /* COMMAND */
 
         facade.addCommandLogger(logger);
+        facade.removeCommandLogger(logger);
         facade.mapCommandHandler(IncrementCount.class, new SyncCommandHandler<CountState, IncrementCount, CountIncremented>() {
             @Override
             public CountIncremented handle(CountState state, IncrementCount command) {
@@ -67,6 +69,7 @@ public class LaPasseFacadeTest {
         /* EVENT */
 
         facade.addEventLogger(logger);
+        facade.removeEventLogger(logger);
         facade.mapEventHandler(CountIncremented.class, new EventHandler<CountState, CountIncremented>() {
             @Override
             public CountState handle(CountState previousState, CountIncremented event) {
@@ -80,6 +83,10 @@ public class LaPasseFacadeTest {
         facade.getCurrentState();
         facade.addStateChangedListener(onStateChanged);
         facade.removeStateChangedListener(onStateChanged);
+
+        /* DISPOSE */
+
+        facade.dispose();
     }
 
     //----------------------------------------------------------------------------------------------

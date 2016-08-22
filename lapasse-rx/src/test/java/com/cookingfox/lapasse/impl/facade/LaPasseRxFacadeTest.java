@@ -5,6 +5,7 @@ import com.cookingfox.lapasse.api.event.handler.EventHandler;
 import com.cookingfox.lapasse.api.state.observer.StateChanged;
 import com.cookingfox.lapasse.impl.command.bus.DefaultCommandBus;
 import com.cookingfox.lapasse.impl.command.bus.DefaultRxCommandBus;
+import com.cookingfox.lapasse.impl.facade.LaPasseRxFacade.Builder;
 import com.cookingfox.lapasse.impl.state.manager.DefaultRxStateManager;
 import com.cookingfox.lapasse.impl.state.manager.DefaultStateManager;
 import fixtures.example.command.IncrementCount;
@@ -13,6 +14,9 @@ import fixtures.example.state.CountState;
 import org.junit.Test;
 import rx.Observable;
 import rx.observers.TestSubscriber;
+import rx.schedulers.Schedulers;
+
+import static org.junit.Assert.assertSame;
 
 /**
  * Unit tests for {@link LaPasseRxFacade}.
@@ -21,7 +25,10 @@ public class LaPasseRxFacadeTest {
 
     @Test
     public void methods_should_not_throw() throws Exception {
-        LaPasseRxFacade<CountState> facade = new LaPasseRxFacade.Builder<>(new CountState(0)).build();
+        LaPasseRxFacade<CountState> facade = new Builder<>(new CountState(0)).build();
+
+        facade.setCommandObserveScheduler(Schedulers.immediate());
+        facade.setCommandSubscribeScheduler(Schedulers.immediate());
 
         TestSubscriber<StateChanged<CountState>> subscriber = TestSubscriber.create();
 
@@ -53,7 +60,7 @@ public class LaPasseRxFacadeTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void setCommandBus_should_throw_if_not_rx_impl() throws Exception {
-        LaPasseRxFacade.Builder<CountState> builder = new LaPasseRxFacade.Builder<>(new CountState(0));
+        Builder<CountState> builder = new Builder<>(new CountState(0));
 
         builder.setCommandBus(new DefaultCommandBus<>(builder.getMessageStore(),
                 builder.getEventBus(), builder.getLoggersHelper(), builder.getStateManager()));
@@ -61,7 +68,7 @@ public class LaPasseRxFacadeTest {
 
     @Test
     public void setCommandBus_should_accept_rx_impl() throws Exception {
-        LaPasseRxFacade.Builder<CountState> builder = new LaPasseRxFacade.Builder<>(new CountState(0));
+        Builder<CountState> builder = new Builder<>(new CountState(0));
 
         builder.setCommandBus(new DefaultRxCommandBus<>(builder.getMessageStore(),
                 builder.getEventBus(), builder.getLoggersHelper(), builder.getStateManager()));
@@ -70,7 +77,7 @@ public class LaPasseRxFacadeTest {
     @Test(expected = IllegalArgumentException.class)
     public void setStateManager_should_throw_if_not_rx_impl() throws Exception {
         CountState initialState = new CountState(0);
-        LaPasseRxFacade.Builder<CountState> builder = new LaPasseRxFacade.Builder<>(initialState);
+        Builder<CountState> builder = new Builder<>(initialState);
 
         builder.setStateManager(new DefaultStateManager<>(initialState));
     }
@@ -78,9 +85,22 @@ public class LaPasseRxFacadeTest {
     @Test
     public void setStateManager_should_accept_rx_impl() throws Exception {
         CountState initialState = new CountState(0);
-        LaPasseRxFacade.Builder<CountState> builder = new LaPasseRxFacade.Builder<>(initialState);
+        Builder<CountState> builder = new Builder<>(initialState);
 
         builder.setStateManager(new DefaultRxStateManager<>(initialState));
+    }
+
+    @Test
+    public void setters_should_return_rx_typed_builder() throws Exception {
+        Builder<CountState> builder = new Builder<>(new CountState(0));
+
+        Builder<CountState> fromSetEventBus = builder.setEventBus(builder.getEventBus());
+        Builder<CountState> fromSetLoggersHelper = builder.setLoggersHelper(builder.getLoggersHelper());
+        Builder<CountState> fromSetMessageStore = builder.setMessageStore(builder.getMessageStore());
+
+        assertSame(builder, fromSetEventBus);
+        assertSame(builder, fromSetLoggersHelper);
+        assertSame(builder, fromSetMessageStore);
     }
 
 }

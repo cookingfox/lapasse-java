@@ -115,17 +115,12 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
         for (Map.Entry<TypeElement, ProcessorResults> entry : results.entrySet()) {
             TypeElement origin = entry.getKey();
             ProcessorResults processorResults = entry.getValue();
-            TypeName targetStateName = processorResults.getTargetStateName();
-
-            if (targetStateName == null) {
-                throw new AnnotationProcessorException("Target state name is null", origin);
-            }
 
             GenerationModel model = new GenerationModel();
             model.fieldNameCounter = 0;
-            model.targetStateName = targetStateName;
-            model.processorResults = processorResults;
             model.origin = origin;
+            model.processorResults = processorResults;
+            model.targetStateName = processorResults.getTargetStateName();
 
             generateHandlersType(model);
 

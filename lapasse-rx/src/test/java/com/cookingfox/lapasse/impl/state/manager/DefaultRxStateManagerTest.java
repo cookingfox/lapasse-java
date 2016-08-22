@@ -49,6 +49,11 @@ public class DefaultRxStateManagerTest {
 
         assertEquals(event, stateChanged.getEvent());
         assertEquals(newState, stateChanged.getState());
+
+        // test `toString`
+        String toString = stateChanged.toString();
+        assertTrue(toString.contains("event="));
+        assertTrue(toString.contains("state="));
     }
 
     @Test
