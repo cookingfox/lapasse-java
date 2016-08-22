@@ -125,18 +125,20 @@ public class HandleEventProcessor {
      * @throws Exception when the concrete event type could not be determined.
      */
     protected TypeMirror determineEventType() throws Exception {
-        switch (result.methodParams) {
+        List<? extends VariableElement> methodParameters = result.getParameters();
+
+        switch (result.getMethodParams()) {
             case METHOD_ONE_PARAM_EVENT:
             case METHOD_TWO_PARAMS_EVENT_STATE:
                 // first param
-                return result.parameters.get(0).asType();
+                return methodParameters.get(0).asType();
 
             case METHOD_TWO_PARAMS_STATE_EVENT:
                 // second param
-                return result.parameters.get(1).asType();
+                return methodParameters.get(1).asType();
         }
 
-        if (result.annotationParams == ANNOTATION_ONE_PARAM_EVENT) {
+        if (result.getAnnotationParams() == ANNOTATION_ONE_PARAM_EVENT) {
             return result.getAnnotationEventType();
         }
 

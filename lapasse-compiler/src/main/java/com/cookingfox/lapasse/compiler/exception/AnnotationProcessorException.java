@@ -13,22 +13,9 @@ public class AnnotationProcessorException extends Exception {
     // CONSTRUCTORS
     //----------------------------------------------------------------------------------------------
 
-    public AnnotationProcessorException(Element origin) {
-        this.origin = origin;
-    }
-
     public AnnotationProcessorException(String message, Element origin) {
         super(message);
-        this.origin = origin;
-    }
 
-    public AnnotationProcessorException(String message, Throwable cause, Element origin) {
-        super(message, cause);
-        this.origin = origin;
-    }
-
-    public AnnotationProcessorException(Throwable cause, Element origin) {
-        super(cause);
         this.origin = origin;
     }
 
