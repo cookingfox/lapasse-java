@@ -38,6 +38,13 @@ public class HandleEventProcessor {
     // PUBLIC METHODS
     //----------------------------------------------------------------------------------------------
 
+    /**
+     * Process the {@link HandleEvent} annotated handler method and create a result object with the
+     * extracted values.
+     *
+     * @return The result object of process operation.
+     * @throws Exception when the handler method is invalid.
+     */
     public HandleEventResult process() throws Exception {
         checkMethod();
 
@@ -63,6 +70,11 @@ public class HandleEventProcessor {
     // PROTECTED METHODS
     //----------------------------------------------------------------------------------------------
 
+    /**
+     * Performs basic checks of the handler method, such as accessibility from LaPasse.
+     *
+     * @throws Exception when the handler method is invalid.
+     */
     protected void checkMethod() throws Exception {
         if (!ProcessorHelper.isAccessible(element)) {
             throw new Exception("Method is not accessible - it must be a non-static method with " +
@@ -72,16 +84,31 @@ public class HandleEventProcessor {
 
     protected TypeMirror checkReturnType(TypeMirror returnType) throws Exception {
         if (!isSubtype(returnType, State.class)) {
-            throw new Exception("Return type of @HandleEvent annotated method must extend " + State.class.getName());
+            throw new Exception("Return type of @HandleEvent annotated method must extend "
+                    + State.class.getName());
         }
 
         return returnType;
     }
 
+    /**
+     * Creates an exception for when the handler method's parameters are invalid.
+     *
+     * @param parameters The handler method's parameters.
+     * @return The exception with the formatted error message.
+     */
     protected Exception createInvalidMethodParamsException(List<? extends VariableElement> parameters) {
         return new Exception("Invalid parameters - expected event and state");
     }
 
+    /**
+     * Determines the type of parameters for the {@link HandleEvent} annotation. The annotation
+     * can hold a reference to the concrete event class that this method should handle.
+     *
+     * @param annotation The annotation object.
+     * @return An enum which indicates the annotation parameters.
+     * @throws Exception when the annotation parameters could not be determined.
+     */
     protected HandleEventAnnotationParams determineAnnotationParams(HandleEvent annotation) throws Exception {
         try {
             annotation.event(); // this should throw
@@ -101,6 +128,13 @@ public class HandleEventProcessor {
         throw new Exception("Could not determine annotation type");
     }
 
+    /**
+     * Determines the concrete event type of the handler method. The event type can be set by both
+     * the method parameters (event object) or the annotation (event class).
+     *
+     * @return The concrete event type of the handler method.
+     * @throws Exception when the concrete event type could not be determined.
+     */
     protected TypeMirror determineEventType() throws Exception {
         switch (result.methodParams) {
             case METHOD_ONE_PARAM_EVENT:
@@ -122,6 +156,13 @@ public class HandleEventProcessor {
                 "`@%s(event = MyEvent.class)`", HandleEvent.class.getSimpleName()));
     }
 
+    /**
+     * Validates and identifies the handler method parameters.
+     *
+     * @param parameters The method parameters.
+     * @return An indication of the method parameters.
+     * @throws Exception when the method parameters are invalid.
+     */
     protected HandleEventMethodParams determineMethodParams(List<? extends VariableElement> parameters) throws Exception {
         int numParams = parameters.size();
 
