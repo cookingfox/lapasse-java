@@ -131,17 +131,12 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
             // build type spec
             TypeSpec typeSpec = model.buildTypeSpec();
 
-            try {
-                // create java file from type spec
-                JavaFile javaFile = JavaFile.builder(model.packageName, typeSpec)
-                        .addFileComment("Generated code from LaPasse - do not modify!")
-                        .build();
+            // create java file from type spec
+            JavaFile javaFile = JavaFile.builder(model.packageName, typeSpec)
+                    .addFileComment("Generated code from LaPasse - do not modify!")
+                    .build();
 
-                // write file
-                javaFile.writeTo(filer);
-            } catch (IOException e) {
-                printError(origin, "Unable to generate handlers for %s: %s", origin, e.getMessage());
-            }
+            writeJavaFile(javaFile, origin);
         }
     }
 
@@ -488,6 +483,21 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
             } catch (Exception e) {
                 throw new AnnotationProcessorException(e.getMessage(), element);
             }
+        }
+    }
+
+    /**
+     * Writes the generated Java file to the filer.
+     *
+     * @param javaFile The generated Java file.
+     * @param origin   The enclosing element (class) for the annotated methods.
+     * @throws AnnotationProcessorException when an errors occurs.
+     */
+    protected void writeJavaFile(JavaFile javaFile, TypeElement origin) throws AnnotationProcessorException {
+        try {
+            javaFile.writeTo(filer);
+        } catch (IOException e) {
+            throw new AnnotationProcessorException("Unable to write Java file", e, origin);
         }
     }
 

@@ -19,6 +19,12 @@ public class AnnotationProcessorException extends Exception {
         this.origin = origin;
     }
 
+    public AnnotationProcessorException(String message, Throwable cause, Element origin) {
+        super(message, cause);
+
+        this.origin = origin;
+    }
+
     //----------------------------------------------------------------------------------------------
     // GETTERS
     //----------------------------------------------------------------------------------------------
