@@ -5,6 +5,7 @@ import com.cookingfox.lapasse.annotation.HandleEvent;
 import com.cookingfox.lapasse.api.command.handler.*;
 import com.cookingfox.lapasse.api.event.handler.EventHandler;
 import com.cookingfox.lapasse.api.facade.Facade;
+import com.cookingfox.lapasse.api.state.State;
 import com.cookingfox.lapasse.compiler.exception.AnnotationProcessorException;
 import com.cookingfox.lapasse.compiler.processor.ProcessorResults;
 import com.cookingfox.lapasse.compiler.processor.command.HandleCommandProcessor;
@@ -55,7 +56,7 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
     protected Messager messager;
 
     //----------------------------------------------------------------------------------------------
-    // PUBLIC METHODS
+    // JAVAX ABSTRACT PROCESSOR IMPLEMENTATION
     //----------------------------------------------------------------------------------------------
 
     @Override
@@ -85,7 +86,7 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
         try {
             doProcess(roundEnv);
         } catch (AnnotationProcessorException e) {
-            error(e.getOrigin(), e.getMessage());
+            printError(e.getOrigin(), e.getMessage());
         }
 
         return false;
@@ -95,6 +96,12 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
     // PROTECTED METHODS
     //----------------------------------------------------------------------------------------------
 
+    /**
+     * Perform annotation processing.
+     *
+     * @param roundEnv The environment for the round of annotation processing.
+     * @throws AnnotationProcessorException when an error occurs.
+     */
     protected void doProcess(RoundEnvironment roundEnv) throws AnnotationProcessorException {
         // processor results by 'origin' (the enclosing element - the class containing the
         // annotated method)
@@ -114,7 +121,7 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
                 throw new AnnotationProcessorException("Target state name is null", origin);
             }
 
-            OriginModel model = new OriginModel();
+            GenerationModel model = new GenerationModel();
             model.fieldNameCounter = 0;
             model.targetStateName = targetStateName;
             model.processorResults = processorResults;
@@ -138,12 +145,17 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
                 // write file
                 javaFile.writeTo(filer);
             } catch (IOException e) {
-                error(origin, "Unable to generate handlers for %s: %s", origin, e.getMessage());
+                printError(origin, "Unable to generate handlers for %s: %s", origin, e.getMessage());
             }
         }
     }
 
-    protected void generateHandlersType(OriginModel model) {
+    /**
+     * Generate the enclosing element ({@link HandlerMapper} implementation) for the handlers.
+     *
+     * @param model The processed data to use for code generation.
+     */
+    protected void generateHandlersType(GenerationModel model) {
         // get original package and class name
         String packageName = elements.getPackageOf(model.origin).getQualifiedName().toString();
         String originClassName = getClassName(model.origin, packageName);
@@ -188,7 +200,12 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
         model.mapHandlersBuilder = mapHandlersBuilder;
     }
 
-    protected void generateCommandHandlers(OriginModel model) {
+    /**
+     * Generate the command handlers.
+     *
+     * @param model The processed data to use for code generation.
+     */
+    protected void generateCommandHandlers(GenerationModel model) {
         for (HandleCommandResult result : model.processorResults.getHandleCommandResults()) {
             String fieldName = FIELD_PREFIX + (++model.fieldNameCounter);
 
@@ -304,7 +321,12 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
         }
     }
 
-    protected void generateEventHandlers(OriginModel model) {
+    /**
+     * Generate the event handlers.
+     *
+     * @param model The processed data to use for code generation.
+     */
+    protected void generateEventHandlers(GenerationModel model) {
         for (HandleEventResult result : model.processorResults.getHandleEventResults()) {
             String fieldName = FIELD_PREFIX + (++model.fieldNameCounter);
 
@@ -379,6 +401,60 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
         }
     }
 
+    /**
+     * Generates a class name using the provided type and package name.
+     *
+     * @param type        The type element to extract the class name from.
+     * @param packageName The name of the type's package.
+     * @return The class name.
+     */
+    protected String getClassName(TypeElement type, String packageName) {
+        return type.getQualifiedName()
+                .toString()
+                .substring(packageName.length() + 1)
+                .replace('.', '$');
+    }
+
+    /**
+     * Fetches and/or creates the {@link ProcessorResults} for the provided element and stores it in
+     * the results map.
+     *
+     * @param results The map of processor results, ordered by enclosing element (class).
+     * @param element The enclosing element of the annotated handler methods.
+     * @return The existing or newly created processor results for this enclosing element (class).
+     */
+    protected ProcessorResults getProcessorResults(Map<TypeElement, ProcessorResults> results, TypeElement element) {
+        ProcessorResults processorResults = results.get(requireNonNull(element));
+
+        if (processorResults == null) {
+            processorResults = new ProcessorResults();
+            results.put(element, processorResults);
+        }
+
+        return processorResults;
+    }
+
+    /**
+     * Print an error message.
+     *
+     * @param element The element that could not be processed.
+     * @param msg     The error message.
+     * @param args    Arguments to parse in the message.
+     * @return False, so it is easier to exit the processing process.
+     */
+    protected boolean printError(Element element, String msg, Object... args) {
+        messager.printMessage(Diagnostic.Kind.ERROR, String.format(msg, args), element);
+
+        return false;
+    }
+
+    /**
+     * Process all {@link HandleCommand} annotations and collect the results.
+     *
+     * @param results  The destination for the processor results.
+     * @param roundEnv The environment for the round of annotation processing.
+     * @throws AnnotationProcessorException when an error occurs.
+     */
     protected void processHandleCommandAnnotations(Map<TypeElement, ProcessorResults> results, RoundEnvironment roundEnv) throws AnnotationProcessorException {
         for (Element element : roundEnv.getElementsAnnotatedWith(HandleCommand.class)) {
             TypeElement origin = (TypeElement) element.getEnclosingElement();
@@ -396,6 +472,13 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
         }
     }
 
+    /**
+     * Process all {@link HandleEvent} annotations and collect the results.
+     *
+     * @param results  The destination for the processor results.
+     * @param roundEnv The environment for the round of annotation processing.
+     * @throws AnnotationProcessorException when an error occurs.
+     */
     protected void processHandleEventAnnotations(Map<TypeElement, ProcessorResults> results, RoundEnvironment roundEnv) throws AnnotationProcessorException {
         for (Element element : roundEnv.getElementsAnnotatedWith(HandleEvent.class)) {
             TypeElement origin = (TypeElement) element.getEnclosingElement();
@@ -413,60 +496,66 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
         }
     }
 
-    protected ProcessorResults getProcessorResults(Map<TypeElement, ProcessorResults> map, TypeElement element) {
-        ProcessorResults processorResults = map.get(requireNonNull(element));
-
-        if (processorResults == null) {
-            processorResults = new ProcessorResults();
-            map.put(element, processorResults);
-        }
-
-        return processorResults;
-    }
-
-    /**
-     * Generates a class name using the provided type and package name.
-     *
-     * @param type        The type element to extract the class name from.
-     * @param packageName The name of the type's package.
-     * @return The class name.
-     */
-    protected String getClassName(TypeElement type, String packageName) {
-        return type.getQualifiedName()
-                .toString()
-                .substring(packageName.length() + 1)
-                .replace('.', '$');
-    }
-
-    /**
-     * Print an error message.
-     *
-     * @param element The element that could not be processed.
-     * @param msg     The error message.
-     * @param args    Arguments to parse in the message.
-     * @return False, so it is easier to exit the processing process.
-     */
-    protected boolean error(Element element, String msg, Object... args) {
-        messager.printMessage(Diagnostic.Kind.ERROR, String.format(msg, args), element);
-
-        return false;
-    }
-
     //----------------------------------------------------------------------------------------------
     // MEMBER CLASSES
     //----------------------------------------------------------------------------------------------
 
-    protected static class OriginModel {
+    /**
+     * Data model for annotation process and code generation.
+     */
+    protected static class GenerationModel {
 
-        public int fieldNameCounter;
-        public TypeSpec.Builder typeSpecBuilder;
-        public MethodSpec.Builder mapHandlersBuilder;
-        public TypeName targetStateName;
-        public ProcessorResults processorResults;
-        public TypeElement origin;
-        public String packageName;
+        //------------------------------------------------------------------------------------------
+        // PROPERTIES
+        //------------------------------------------------------------------------------------------
 
-        public TypeSpec buildTypeSpec() {
+        /**
+         * Increasing counter, to make sure all fields have a unique name.
+         */
+        protected int fieldNameCounter;
+
+        /**
+         * Method spec builder for the {@link HandlerMapper#mapHandlers()} implementation.
+         */
+        protected MethodSpec.Builder mapHandlersBuilder;
+
+        /**
+         * The enclosing element (class) for the annotated methods.
+         */
+        protected TypeElement origin;
+
+        /**
+         * The package name of the {@link #origin}.
+         */
+        protected String packageName;
+
+        /**
+         * The processor results for the {@link #origin}.
+         */
+        protected ProcessorResults processorResults;
+
+        /**
+         * The type name of the concrete {@link State} implementation for the LaPasse facade.
+         *
+         * @see ProcessorResults#getTargetStateName()
+         */
+        protected TypeName targetStateName;
+
+        /**
+         * Type spec builder for the generated {@link HandlerMapper} implementation.
+         */
+        protected TypeSpec.Builder typeSpecBuilder;
+
+        //------------------------------------------------------------------------------------------
+        // METHODS
+        //------------------------------------------------------------------------------------------
+
+        /**
+         * Builds and adds the type spec for the {@link #origin}.
+         *
+         * @return The {@link #typeSpecBuilder} build result.
+         */
+        protected TypeSpec buildTypeSpec() {
             // add populated HandlerMapper method to class
             typeSpecBuilder.addMethod(mapHandlersBuilder.build());
 
