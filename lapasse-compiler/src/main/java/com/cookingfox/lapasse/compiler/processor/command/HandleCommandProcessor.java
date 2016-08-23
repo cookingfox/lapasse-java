@@ -16,6 +16,7 @@ import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Types;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -28,6 +29,26 @@ import static com.cookingfox.lapasse.compiler.utils.TypeUtils.*;
  * Processes a {@link HandleCommand} annotated handler method.
  */
 public class HandleCommandProcessor {
+
+    //----------------------------------------------------------------------------------------------
+    // CONSTANTS
+    //----------------------------------------------------------------------------------------------
+
+    public static final String ALLOWED_RETURN_TYPES = String.format("`void`, " +
+                    "`%1$s`, " +
+                    "`%2$s<%1$s>`, " +
+                    "`%3$s<%1$s>`, " +
+                    "`%3$s<%2$s<%1$s>>`, " +
+                    "`%4$s<%1$s>`, " +
+                    "`%4$s<%2$s<%1$s>>`",
+            Event.class.getSimpleName(),
+            Collection.class.getSimpleName(),
+            Callable.class.getSimpleName(),
+            Observable.class.getSimpleName());
+
+    //----------------------------------------------------------------------------------------------
+    // PROPERTIES
+    //----------------------------------------------------------------------------------------------
 
     protected final Element element;
     protected final HandleCommandResult result = new HandleCommandResult();
@@ -99,7 +120,14 @@ public class HandleCommandProcessor {
      * @return The exception with the formatted error message.
      */
     protected Exception createInvalidMethodParamsException(List<? extends VariableElement> parameters) {
-        return new Exception("Invalid parameters - expected command and state");
+        List<TypeMirror> types = new LinkedList<>();
+
+        for (VariableElement parameter : parameters) {
+            types.add(parameter.asType());
+        }
+
+        return new Exception(String.format("Method parameters are invalid (expected State and " +
+                "Command implementations): %s", types));
     }
 
     /**
@@ -109,7 +137,8 @@ public class HandleCommandProcessor {
      * @return The exception with the formatted error message.
      */
     protected Exception createInvalidReturnTypeException(TypeMirror returnType) {
-        return new Exception("Invalid return type");
+        return new Exception(String.format("Command handler has an invalid return type: `%s`. " +
+                "Allowed return types: %s", returnType, ALLOWED_RETURN_TYPES));
     }
 
     /**

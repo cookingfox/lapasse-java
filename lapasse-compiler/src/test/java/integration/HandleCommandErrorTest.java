@@ -67,7 +67,7 @@ public class HandleCommandErrorTest {
         assertAbout(javaSource()).that(source)
                 .processedWith(new LaPasseAnnotationProcessor())
                 .failsToCompile()
-                .withErrorContaining("Invalid parameters - expected command and state");
+                .withErrorContaining("Method parameters are invalid (expected State and Command");
     }
 
     //----------------------------------------------------------------------------------------------
@@ -91,7 +91,7 @@ public class HandleCommandErrorTest {
         assertAbout(javaSource()).that(source)
                 .processedWith(new LaPasseAnnotationProcessor())
                 .failsToCompile()
-                .withErrorContaining("Invalid parameters - expected command and state");
+                .withErrorContaining("Method parameters are invalid (expected State and Command");
     }
 
     //----------------------------------------------------------------------------------------------
@@ -118,7 +118,7 @@ public class HandleCommandErrorTest {
         assertAbout(javaSource()).that(source)
                 .processedWith(new LaPasseAnnotationProcessor())
                 .failsToCompile()
-                .withErrorContaining("Invalid parameters - expected command and state");
+                .withErrorContaining("Method parameters are invalid (expected State and Command");
     }
 
     //----------------------------------------------------------------------------------------------
@@ -145,7 +145,7 @@ public class HandleCommandErrorTest {
         assertAbout(javaSource()).that(source)
                 .processedWith(new LaPasseAnnotationProcessor())
                 .failsToCompile()
-                .withErrorContaining("Invalid parameters - expected command and state");
+                .withErrorContaining("Method parameters are invalid (expected State and Command");
     }
 
     //----------------------------------------------------------------------------------------------
@@ -173,7 +173,7 @@ public class HandleCommandErrorTest {
         assertAbout(javaSource()).that(source)
                 .processedWith(new LaPasseAnnotationProcessor())
                 .failsToCompile()
-                .withErrorContaining("Invalid return type");
+                .withErrorContaining("Command handler has an invalid return type");
     }
 
     //----------------------------------------------------------------------------------------------
@@ -201,7 +201,7 @@ public class HandleCommandErrorTest {
         assertAbout(javaSource()).that(source)
                 .processedWith(new LaPasseAnnotationProcessor())
                 .failsToCompile()
-                .withErrorContaining("Invalid return type");
+                .withErrorContaining("Command handler has an invalid return type");
     }
 
     //----------------------------------------------------------------------------------------------
@@ -230,7 +230,7 @@ public class HandleCommandErrorTest {
         assertAbout(javaSource()).that(source)
                 .processedWith(new LaPasseAnnotationProcessor())
                 .failsToCompile()
-                .withErrorContaining("Invalid return type");
+                .withErrorContaining("Command handler has an invalid return type");
     }
 
     //----------------------------------------------------------------------------------------------
@@ -259,7 +259,7 @@ public class HandleCommandErrorTest {
         assertAbout(javaSource()).that(source)
                 .processedWith(new LaPasseAnnotationProcessor())
                 .failsToCompile()
-                .withErrorContaining("Invalid return type");
+                .withErrorContaining("Command handler has an invalid return type");
     }
 
     //----------------------------------------------------------------------------------------------
@@ -289,7 +289,7 @@ public class HandleCommandErrorTest {
         assertAbout(javaSource()).that(source)
                 .processedWith(new LaPasseAnnotationProcessor())
                 .failsToCompile()
-                .withErrorContaining("Invalid return type");
+                .withErrorContaining("Command handler has an invalid return type");
     }
 
     //----------------------------------------------------------------------------------------------
@@ -319,7 +319,7 @@ public class HandleCommandErrorTest {
         assertAbout(javaSource()).that(source)
                 .processedWith(new LaPasseAnnotationProcessor())
                 .failsToCompile()
-                .withErrorContaining("Invalid return type");
+                .withErrorContaining("Command handler has an invalid return type");
     }
 
     //----------------------------------------------------------------------------------------------

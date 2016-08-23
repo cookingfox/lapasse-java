@@ -12,6 +12,7 @@ import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.MirroredTypeException;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Types;
+import java.util.LinkedList;
 import java.util.List;
 
 import static com.cookingfox.lapasse.compiler.processor.event.HandleEventAnnotationParams.ANNOTATION_NO_PARAMS;
@@ -92,7 +93,14 @@ public class HandleEventProcessor {
      * @return The exception with the formatted error message.
      */
     protected Exception createInvalidMethodParamsException(List<? extends VariableElement> parameters) {
-        return new Exception("Invalid parameters - expected event and state");
+        List<TypeMirror> types = new LinkedList<>();
+
+        for (VariableElement parameter : parameters) {
+            types.add(parameter.asType());
+        }
+
+        return new Exception(String.format("Method parameters are invalid (expected State and " +
+                "Event implementations): %s", types));
     }
 
     /**

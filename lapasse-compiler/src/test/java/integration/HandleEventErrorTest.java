@@ -175,7 +175,7 @@ public class HandleEventErrorTest {
         assertAbout(javaSource()).that(source)
                 .processedWith(new LaPasseAnnotationProcessor())
                 .failsToCompile()
-                .withErrorContaining("Invalid parameters - expected event and state");
+                .withErrorContaining("Method parameters are invalid (expected State and Event");
     }
 
     //----------------------------------------------------------------------------------------------
@@ -202,7 +202,7 @@ public class HandleEventErrorTest {
         assertAbout(javaSource()).that(source)
                 .processedWith(new LaPasseAnnotationProcessor())
                 .failsToCompile()
-                .withErrorContaining("Invalid parameters - expected event and state");
+                .withErrorContaining("Method parameters are invalid (expected State and Event");
     }
 
     //----------------------------------------------------------------------------------------------
@@ -229,7 +229,7 @@ public class HandleEventErrorTest {
         assertAbout(javaSource()).that(source)
                 .processedWith(new LaPasseAnnotationProcessor())
                 .failsToCompile()
-                .withErrorContaining("Invalid parameters - expected event and state");
+                .withErrorContaining("Method parameters are invalid (expected State and Event");
     }
 
     //----------------------------------------------------------------------------------------------
@@ -256,7 +256,7 @@ public class HandleEventErrorTest {
         assertAbout(javaSource()).that(source)
                 .processedWith(new LaPasseAnnotationProcessor())
                 .failsToCompile()
-                .withErrorContaining("Invalid parameters - expected event and state");
+                .withErrorContaining("Method parameters are invalid (expected State and Event");
     }
 
     //----------------------------------------------------------------------------------------------
