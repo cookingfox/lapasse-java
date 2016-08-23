@@ -1,6 +1,7 @@
-package com.cookingfox.lapasse.compiler;
+package integration;
 
 import com.cookingfox.lapasse.annotation.HandleCommand;
+import com.cookingfox.lapasse.compiler.LaPasseAnnotationProcessor;
 import com.cookingfox.lapasse.impl.helper.LaPasse;
 import com.google.testing.compile.JavaFileObjects;
 import org.junit.Test;
