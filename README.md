@@ -5,6 +5,7 @@ CQRS and Redux inspired library for Java.
 LaPasse requires at minimum Java 7.
 
 [![Build Status](https://travis-ci.org/cookingfox/lapasse-java.svg?branch=master)](https://travis-ci.org/cookingfox/lapasse-java)
+[![codecov](https://codecov.io/gh/cookingfox/lapasse-java/branch/master/graph/badge.svg)](https://codecov.io/gh/cookingfox/lapasse-java)
 
 ### _Note: proper documentation is in the works!_
 
