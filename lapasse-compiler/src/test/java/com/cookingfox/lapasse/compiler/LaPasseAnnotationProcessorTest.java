@@ -1,6 +1,9 @@
 package com.cookingfox.lapasse.compiler;
 
 import com.cookingfox.lapasse.compiler.exception.AnnotationProcessorException;
+import com.cookingfox.lapasse.compiler.processor.command.HandleCommandMethodParams;
+import com.cookingfox.lapasse.compiler.processor.command.HandleCommandReturnValue;
+import com.cookingfox.lapasse.compiler.processor.event.HandleEventMethodParams;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.TypeSpec;
 import org.junit.Test;
@@ -15,6 +18,29 @@ import static org.mockito.Mockito.when;
  * Unit tests for {@link LaPasseAnnotationProcessor}.
  */
 public class LaPasseAnnotationProcessorTest {
+
+    //----------------------------------------------------------------------------------------------
+    // TESTS: generateCommandHandlers
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void generateCommandHandlers_should_support_enums() throws Exception {
+        HandleCommandMethodParams.valueOf(HandleCommandMethodParams.METHOD_NO_PARAMS.toString());
+        HandleCommandReturnValue.valueOf(HandleCommandReturnValue.RETURNS_VOID.toString());
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // TESTS: generateEventHandlers
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void generateEventHandlers_should_support_enums() throws Exception {
+        HandleEventMethodParams.valueOf(HandleEventMethodParams.METHOD_NO_PARAMS.toString());
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // TESTS: writeJavaFile
+    //----------------------------------------------------------------------------------------------
 
     @Test(expected = AnnotationProcessorException.class)
     public void writeJavaFile_should_throw_if_invalid() throws Exception {
