@@ -1,6 +1,8 @@
 package com.cookingfox.lapasse.compiler.processor.event;
 
 import com.cookingfox.lapasse.annotation.HandleEvent;
+import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.TypeName;
 
 import javax.lang.model.element.Name;
 import javax.lang.model.element.VariableElement;
@@ -70,6 +72,13 @@ public class HandleEventResult {
      */
     public TypeMirror getEventType() {
         return eventType;
+    }
+
+    /**
+     * @return The class name for the event.
+     */
+    public TypeName getEventTypeName() {
+        return ClassName.get(getEventType());
     }
 
     /**

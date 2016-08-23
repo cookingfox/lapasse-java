@@ -157,6 +157,13 @@ public class HandleCommandResult {
     }
 
     /**
+     * @return The class name for the return type.
+     */
+    public TypeName getReturnTypeName() {
+        return ClassName.get(getReturnType());
+    }
+
+    /**
      * @return Indicates the return value of the handler method.
      */
     public HandleCommandReturnValue getReturnValue() {
