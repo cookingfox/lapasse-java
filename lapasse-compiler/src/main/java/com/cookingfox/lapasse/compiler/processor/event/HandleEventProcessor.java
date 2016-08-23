@@ -26,7 +26,7 @@ import static com.cookingfox.lapasse.compiler.utils.TypeUtils.isSubtype;
 public class HandleEventProcessor {
 
     protected final Element element;
-    protected final HandleEventResult result = new HandleEventResult();
+    protected final HandleEventResult result;
     protected final Types types;
 
     //----------------------------------------------------------------------------------------------
@@ -36,6 +36,8 @@ public class HandleEventProcessor {
     public HandleEventProcessor(Element element, Types types) {
         this.element = element;
         this.types = types;
+
+        result = new HandleEventResult(element);
     }
 
     //----------------------------------------------------------------------------------------------

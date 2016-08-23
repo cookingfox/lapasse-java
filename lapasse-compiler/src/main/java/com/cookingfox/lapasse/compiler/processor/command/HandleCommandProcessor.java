@@ -34,6 +34,9 @@ public class HandleCommandProcessor {
     // CONSTANTS
     //----------------------------------------------------------------------------------------------
 
+    /**
+     * String representation of the allowed return types for a command handler method.
+     */
     public static final String ALLOWED_RETURN_TYPES = String.format("`void`, " +
                     "`%1$s`, " +
                     "`%2$s<%1$s>`, " +
@@ -51,7 +54,7 @@ public class HandleCommandProcessor {
     //----------------------------------------------------------------------------------------------
 
     protected final Element element;
-    protected final HandleCommandResult result = new HandleCommandResult();
+    protected final HandleCommandResult result;
     protected final Types types;
 
     //----------------------------------------------------------------------------------------------
@@ -61,6 +64,8 @@ public class HandleCommandProcessor {
     public HandleCommandProcessor(Element element, Types types) {
         this.element = element;
         this.types = types;
+
+        result = new HandleCommandResult(element);
     }
 
     //----------------------------------------------------------------------------------------------

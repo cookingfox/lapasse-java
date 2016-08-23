@@ -1,7 +1,9 @@
 package com.cookingfox.lapasse.impl.facade;
 
+import com.cookingfox.lapasse.api.command.bus.RxCommandBus;
 import com.cookingfox.lapasse.api.command.handler.RxCommandHandler;
 import com.cookingfox.lapasse.api.event.handler.EventHandler;
+import com.cookingfox.lapasse.api.state.manager.RxStateManager;
 import com.cookingfox.lapasse.api.state.observer.StateChanged;
 import com.cookingfox.lapasse.impl.command.bus.DefaultCommandBus;
 import com.cookingfox.lapasse.impl.command.bus.DefaultRxCommandBus;
@@ -16,12 +18,17 @@ import rx.Observable;
 import rx.observers.TestSubscriber;
 import rx.schedulers.Schedulers;
 
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 
 /**
  * Unit tests for {@link LaPasseRxFacade}.
  */
 public class LaPasseRxFacadeTest {
+
+    //----------------------------------------------------------------------------------------------
+    // TESTS: LaPasseRxFacade
+    //----------------------------------------------------------------------------------------------
 
     @Test
     public void methods_should_not_throw() throws Exception {
@@ -101,6 +108,19 @@ public class LaPasseRxFacadeTest {
         assertSame(builder, fromSetEventBus);
         assertSame(builder, fromSetLoggersHelper);
         assertSame(builder, fromSetMessageStore);
+    }
+
+    @Test
+    public void getters_should_create_defaults_if_null() throws Exception {
+        Builder<CountState> builder = new Builder<>(new CountState(0));
+        builder.commandBus = null;
+        builder.stateManager = null;
+
+        RxCommandBus<CountState> commandBus = builder.getCommandBus();
+        RxStateManager<CountState> stateManager = builder.getStateManager();
+
+        assertNotNull(commandBus);
+        assertNotNull(stateManager);
     }
 
 }

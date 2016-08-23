@@ -8,9 +8,11 @@ import com.cookingfox.lapasse.api.facade.Facade;
 import com.cookingfox.lapasse.api.state.State;
 import com.cookingfox.lapasse.compiler.exception.AnnotationProcessorException;
 import com.cookingfox.lapasse.compiler.processor.ProcessorResults;
+import com.cookingfox.lapasse.compiler.processor.command.HandleCommandMethodParams;
 import com.cookingfox.lapasse.compiler.processor.command.HandleCommandProcessor;
 import com.cookingfox.lapasse.compiler.processor.command.HandleCommandResult;
 import com.cookingfox.lapasse.compiler.processor.command.HandleCommandReturnValue;
+import com.cookingfox.lapasse.compiler.processor.event.HandleEventMethodParams;
 import com.cookingfox.lapasse.compiler.processor.event.HandleEventProcessor;
 import com.cookingfox.lapasse.compiler.processor.event.HandleEventResult;
 import com.cookingfox.lapasse.impl.helper.LaPasse;
@@ -125,9 +127,8 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
             model.processorResults = processorResults;
             model.targetStateName = processorResults.getTargetStateName();
 
-            generateHandlersType(model);
-
             // generate handlers
+            generateHandlersType(model);
             generateCommandHandlers(model);
             generateEventHandlers(model);
 
@@ -204,10 +205,11 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
 
             // collect handler specific parameters
             Name methodName = result.getMethodName();
-            TypeName commandName = ClassName.get(result.getCommandType());
+            TypeName commandName = result.getCommandTypeName();
             TypeName eventTypeName = result.getEventTypeName();
             HandleCommandReturnValue returnValue = result.getReturnValue();
             TypeName returnType = ClassName.get(result.getReturnType());
+            HandleCommandMethodParams methodParams = result.getMethodParams();
 
             // build handler method
             MethodSpec.Builder handlerMethodBuilder = MethodSpec.methodBuilder(METHOD_HANDLE)
@@ -257,7 +259,7 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
             }
 
             // add handler method statement (contents)
-            switch (result.getMethodParams()) {
+            switch (methodParams) {
                 case METHOD_NO_PARAMS:
                     callerStatement += "$N.$N()";
                     handlerMethodBuilder.addStatement(callerStatement,
@@ -326,6 +328,7 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
             // collect handler specific parameters
             Name methodName = result.getMethodName();
             TypeName eventType = ClassName.get(result.getEventType());
+            HandleEventMethodParams methodParams = result.getMethodParams();
 
             // build handler method
             MethodSpec.Builder handlerMethodBuilder = MethodSpec.methodBuilder(METHOD_HANDLE)
@@ -335,7 +338,7 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
                     .addParameter(eventType, VAR_EVENT);
 
             // add handler method statement (contents)
-            switch (result.getMethodParams()) {
+            switch (methodParams) {
                 case METHOD_NO_PARAMS:
                     handlerMethodBuilder.addStatement("return $N.$N()",
                             VAR_ORIGIN, methodName);

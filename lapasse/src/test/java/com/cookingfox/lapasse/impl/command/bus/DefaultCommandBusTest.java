@@ -114,6 +114,21 @@ public class DefaultCommandBusTest {
         assertTrue(executorService.isShutdown());
     }
 
+    @Test
+    public void dispose_should_not_throw_if_command_executor_null() throws Exception {
+        commandBus.commandHandlerExecutor = null;
+        commandBus.dispose();
+    }
+
+    @Test
+    public void dispose_should_not_throw_if_command_executor_already_shutdown() throws Exception {
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        executorService.shutdownNow();
+
+        commandBus.setCommandHandlerExecutor(executorService);
+        commandBus.dispose();
+    }
+
     //----------------------------------------------------------------------------------------------
     // TESTS: executeHandler
     //----------------------------------------------------------------------------------------------
