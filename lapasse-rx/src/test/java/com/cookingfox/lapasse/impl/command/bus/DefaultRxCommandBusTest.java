@@ -24,7 +24,6 @@ import org.junit.Before;
 import org.junit.Test;
 import rx.Observable;
 import rx.observers.TestSubscriber;
-import rx.schedulers.Schedulers;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -55,8 +54,6 @@ public class DefaultRxCommandBusTest {
         eventBus = new DefaultEventBus<>(messageStore, loggers, stateManager);
 
         commandBus = new DefaultRxCommandBus<>(messageStore, eventBus, loggers, stateManager);
-        commandBus.setCommandObserveScheduler(Schedulers.immediate());
-        commandBus.setCommandSubscribeScheduler(Schedulers.immediate());
     }
 
     //----------------------------------------------------------------------------------------------

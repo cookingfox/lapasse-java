@@ -4,6 +4,7 @@ import com.cookingfox.lapasse.api.command.Command;
 import com.cookingfox.lapasse.api.command.exception.NoRegisteredCommandLoggerException;
 import com.cookingfox.lapasse.api.command.exception.UnsupportedCommandHandlerException;
 import com.cookingfox.lapasse.api.command.handler.*;
+import com.cookingfox.lapasse.api.command.logging.CommandLogger;
 import com.cookingfox.lapasse.api.event.Event;
 import com.cookingfox.lapasse.api.message.exception.NoMessageHandlersException;
 import com.cookingfox.lapasse.impl.logging.DefaultLogger;
@@ -405,6 +406,18 @@ public class DefaultCommandBusTest {
     public void mapCommandHandler_should_throw_if_multi_implementation_unsupported() throws Exception {
         commandBus.mapCommandHandler(IncrementCount.class, new MultiCommandHandler<CountState, IncrementCount, Event>() {
         });
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // TESTS: removeCommandLogger
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void removeCommandLogger_should_not_throw_if_logger_added() throws Exception {
+        CommandLogger logger = new DefaultLogger<>();
+
+        commandBus.addCommandLogger(logger);
+        commandBus.removeCommandLogger(logger);
     }
 
     //----------------------------------------------------------------------------------------------

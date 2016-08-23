@@ -20,13 +20,13 @@ import java.util.UUID;
  */
 public class SampleTodoAnnotations implements CombinedLogger<TodoState>, OnStateChanged<TodoState> {
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         new SampleTodoAnnotations().init();
     }
 
     private UUID firstCreatedTaskId;
 
-    private void init() throws Exception {
+    private void init() {
         System.out.println("SAMPLE: " + getClass().getSimpleName());
 
         // create initial state

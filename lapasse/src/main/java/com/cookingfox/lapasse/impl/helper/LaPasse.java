@@ -29,6 +29,7 @@ public final class LaPasse {
      * Not meant to be instantiated.
      */
     private LaPasse() {
+        throw new UnsupportedOperationException();
     }
 
     //----------------------------------------------------------------------------------------------

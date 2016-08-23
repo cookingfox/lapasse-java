@@ -18,6 +18,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.Assert.assertEquals;
@@ -37,6 +38,17 @@ public class LaPasseTest {
     @Before
     public void setUp() throws Exception {
         facade = new LaPasseFacade.Builder<>(new CountState(0)).build();
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // TESTS: constructor
+    //----------------------------------------------------------------------------------------------
+
+    @Test(expected = InvocationTargetException.class)
+    public void constructor_should_throw() throws Exception {
+        Constructor<LaPasse> constructor = LaPasse.class.getDeclaredConstructor();
+        constructor.setAccessible(true);
+        constructor.newInstance();
     }
 
     //----------------------------------------------------------------------------------------------

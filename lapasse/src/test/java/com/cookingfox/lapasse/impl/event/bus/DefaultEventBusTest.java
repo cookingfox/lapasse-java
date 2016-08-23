@@ -3,6 +3,7 @@ package com.cookingfox.lapasse.impl.event.bus;
 import com.cookingfox.lapasse.api.event.Event;
 import com.cookingfox.lapasse.api.event.exception.EventHandlerReturnedNullException;
 import com.cookingfox.lapasse.api.event.handler.EventHandler;
+import com.cookingfox.lapasse.api.event.logging.EventLogger;
 import com.cookingfox.lapasse.api.message.exception.NoMessageHandlersException;
 import com.cookingfox.lapasse.impl.logging.DefaultLogger;
 import com.cookingfox.lapasse.impl.logging.DefaultLoggersHelper;
@@ -195,6 +196,18 @@ public class DefaultEventBusTest {
 
         assertSame(event, calledEvent.get());
         assertEquals(new CountState(event.getCount()), calledNewState.get());
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // TESTS: removeEventLogger
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void removeEventLogger_should_not_throw_if_logger_added() throws Exception {
+        EventLogger<CountState> logger = new DefaultLogger<>();
+
+        eventBus.addEventLogger(logger);
+        eventBus.removeEventLogger(logger);
     }
 
     //----------------------------------------------------------------------------------------------
