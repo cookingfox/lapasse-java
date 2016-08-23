@@ -6,7 +6,7 @@
     <parent>
         <artifactId>lapasse-parent</artifactId>
         <groupId>com.cookingfox</groupId>
-        <version>0.4.3-SNAPSHOT</version>
+        <version>0.5.0</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
