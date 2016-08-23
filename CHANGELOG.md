@@ -1,5 +1,16 @@
 # LaPasse for Java: Change Log
 
+## [0.5.0](../../tree/0.5.0) (2016-08-23)
+
+- Makes annotated handler method parameters more flexible: parameters can be omitted, order is no
+longer strict.
+- Handler method annotations can now contain parameter information when the method parameters are
+omitted.
+- Compiler can now detect conflicts, both in handler method declarations and concrete state
+references (regarding to `Facade`).
+- Improves annotation compiler error messages.
+- Increases test code coverage.
+
 ## [0.4.2](../../tree/0.4.2) (2016-08-04)
 
 - Fixes bug where `DefaultRxStateManager` would throw on observable unsubscribe if state listener
