@@ -11,6 +11,7 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.MirroredTypeException;
 import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.Types;
 import java.util.List;
 
 import static com.cookingfox.lapasse.compiler.processor.event.HandleEventAnnotationParams.ANNOTATION_NO_PARAMS;
@@ -25,13 +26,15 @@ public class HandleEventProcessor {
 
     protected final Element element;
     protected final HandleEventResult result = new HandleEventResult();
+    protected final Types types;
 
     //----------------------------------------------------------------------------------------------
     // CONSTRUCTOR
     //----------------------------------------------------------------------------------------------
 
-    public HandleEventProcessor(Element element) {
+    public HandleEventProcessor(Element element, Types types) {
         this.element = element;
+        this.types = types;
     }
 
     //----------------------------------------------------------------------------------------------
@@ -60,6 +63,8 @@ public class HandleEventProcessor {
         result.parameters = parameters;
         result.stateType = determineStateType(returnType);
         result.eventType = determineEventType();
+
+        detectAnnotationMethodParamsConflict();
 
         return result;
     }
@@ -91,6 +96,22 @@ public class HandleEventProcessor {
     }
 
     /**
+     * Checks whether there is a conflict between the event annotation and method parameter.
+     *
+     * @throws Exception when there is a conflict between the event annotation and method parameter.
+     */
+    protected void detectAnnotationMethodParamsConflict() throws Exception {
+        TypeMirror annotationEventType = result.getAnnotationEventType();
+        TypeMirror eventType = result.getEventType();
+
+        // throw if there is a type mismatch
+        if (annotationEventType != null && !types.isSameType(eventType, annotationEventType)) {
+            throw new Exception(String.format("Annotation parameter for event (`%s`) has " +
+                    "different type than method parameter (`%s`)", annotationEventType, eventType));
+        }
+    }
+
+    /**
      * Determines the type of parameters for the {@link HandleEvent} annotation. The annotation
      * can hold a reference to the concrete event class that this method should handle.
      *
@@ -99,23 +120,27 @@ public class HandleEventProcessor {
      * @throws Exception when the annotation parameters could not be determined.
      */
     protected HandleEventAnnotationParams determineAnnotationParams(HandleEvent annotation) throws Exception {
+        TypeMirror annotationEventType = null;
+
         try {
             annotation.event(); // this should throw
         } catch (MirroredTypeException e) {
-            TypeMirror annotationEventType = e.getTypeMirror();
-
-            // should not be base type
-            if (TypeUtils.equalsType(annotationEventType, Event.class)) {
-                return ANNOTATION_NO_PARAMS;
-            }
-
-            result.annotationEventType = annotationEventType;
-
-            return ANNOTATION_ONE_PARAM_EVENT;
+            annotationEventType = e.getTypeMirror();
         }
 
         // this should never happen
-        throw new Exception("Could not extract event type from annotation");
+        if (annotationEventType == null) {
+            throw new Exception("Could not extract event type from annotation");
+        }
+
+        // should not be base type
+        if (TypeUtils.equalsType(annotationEventType, Event.class)) {
+            return ANNOTATION_NO_PARAMS;
+        }
+
+        result.annotationEventType = annotationEventType;
+
+        return ANNOTATION_ONE_PARAM_EVENT;
     }
 
     /**

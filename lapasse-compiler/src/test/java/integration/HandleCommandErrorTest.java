@@ -398,6 +398,64 @@ public class HandleCommandErrorTest {
     }
 
     //----------------------------------------------------------------------------------------------
+    // COMMAND HANDLER CONFLICT ANNOTATION METHOD COMMAND PARAM
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void command_handler_conflict_annotation_method_command_param() throws Exception {
+        JavaFileObject source = JavaFileObjects.forSourceLines("test.Test",
+                "package test;",
+                "",
+                "import com.cookingfox.lapasse.annotation.HandleCommand;",
+                "import fixtures.example.command.IncrementCount;",
+                "import fixtures.example.event.CountIncremented;",
+                "import fixtures.example.state.CountState;",
+                "import fixtures.example2.command.ExampleCommand;",
+                "",
+                "public class Test {",
+                "    @HandleCommand(command = ExampleCommand.class)",
+                "    public CountIncremented handle(CountState state, IncrementCount command) {",
+                "        return new CountIncremented(command.getCount());",
+                "    }",
+                "}"
+        );
+
+        assertAbout(javaSource()).that(source)
+                .processedWith(new LaPasseAnnotationProcessor())
+                .failsToCompile()
+                .withErrorContaining("Annotation parameter for command");
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // COMMAND HANDLER CONFLICT ANNOTATION METHOD STATE PARAM
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void command_handler_conflict_annotation_method_state_param() throws Exception {
+        JavaFileObject source = JavaFileObjects.forSourceLines("test.Test",
+                "package test;",
+                "",
+                "import com.cookingfox.lapasse.annotation.HandleCommand;",
+                "import fixtures.example.command.IncrementCount;",
+                "import fixtures.example.event.CountIncremented;",
+                "import fixtures.example.state.CountState;",
+                "import fixtures.example2.state.ExampleState;",
+                "",
+                "public class Test {",
+                "    @HandleCommand(state = ExampleState.class)",
+                "    public CountIncremented handle(CountState state, IncrementCount command) {",
+                "        return new CountIncremented(command.getCount());",
+                "    }",
+                "}"
+        );
+
+        assertAbout(javaSource()).that(source)
+                .processedWith(new LaPasseAnnotationProcessor())
+                .failsToCompile()
+                .withErrorContaining("Annotation parameter for state");
+    }
+
+    //----------------------------------------------------------------------------------------------
     // COMMAND HANDLERS TARGET STATE CONFLICT
     //----------------------------------------------------------------------------------------------
 

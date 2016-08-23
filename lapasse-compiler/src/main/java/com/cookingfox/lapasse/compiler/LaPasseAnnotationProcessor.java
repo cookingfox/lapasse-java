@@ -24,6 +24,7 @@ import javax.lang.model.element.Modifier;
 import javax.lang.model.element.Name;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
+import javax.lang.model.util.Types;
 import javax.tools.Diagnostic;
 import java.io.IOException;
 import java.util.*;
@@ -54,6 +55,7 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
     protected Elements elements;
     protected Filer filer;
     protected Messager messager;
+    protected Types types;
 
     //----------------------------------------------------------------------------------------------
     // JAVAX ABSTRACT PROCESSOR IMPLEMENTATION
@@ -79,6 +81,7 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
         elements = processingEnv.getElementUtils();
         filer = processingEnv.getFiler();
         messager = processingEnv.getMessager();
+        types = processingEnv.getTypeUtils();
     }
 
     @Override
@@ -448,7 +451,7 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
     protected void processHandleCommandAnnotations(Map<TypeElement, ProcessorResults> results, RoundEnvironment roundEnv) throws AnnotationProcessorException {
         for (Element element : roundEnv.getElementsAnnotatedWith(HandleCommand.class)) {
             TypeElement origin = (TypeElement) element.getEnclosingElement();
-            HandleCommandProcessor processor = new HandleCommandProcessor(element);
+            HandleCommandProcessor processor = new HandleCommandProcessor(element, types);
 
             try {
                 HandleCommandResult result = processor.process();
@@ -472,7 +475,7 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
     protected void processHandleEventAnnotations(Map<TypeElement, ProcessorResults> results, RoundEnvironment roundEnv) throws AnnotationProcessorException {
         for (Element element : roundEnv.getElementsAnnotatedWith(HandleEvent.class)) {
             TypeElement origin = (TypeElement) element.getEnclosingElement();
-            HandleEventProcessor processor = new HandleEventProcessor(element);
+            HandleEventProcessor processor = new HandleEventProcessor(element, types);
 
             try {
                 HandleEventResult result = processor.process();

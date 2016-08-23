@@ -4,6 +4,7 @@ import com.cookingfox.lapasse.annotation.HandleCommand;
 import org.junit.Test;
 
 import javax.lang.model.element.Element;
+import javax.lang.model.util.Types;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -21,7 +22,8 @@ public class HandleCommandProcessorTest {
     @Test
     public void determineAnnotationParams_should_throw_if_mocked_annotation() throws Exception {
         Element element = mock(Element.class);
-        HandleCommandProcessor processor = new HandleCommandProcessor(element);
+        Types types = mock(Types.class);
+        HandleCommandProcessor processor = new HandleCommandProcessor(element, types);
         HandleCommand annotation = mock(HandleCommand.class);
 
         try {

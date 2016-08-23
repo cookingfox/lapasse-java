@@ -260,6 +260,34 @@ public class HandleEventErrorTest {
     }
 
     //----------------------------------------------------------------------------------------------
+    // EVENT HANDLER CONFLICT EVENT ANNOTATION METHOD PARAM
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void event_handler_conflict_annotation_method_event_param() throws Exception {
+        JavaFileObject source = JavaFileObjects.forSourceLines("test.Test",
+                "package test;",
+                "",
+                "import com.cookingfox.lapasse.annotation.HandleEvent;",
+                "import fixtures.example.event.CountIncremented;",
+                "import fixtures.example.state.CountState;",
+                "import fixtures.example2.event.ExampleEvent;",
+                "",
+                "public class Test {",
+                "    @HandleEvent(event = ExampleEvent.class)",
+                "    public CountState handle(CountState state, CountIncremented event) {",
+                "        return new CountState(state.getCount() + event.getCount());",
+                "    }",
+                "}"
+        );
+
+        assertAbout(javaSource()).that(source)
+                .processedWith(new LaPasseAnnotationProcessor())
+                .failsToCompile()
+                .withErrorContaining("Annotation parameter for event");
+    }
+
+    //----------------------------------------------------------------------------------------------
     // EVENT HANDLERS TARGET STATE CONFLICT
     //----------------------------------------------------------------------------------------------
 

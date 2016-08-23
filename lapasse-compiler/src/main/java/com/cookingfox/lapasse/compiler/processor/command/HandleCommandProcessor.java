@@ -14,6 +14,7 @@ import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.MirroredTypeException;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.Types;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -30,13 +31,15 @@ public class HandleCommandProcessor {
 
     protected final Element element;
     protected final HandleCommandResult result = new HandleCommandResult();
+    protected final Types types;
 
     //----------------------------------------------------------------------------------------------
     // CONSTRUCTOR
     //----------------------------------------------------------------------------------------------
 
-    public HandleCommandProcessor(Element element) {
+    public HandleCommandProcessor(Element element, Types types) {
         this.element = element;
+        this.types = types;
     }
 
     //----------------------------------------------------------------------------------------------
@@ -67,6 +70,8 @@ public class HandleCommandProcessor {
         result.parameters = parameters;
         result.commandType = determineCommandType();
         result.stateType = determineStateType();
+
+        detectAnnotationMethodParamsConflict();
 
         return result;
     }
@@ -105,6 +110,31 @@ public class HandleCommandProcessor {
      */
     protected Exception createInvalidReturnTypeException(TypeMirror returnType) {
         return new Exception("Invalid return type");
+    }
+
+    /**
+     * Checks whether there is a conflict between the annotation and method parameters.
+     *
+     * @throws Exception when there is a conflict between the annotation and method parameters.
+     */
+    protected void detectAnnotationMethodParamsConflict() throws Exception {
+        TypeMirror annotationCommandType = result.getAnnotationCommandType();
+        TypeMirror commandType = result.getCommandType();
+
+        // command type mismatch
+        if (annotationCommandType != null && !types.isSameType(commandType, annotationCommandType)) {
+            throw new Exception(String.format("Annotation parameter for command (`%s`) has " +
+                    "different type than method parameter (`%s`)", annotationCommandType, commandType));
+        }
+
+        TypeMirror annotationStateType = result.getAnnotationStateType();
+        TypeMirror stateType = result.getStateType();
+
+        // state type mismatch
+        if (annotationStateType != null && !types.isSameType(stateType, annotationStateType)) {
+            throw new Exception(String.format("Annotation parameter for state (`%s`) has " +
+                    "different type than method parameter (`%s`)", annotationStateType, stateType));
+        }
     }
 
     /**
