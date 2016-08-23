@@ -2,7 +2,6 @@ package com.cookingfox.lapasse.compiler;
 
 import com.cookingfox.lapasse.compiler.exception.AnnotationProcessorException;
 import com.cookingfox.lapasse.compiler.processor.command.HandleCommandMethodParams;
-import com.cookingfox.lapasse.compiler.processor.command.HandleCommandReturnValue;
 import com.cookingfox.lapasse.compiler.processor.event.HandleEventMethodParams;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.TypeSpec;
@@ -25,8 +24,9 @@ public class LaPasseAnnotationProcessorTest {
 
     @Test
     public void generateCommandHandlers_should_support_enums() throws Exception {
-        HandleCommandMethodParams.valueOf(HandleCommandMethodParams.METHOD_NO_PARAMS.toString());
-        HandleCommandReturnValue.valueOf(HandleCommandReturnValue.RETURNS_VOID.toString());
+        for (HandleCommandMethodParams value : HandleCommandMethodParams.values()) {
+            HandleCommandMethodParams.valueOf(value.name());
+        }
     }
 
     //----------------------------------------------------------------------------------------------
@@ -35,7 +35,9 @@ public class LaPasseAnnotationProcessorTest {
 
     @Test
     public void generateEventHandlers_should_support_enums() throws Exception {
-        HandleEventMethodParams.valueOf(HandleEventMethodParams.METHOD_NO_PARAMS.toString());
+        for (HandleEventMethodParams value : HandleEventMethodParams.values()) {
+            HandleEventMethodParams.valueOf(value.name());
+        }
     }
 
     //----------------------------------------------------------------------------------------------
