@@ -77,8 +77,12 @@ public class LaPasseRxFacadeTest {
     public void setCommandBus_should_accept_rx_impl() throws Exception {
         Builder<CountState> builder = new Builder<>(new CountState(0));
 
-        builder.setCommandBus(new DefaultRxCommandBus<>(builder.getMessageStore(),
-                builder.getEventBus(), builder.getLoggersHelper(), builder.getStateManager()));
+        DefaultRxCommandBus<CountState> commandBus = new DefaultRxCommandBus<>(builder.getMessageStore(),
+                builder.getEventBus(), builder.getLoggersHelper(), builder.getStateManager());
+
+        builder.setCommandBus(commandBus);
+
+        assertSame(commandBus, builder.getCommandBus());
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -94,7 +98,11 @@ public class LaPasseRxFacadeTest {
         CountState initialState = new CountState(0);
         Builder<CountState> builder = new Builder<>(initialState);
 
-        builder.setStateManager(new DefaultRxStateManager<>(initialState));
+        DefaultRxStateManager<CountState> stateManager = new DefaultRxStateManager<>(initialState);
+
+        builder.setStateManager(stateManager);
+
+        assertSame(stateManager, builder.getStateManager());
     }
 
     @Test
