@@ -54,7 +54,7 @@ public class HandleCommandProcessor {
     //----------------------------------------------------------------------------------------------
 
     protected final Element element;
-    protected final HandleCommandResult result;
+    protected final HandleCommandResult result = new HandleCommandResult();
     protected final Types types;
 
     //----------------------------------------------------------------------------------------------
@@ -64,8 +64,6 @@ public class HandleCommandProcessor {
     public HandleCommandProcessor(Element element, Types types) {
         this.element = element;
         this.types = types;
-
-        result = new HandleCommandResult(element);
     }
 
     //----------------------------------------------------------------------------------------------

@@ -4,7 +4,6 @@ import com.cookingfox.lapasse.annotation.HandleCommand;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
 
-import javax.lang.model.element.Element;
 import javax.lang.model.element.Name;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
@@ -34,11 +33,6 @@ public class HandleCommandResult {
      * Command type, defined by the handler method parameters.
      */
     protected TypeMirror commandType;
-
-    /**
-     * The source element.
-     */
-    protected final Element element;
 
     /**
      * Event type, defined by the handler method return type.
@@ -74,14 +68,6 @@ public class HandleCommandResult {
      * State type, defined by the handler method parameters.
      */
     protected TypeMirror stateType;
-
-    //----------------------------------------------------------------------------------------------
-    // CONSTRUCTOR
-    //----------------------------------------------------------------------------------------------
-
-    public HandleCommandResult(Element element) {
-        this.element = element;
-    }
 
     //----------------------------------------------------------------------------------------------
     // GETTERS
@@ -120,13 +106,6 @@ public class HandleCommandResult {
      */
     public TypeName getCommandTypeName() {
         return ClassName.get(getCommandType());
-    }
-
-    /**
-     * @return The source element.
-     */
-    public Element getElement() {
-        return element;
     }
 
     /**

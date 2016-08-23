@@ -205,6 +205,35 @@ public class HandleCommandErrorTest {
     }
 
     //----------------------------------------------------------------------------------------------
+    // COMMAND HANDLER RETURN TYPE INVALID COLLECTION TYPE
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void command_handler_return_type_invalid_collection_type() throws Exception {
+        JavaFileObject source = JavaFileObjects.forSourceLines("test.Test",
+                "package test;",
+                "",
+                "import com.cookingfox.lapasse.annotation.HandleCommand;",
+                "import fixtures.example.command.IncrementCount;",
+                "import fixtures.example.state.CountState;",
+                "import java.util.Arrays;",
+                "import java.util.Collection;",
+                "",
+                "public class Test {",
+                "    @HandleCommand",
+                "    public Collection<String> handle(CountState state, final IncrementCount command) {",
+                "        return null;",
+                "    }",
+                "}"
+        );
+
+        assertAbout(javaSource()).that(source)
+                .processedWith(new LaPasseAnnotationProcessor())
+                .failsToCompile()
+                .withErrorContaining("Command handler has an invalid return type");
+    }
+
+    //----------------------------------------------------------------------------------------------
     // COMMAND HANDLER RETURN TYPE INVALID CALLABLE TYPE
     //----------------------------------------------------------------------------------------------
 

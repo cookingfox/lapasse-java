@@ -2,7 +2,6 @@ package com.cookingfox.lapasse.compiler.processor.event;
 
 import com.cookingfox.lapasse.annotation.HandleEvent;
 
-import javax.lang.model.element.Element;
 import javax.lang.model.element.Name;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
@@ -22,11 +21,6 @@ public class HandleEventResult {
      * Indicates the annotation's parameters.
      */
     protected HandleEventAnnotationParams annotationParams;
-
-    /**
-     * The source element.
-     */
-    protected final Element element;
 
     /**
      * Event type, defined by the handler method parameters.
@@ -54,14 +48,6 @@ public class HandleEventResult {
     protected TypeMirror stateType;
 
     //----------------------------------------------------------------------------------------------
-    // CONSTRUCTOR
-    //----------------------------------------------------------------------------------------------
-
-    public HandleEventResult(Element element) {
-        this.element = element;
-    }
-
-    //----------------------------------------------------------------------------------------------
     // GETTERS
     //----------------------------------------------------------------------------------------------
 
@@ -77,13 +63,6 @@ public class HandleEventResult {
      */
     public HandleEventAnnotationParams getAnnotationParams() {
         return annotationParams;
-    }
-
-    /**
-     * @return The source element.
-     */
-    public Element getElement() {
-        return element;
     }
 
     /**
