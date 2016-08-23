@@ -12,6 +12,7 @@ import java.io.IOException;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static testing.TestingUtils.superficialEnumCodeCoverage;
 
 /**
  * Unit tests for {@link LaPasseAnnotationProcessor}.
@@ -24,9 +25,7 @@ public class LaPasseAnnotationProcessorTest {
 
     @Test
     public void generateCommandHandlers_should_support_enums() throws Exception {
-        for (HandleCommandMethodParams value : HandleCommandMethodParams.values()) {
-            HandleCommandMethodParams.valueOf(value.name());
-        }
+        superficialEnumCodeCoverage(HandleCommandMethodParams.class);
     }
 
     //----------------------------------------------------------------------------------------------
@@ -35,9 +34,7 @@ public class LaPasseAnnotationProcessorTest {
 
     @Test
     public void generateEventHandlers_should_support_enums() throws Exception {
-        for (HandleEventMethodParams value : HandleEventMethodParams.values()) {
-            HandleEventMethodParams.valueOf(value.name());
-        }
+        superficialEnumCodeCoverage(HandleEventMethodParams.class);
     }
 
     //----------------------------------------------------------------------------------------------

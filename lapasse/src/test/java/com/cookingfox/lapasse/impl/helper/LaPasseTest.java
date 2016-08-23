@@ -18,11 +18,11 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static testing.TestingUtils.assertPrivateConstructorInstantiationUnsupported;
 
 /**
  * Unit tests for {@link LaPasse}.
@@ -44,11 +44,9 @@ public class LaPasseTest {
     // TESTS: constructor
     //----------------------------------------------------------------------------------------------
 
-    @Test(expected = InvocationTargetException.class)
+    @Test
     public void constructor_should_throw() throws Exception {
-        Constructor<LaPasse> constructor = LaPasse.class.getDeclaredConstructor();
-        constructor.setAccessible(true);
-        constructor.newInstance();
+        assertPrivateConstructorInstantiationUnsupported(LaPasse.class);
     }
 
     //----------------------------------------------------------------------------------------------

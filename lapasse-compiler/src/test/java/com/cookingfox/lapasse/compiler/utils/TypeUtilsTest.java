@@ -14,8 +14,6 @@ import javax.lang.model.type.NoType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 
 import static com.cookingfox.lapasse.compiler.utils.TypeUtils.firstArgIsSubType;
 import static com.cookingfox.lapasse.compiler.utils.TypeUtils.isSubtype;
@@ -23,6 +21,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static testing.TestingUtils.assertPrivateConstructorInstantiationUnsupported;
 
 /**
  * Unit tests for {@link TypeUtils}.
@@ -49,11 +48,9 @@ public class TypeUtilsTest {
     // TESTS: constructor
     //----------------------------------------------------------------------------------------------
 
-    @Test(expected = InvocationTargetException.class)
+    @Test
     public void constructor_should_throw() throws Exception {
-        Constructor<TypeUtils> constructor = TypeUtils.class.getDeclaredConstructor();
-        constructor.setAccessible(true);
-        constructor.newInstance();
+        assertPrivateConstructorInstantiationUnsupported(TypeUtils.class);
     }
 
     //----------------------------------------------------------------------------------------------
