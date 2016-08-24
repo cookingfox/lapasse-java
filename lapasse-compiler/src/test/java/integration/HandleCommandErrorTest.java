@@ -2,13 +2,24 @@ package integration;
 
 import com.cookingfox.lapasse.annotation.HandleCommand;
 import com.cookingfox.lapasse.compiler.LaPasseAnnotationProcessor;
-import com.google.testing.compile.JavaFileObjects;
+import com.squareup.javapoet.AnnotationSpec;
+import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.ParameterizedTypeName;
+import fixtures.example.command.IncrementCount;
+import fixtures.example.event.CountIncremented;
+import fixtures.example.state.CountState;
+import fixtures.example2.command.ExampleCommand;
+import fixtures.example2.event.ExampleEvent;
+import fixtures.example2.state.ExampleState;
 import org.junit.Test;
+import rx.Observable;
 
-import javax.tools.JavaFileObject;
+import javax.lang.model.element.Modifier;
+import java.util.Collection;
+import java.util.concurrent.Callable;
 
-import static com.google.common.truth.Truth.assertAbout;
-import static com.google.testing.compile.JavaSourceSubjectFactory.javaSource;
+import static integration.IntegrationTestHelper.*;
 
 /**
  * Integration tests for {@link LaPasseAnnotationProcessor} and {@link HandleCommand} processor
@@ -22,26 +33,14 @@ public class HandleCommandErrorTest {
 
     @Test
     public void command_handler_method_not_accessible() throws Exception {
-        JavaFileObject source = JavaFileObjects.forSourceLines("test.Test",
-                "package test;",
-                "",
-                "import com.cookingfox.lapasse.annotation.HandleCommand;",
-                "import fixtures.example.command.IncrementCount;",
-                "import fixtures.example.event.CountIncremented;",
-                "import fixtures.example.state.CountState;",
-                "",
-                "public class Test {",
-                "    @HandleCommand",
-                "    private CountIncremented handle(CountState state, IncrementCount command) {",
-                "        return new CountIncremented(command.getCount());",
-                "    }",
-                "}"
-        );
+        MethodSpec method = createHandleCommandMethod()
+                .addModifiers(Modifier.PRIVATE)
+                .addParameter(CountState.class, "state")
+                .addParameter(IncrementCount.class, "command")
+                .build();
 
-        assertAbout(javaSource()).that(source)
-                .processedWith(new LaPasseAnnotationProcessor())
-                .failsToCompile()
-                .withErrorContaining("Method is not accessible");
+        assertCompileFails(createSource(method),
+                "Method is not accessible");
     }
 
     //----------------------------------------------------------------------------------------------
@@ -50,26 +49,14 @@ public class HandleCommandErrorTest {
 
     @Test
     public void command_handler_throws() throws Exception {
-        JavaFileObject source = JavaFileObjects.forSourceLines("test.Test",
-                "package test;",
-                "",
-                "import com.cookingfox.lapasse.annotation.HandleCommand;",
-                "import fixtures.example.command.IncrementCount;",
-                "import fixtures.example.event.CountIncremented;",
-                "import fixtures.example.state.CountState;",
-                "",
-                "public class Test {",
-                "    @HandleCommand",
-                "    public CountIncremented handle(CountState state, IncrementCount command) throws Exception {",
-                "        throw new Exception(\"example error\");",
-                "    }",
-                "}"
-        );
+        MethodSpec method = createHandleCommandMethod()
+                .addException(Exception.class)
+                .addParameter(CountState.class, "state")
+                .addParameter(IncrementCount.class, "command")
+                .build();
 
-        assertAbout(javaSource()).that(source)
-                .processedWith(new LaPasseAnnotationProcessor())
-                .failsToCompile()
-                .withErrorContaining("Handler methods are not allowed to declare a `throws` clause.");
+        assertCompileFails(createSource(method),
+                "Handler methods are not allowed to declare a `throws` clause.");
     }
 
     //----------------------------------------------------------------------------------------------
@@ -78,24 +65,15 @@ public class HandleCommandErrorTest {
 
     @Test
     public void command_handler_method_params_invalid_number() throws Exception {
-        JavaFileObject source = JavaFileObjects.forSourceLines("test.Test",
-                "package test;",
-                "",
-                "import com.cookingfox.lapasse.annotation.HandleCommand;",
-                "import fixtures.example.command.IncrementCount;",
-                "import fixtures.example.state.CountState;",
-                "",
-                "public class Test {",
-                "    @HandleCommand",
-                "    public void handle(CountState state, IncrementCount command, String foo) {",
-                "    }",
-                "}"
-        );
+        MethodSpec method = createHandleCommandMethod()
+                .addParameter(CountState.class, "state")
+                .addParameter(IncrementCount.class, "command")
+                .addParameter(String.class, "foo")
+                .returns(ClassName.get(CountIncremented.class))
+                .build();
 
-        assertAbout(javaSource()).that(source)
-                .processedWith(new LaPasseAnnotationProcessor())
-                .failsToCompile()
-                .withErrorContaining("Method parameters are invalid (expected State and Command");
+        assertCompileFails(createSource(method),
+                "Method parameters are invalid (expected State and Command");
     }
 
     //----------------------------------------------------------------------------------------------
@@ -104,22 +82,13 @@ public class HandleCommandErrorTest {
 
     @Test
     public void command_handler_method_params_both_invalid_type() throws Exception {
-        JavaFileObject source = JavaFileObjects.forSourceLines("test.Test",
-                "package test;",
-                "",
-                "import com.cookingfox.lapasse.annotation.HandleCommand;",
-                "",
-                "public class Test {",
-                "    @HandleCommand",
-                "    public void handle(String foo, Object bar) {",
-                "    }",
-                "}"
-        );
+        MethodSpec method = createHandleCommandMethod()
+                .addParameter(String.class, "foo")
+                .addParameter(Object.class, "bar")
+                .build();
 
-        assertAbout(javaSource()).that(source)
-                .processedWith(new LaPasseAnnotationProcessor())
-                .failsToCompile()
-                .withErrorContaining("Method parameters are invalid (expected State and Command");
+        assertCompileFails(createSource(method),
+                "Method parameters are invalid (expected State and Command");
     }
 
     //----------------------------------------------------------------------------------------------
@@ -128,25 +97,13 @@ public class HandleCommandErrorTest {
 
     @Test
     public void command_handler_method_params_command_and_invalid_type() throws Exception {
-        JavaFileObject source = JavaFileObjects.forSourceLines("test.Test",
-                "package test;",
-                "",
-                "import com.cookingfox.lapasse.annotation.HandleCommand;",
-                "import fixtures.example.command.IncrementCount;",
-                "import fixtures.example.event.CountIncremented;",
-                "import fixtures.example.state.CountState;",
-                "",
-                "public class Test {",
-                "    @HandleCommand",
-                "    public void handle(IncrementCount command, String foo) {",
-                "    }",
-                "}"
-        );
+        MethodSpec method = createHandleCommandMethod()
+                .addParameter(IncrementCount.class, "command")
+                .addParameter(String.class, "foo")
+                .build();
 
-        assertAbout(javaSource()).that(source)
-                .processedWith(new LaPasseAnnotationProcessor())
-                .failsToCompile()
-                .withErrorContaining("Method parameters are invalid (expected State and Command");
+        assertCompileFails(createSource(method),
+                "Method parameters are invalid (expected State and Command");
     }
 
     //----------------------------------------------------------------------------------------------
@@ -155,25 +112,13 @@ public class HandleCommandErrorTest {
 
     @Test
     public void command_handler_method_params_state_and_invalid_type() throws Exception {
-        JavaFileObject source = JavaFileObjects.forSourceLines("test.Test",
-                "package test;",
-                "",
-                "import com.cookingfox.lapasse.annotation.HandleCommand;",
-                "import fixtures.example.command.IncrementCount;",
-                "import fixtures.example.event.CountIncremented;",
-                "import fixtures.example.state.CountState;",
-                "",
-                "public class Test {",
-                "    @HandleCommand",
-                "    public void handle(CountState state, String foo) {",
-                "    }",
-                "}"
-        );
+        MethodSpec method = createHandleCommandMethod()
+                .addParameter(CountState.class, "state")
+                .addParameter(String.class, "foo")
+                .build();
 
-        assertAbout(javaSource()).that(source)
-                .processedWith(new LaPasseAnnotationProcessor())
-                .failsToCompile()
-                .withErrorContaining("Method parameters are invalid (expected State and Command");
+        assertCompileFails(createSource(method),
+                "Method parameters are invalid (expected State and Command");
     }
 
     //----------------------------------------------------------------------------------------------
@@ -182,26 +127,14 @@ public class HandleCommandErrorTest {
 
     @Test
     public void command_handler_return_type_not_declared() throws Exception {
-        JavaFileObject source = JavaFileObjects.forSourceLines("test.Test",
-                "package test;",
-                "",
-                "import com.cookingfox.lapasse.annotation.HandleCommand;",
-                "import fixtures.example.command.IncrementCount;",
-                "import fixtures.example.event.CountIncremented;",
-                "import fixtures.example.state.CountState;",
-                "",
-                "public class Test {",
-                "    @HandleCommand",
-                "    public FooBarBaz handle(CountState state, IncrementCount command) {",
-                "        return true;",
-                "    }",
-                "}"
-        );
+        MethodSpec method = createHandleCommandMethod()
+                .addParameter(CountState.class, "state")
+                .addParameter(IncrementCount.class, "command")
+                .returns(ClassName.bestGuess("FooBarBaz"))
+                .build();
 
-        assertAbout(javaSource()).that(source)
-                .processedWith(new LaPasseAnnotationProcessor())
-                .failsToCompile()
-                .withErrorContaining("Command handler has an invalid return type");
+        assertCompileFails(createSource(method),
+                "Command handler has an invalid return type");
     }
 
     //----------------------------------------------------------------------------------------------
@@ -210,26 +143,14 @@ public class HandleCommandErrorTest {
 
     @Test
     public void command_handler_return_type_invalid() throws Exception {
-        JavaFileObject source = JavaFileObjects.forSourceLines("test.Test",
-                "package test;",
-                "",
-                "import com.cookingfox.lapasse.annotation.HandleCommand;",
-                "import fixtures.example.command.IncrementCount;",
-                "import fixtures.example.event.CountIncremented;",
-                "import fixtures.example.state.CountState;",
-                "",
-                "public class Test {",
-                "    @HandleCommand",
-                "    public Boolean handle(CountState state, IncrementCount command) {",
-                "        return true;",
-                "    }",
-                "}"
-        );
+        MethodSpec method = createHandleCommandMethod()
+                .addParameter(CountState.class, "state")
+                .addParameter(IncrementCount.class, "command")
+                .returns(ClassName.get(Boolean.class))
+                .build();
 
-        assertAbout(javaSource()).that(source)
-                .processedWith(new LaPasseAnnotationProcessor())
-                .failsToCompile()
-                .withErrorContaining("Command handler has an invalid return type");
+        assertCompileFails(createSource(method),
+                "Command handler has an invalid return type");
     }
 
     //----------------------------------------------------------------------------------------------
@@ -238,27 +159,14 @@ public class HandleCommandErrorTest {
 
     @Test
     public void command_handler_return_type_invalid_collection_type() throws Exception {
-        JavaFileObject source = JavaFileObjects.forSourceLines("test.Test",
-                "package test;",
-                "",
-                "import com.cookingfox.lapasse.annotation.HandleCommand;",
-                "import fixtures.example.command.IncrementCount;",
-                "import fixtures.example.state.CountState;",
-                "import java.util.Arrays;",
-                "import java.util.Collection;",
-                "",
-                "public class Test {",
-                "    @HandleCommand",
-                "    public Collection<String> handle(CountState state, final IncrementCount command) {",
-                "        return null;",
-                "    }",
-                "}"
-        );
+        MethodSpec method = createHandleCommandMethod()
+                .addParameter(CountState.class, "state")
+                .addParameter(IncrementCount.class, "command")
+                .returns(ParameterizedTypeName.get(Collection.class, String.class))
+                .build();
 
-        assertAbout(javaSource()).that(source)
-                .processedWith(new LaPasseAnnotationProcessor())
-                .failsToCompile()
-                .withErrorContaining("Command handler has an invalid return type");
+        assertCompileFails(createSource(method),
+                "Command handler has an invalid return type");
     }
 
     //----------------------------------------------------------------------------------------------
@@ -267,27 +175,14 @@ public class HandleCommandErrorTest {
 
     @Test
     public void command_handler_return_type_invalid_callable_type() throws Exception {
-        JavaFileObject source = JavaFileObjects.forSourceLines("test.Test",
-                "package test;",
-                "",
-                "import com.cookingfox.lapasse.annotation.HandleCommand;",
-                "import fixtures.example.command.IncrementCount;",
-                "import fixtures.example.state.CountState;",
-                "import java.util.Arrays;",
-                "import java.util.concurrent.Callable;",
-                "",
-                "public class Test {",
-                "    @HandleCommand",
-                "    public Callable<String> handle(CountState state, final IncrementCount command) {",
-                "        return null;",
-                "    }",
-                "}"
-        );
+        MethodSpec method = createHandleCommandMethod()
+                .addParameter(CountState.class, "state")
+                .addParameter(IncrementCount.class, "command")
+                .returns(ParameterizedTypeName.get(Callable.class, String.class))
+                .build();
 
-        assertAbout(javaSource()).that(source)
-                .processedWith(new LaPasseAnnotationProcessor())
-                .failsToCompile()
-                .withErrorContaining("Command handler has an invalid return type");
+        assertCompileFails(createSource(method),
+                "Command handler has an invalid return type");
     }
 
     //----------------------------------------------------------------------------------------------
@@ -296,27 +191,14 @@ public class HandleCommandErrorTest {
 
     @Test
     public void command_handler_return_type_invalid_observable_type() throws Exception {
-        JavaFileObject source = JavaFileObjects.forSourceLines("test.Test",
-                "package test;",
-                "",
-                "import com.cookingfox.lapasse.annotation.HandleCommand;",
-                "import fixtures.example.command.IncrementCount;",
-                "import fixtures.example.state.CountState;",
-                "import java.util.Arrays;",
-                "import rx.Observable;",
-                "",
-                "public class Test {",
-                "    @HandleCommand",
-                "    public Observable<String> handle(CountState state, final IncrementCount command) {",
-                "        return null;",
-                "    }",
-                "}"
-        );
+        MethodSpec method = createHandleCommandMethod()
+                .addParameter(CountState.class, "state")
+                .addParameter(IncrementCount.class, "command")
+                .returns(ParameterizedTypeName.get(Observable.class, String.class))
+                .build();
 
-        assertAbout(javaSource()).that(source)
-                .processedWith(new LaPasseAnnotationProcessor())
-                .failsToCompile()
-                .withErrorContaining("Command handler has an invalid return type");
+        assertCompileFails(createSource(method),
+                "Command handler has an invalid return type");
     }
 
     //----------------------------------------------------------------------------------------------
@@ -325,28 +207,15 @@ public class HandleCommandErrorTest {
 
     @Test
     public void command_handler_return_type_invalid_callable_collection_type() throws Exception {
-        JavaFileObject source = JavaFileObjects.forSourceLines("test.Test",
-                "package test;",
-                "",
-                "import com.cookingfox.lapasse.annotation.HandleCommand;",
-                "import fixtures.example.command.IncrementCount;",
-                "import fixtures.example.state.CountState;",
-                "import java.util.Arrays;",
-                "import java.util.Collection;",
-                "import java.util.concurrent.Callable;",
-                "",
-                "public class Test {",
-                "    @HandleCommand",
-                "    public Callable<Collection<String>> handle(CountState state, final IncrementCount command) {",
-                "        return null;",
-                "    }",
-                "}"
-        );
+        MethodSpec method = createHandleCommandMethod()
+                .addParameter(CountState.class, "state")
+                .addParameter(IncrementCount.class, "command")
+                .returns(ParameterizedTypeName.get(ClassName.get(Callable.class),
+                        ParameterizedTypeName.get(Collection.class, String.class)))
+                .build();
 
-        assertAbout(javaSource()).that(source)
-                .processedWith(new LaPasseAnnotationProcessor())
-                .failsToCompile()
-                .withErrorContaining("Command handler has an invalid return type");
+        assertCompileFails(createSource(method),
+                "Command handler has an invalid return type");
     }
 
     //----------------------------------------------------------------------------------------------
@@ -355,28 +224,15 @@ public class HandleCommandErrorTest {
 
     @Test
     public void command_handler_return_type_invalid_observable_collection_type() throws Exception {
-        JavaFileObject source = JavaFileObjects.forSourceLines("test.Test",
-                "package test;",
-                "",
-                "import com.cookingfox.lapasse.annotation.HandleCommand;",
-                "import fixtures.example.command.IncrementCount;",
-                "import fixtures.example.state.CountState;",
-                "import java.util.Arrays;",
-                "import java.util.Collection;",
-                "import rx.Observable;",
-                "",
-                "public class Test {",
-                "    @HandleCommand",
-                "    public Observable<Collection<String>> handle(CountState state, final IncrementCount command) {",
-                "        return null;",
-                "    }",
-                "}"
-        );
+        MethodSpec method = createHandleCommandMethod()
+                .addParameter(CountState.class, "state")
+                .addParameter(IncrementCount.class, "command")
+                .returns(ParameterizedTypeName.get(ClassName.get(Observable.class),
+                        ParameterizedTypeName.get(Collection.class, String.class)))
+                .build();
 
-        assertAbout(javaSource()).that(source)
-                .processedWith(new LaPasseAnnotationProcessor())
-                .failsToCompile()
-                .withErrorContaining("Command handler has an invalid return type");
+        assertCompileFails(createSource(method),
+                "Command handler has an invalid return type");
     }
 
     //----------------------------------------------------------------------------------------------
@@ -385,22 +241,11 @@ public class HandleCommandErrorTest {
 
     @Test
     public void command_handler_no_method_or_annotation_params() throws Exception {
-        JavaFileObject source = JavaFileObjects.forSourceLines("test.Test",
-                "package test;",
-                "",
-                "import com.cookingfox.lapasse.annotation.HandleCommand;",
-                "",
-                "public class Test {",
-                "    @HandleCommand",
-                "    public void handle() {",
-                "    }",
-                "}"
-        );
+        MethodSpec method = createHandleCommandMethod()
+                .build();
 
-        assertAbout(javaSource()).that(source)
-                .processedWith(new LaPasseAnnotationProcessor())
-                .failsToCompile()
-                .withErrorContaining("Could not determine command type");
+        assertCompileFails(createSource(method),
+                "Could not determine command type");
     }
 
     //----------------------------------------------------------------------------------------------
@@ -409,23 +254,12 @@ public class HandleCommandErrorTest {
 
     @Test
     public void command_handler_state_not_determinable() throws Exception {
-        JavaFileObject source = JavaFileObjects.forSourceLines("test.Test",
-                "package test;",
-                "",
-                "import com.cookingfox.lapasse.annotation.HandleCommand;",
-                "import fixtures.example.command.IncrementCount;",
-                "",
-                "public class Test {",
-                "    @HandleCommand",
-                "    public void handle(IncrementCount command) {",
-                "    }",
-                "}"
-        );
+        MethodSpec method = createHandleCommandMethod()
+                .addParameter(IncrementCount.class, "command")
+                .build();
 
-        assertAbout(javaSource()).that(source)
-                .processedWith(new LaPasseAnnotationProcessor())
-                .failsToCompile()
-                .withErrorContaining("Can not determine target state");
+        assertCompileFails(createSource(method),
+                "Can not determine target state");
     }
 
     //----------------------------------------------------------------------------------------------
@@ -434,24 +268,12 @@ public class HandleCommandErrorTest {
 
     @Test
     public void command_handler_command_not_determinable_only_state_method_param() throws Exception {
-        JavaFileObject source = JavaFileObjects.forSourceLines("test.Test",
-                "package test;",
-                "",
-                "import com.cookingfox.lapasse.annotation.HandleCommand;",
-                "import fixtures.example.command.IncrementCount;",
-                "import fixtures.example.state.CountState;",
-                "",
-                "public class Test {",
-                "    @HandleCommand",
-                "    public void handle(CountState state) {",
-                "    }",
-                "}"
-        );
+        MethodSpec method = createHandleCommandMethod()
+                .addParameter(CountState.class, "state")
+                .build();
 
-        assertAbout(javaSource()).that(source)
-                .processedWith(new LaPasseAnnotationProcessor())
-                .failsToCompile()
-                .withErrorContaining("Could not determine command type");
+        assertCompileFails(createSource(method),
+                "Could not determine command type");
     }
 
     //----------------------------------------------------------------------------------------------
@@ -460,27 +282,17 @@ public class HandleCommandErrorTest {
 
     @Test
     public void command_handler_conflict_annotation_method_command_param() throws Exception {
-        JavaFileObject source = JavaFileObjects.forSourceLines("test.Test",
-                "package test;",
-                "",
-                "import com.cookingfox.lapasse.annotation.HandleCommand;",
-                "import fixtures.example.command.IncrementCount;",
-                "import fixtures.example.event.CountIncremented;",
-                "import fixtures.example.state.CountState;",
-                "import fixtures.example2.command.ExampleCommand;",
-                "",
-                "public class Test {",
-                "    @HandleCommand(command = ExampleCommand.class)",
-                "    public CountIncremented handle(CountState state, IncrementCount command) {",
-                "        return new CountIncremented(command.getCount());",
-                "    }",
-                "}"
-        );
+        AnnotationSpec annotation = AnnotationSpec.builder(HandleCommand.class)
+                .addMember("command", "$T.class", ExampleCommand.class)
+                .build();
 
-        assertAbout(javaSource()).that(source)
-                .processedWith(new LaPasseAnnotationProcessor())
-                .failsToCompile()
-                .withErrorContaining("Annotation parameter for command");
+        MethodSpec method = createHandlerMethod(annotation)
+                .addParameter(CountState.class, "state")
+                .addParameter(IncrementCount.class, "command")
+                .build();
+
+        assertCompileFails(createSource(method),
+                "Annotation parameter for command");
     }
 
     //----------------------------------------------------------------------------------------------
@@ -489,27 +301,17 @@ public class HandleCommandErrorTest {
 
     @Test
     public void command_handler_conflict_annotation_method_state_param() throws Exception {
-        JavaFileObject source = JavaFileObjects.forSourceLines("test.Test",
-                "package test;",
-                "",
-                "import com.cookingfox.lapasse.annotation.HandleCommand;",
-                "import fixtures.example.command.IncrementCount;",
-                "import fixtures.example.event.CountIncremented;",
-                "import fixtures.example.state.CountState;",
-                "import fixtures.example2.state.ExampleState;",
-                "",
-                "public class Test {",
-                "    @HandleCommand(state = ExampleState.class)",
-                "    public CountIncremented handle(CountState state, IncrementCount command) {",
-                "        return new CountIncremented(command.getCount());",
-                "    }",
-                "}"
-        );
+        AnnotationSpec annotation = AnnotationSpec.builder(HandleCommand.class)
+                .addMember("state", "$T.class", ExampleState.class)
+                .build();
 
-        assertAbout(javaSource()).that(source)
-                .processedWith(new LaPasseAnnotationProcessor())
-                .failsToCompile()
-                .withErrorContaining("Annotation parameter for state");
+        MethodSpec method = createHandlerMethod(annotation)
+                .addParameter(CountState.class, "state")
+                .addParameter(IncrementCount.class, "command")
+                .build();
+
+        assertCompileFails(createSource(method),
+                "Annotation parameter for state");
     }
 
     //----------------------------------------------------------------------------------------------
@@ -518,34 +320,20 @@ public class HandleCommandErrorTest {
 
     @Test
     public void command_handlers_target_state_conflict() throws Exception {
-        JavaFileObject source = JavaFileObjects.forSourceLines("test.Test",
-                "package test;",
-                "",
-                "import com.cookingfox.lapasse.annotation.HandleCommand;",
-                "import fixtures.example.command.IncrementCount;",
-                "import fixtures.example.event.CountIncremented;",
-                "import fixtures.example.state.CountState;",
-                "import fixtures.example2.command.ExampleCommand;",
-                "import fixtures.example2.event.ExampleEvent;",
-                "import fixtures.example2.state.ExampleState;",
-                "",
-                "public class Test {",
-                "    @HandleCommand",
-                "    public CountIncremented handle(CountState state, IncrementCount command) {",
-                "        return new CountIncremented(command.getCount());",
-                "    }",
-                "",
-                "    @HandleCommand",
-                "    public ExampleEvent handle(ExampleState state, ExampleCommand command) {",
-                "        return new ExampleEvent();",
-                "    }",
-                "}"
-        );
+        MethodSpec method1 = createHandleCommandMethod()
+                .addParameter(CountState.class, "state")
+                .addParameter(IncrementCount.class, "command")
+                .returns(CountIncremented.class)
+                .build();
 
-        assertAbout(javaSource()).that(source)
-                .processedWith(new LaPasseAnnotationProcessor())
-                .failsToCompile()
-                .withErrorContaining("Mapped command handler does not match expected concrete State");
+        MethodSpec method2 = createHandleCommandMethod()
+                .addParameter(ExampleState.class, "state")
+                .addParameter(ExampleCommand.class, "command")
+                .returns(ExampleEvent.class)
+                .build();
+
+        assertCompileFails(createSource(method1, method2),
+                "Mapped command handler does not match expected concrete State");
     }
 
 }
