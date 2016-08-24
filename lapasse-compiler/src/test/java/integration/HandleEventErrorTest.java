@@ -218,6 +218,38 @@ public class HandleEventErrorTest {
     }
 
     //----------------------------------------------------------------------------------------------
+    // EVENT HANDLER CONFLICT STATE RETURN TYPE METHOD PARAM
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void event_handler_conflict_state_return_type_method_param() throws Exception {
+        MethodSpec method = createHandleEventMethod()
+                .addParameter(CountState.class, "state")
+                .addParameter(CountIncremented.class, "event")
+                .returns(ExampleState.class)
+                .build();
+
+        assertCompileFails(createSource(method),
+                "has different type than return type");
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // EVENT HANDLER CONFLICT STATE RETURN TYPE METHOD PARAM DIFFERENT ORDER
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void event_handler_conflict_state_return_type_method_param_different_order() throws Exception {
+        MethodSpec method = createHandleEventMethod()
+                .addParameter(CountIncremented.class, "event")
+                .addParameter(CountState.class, "state")
+                .returns(ExampleState.class)
+                .build();
+
+        assertCompileFails(createSource(method),
+                "has different type than return type");
+    }
+
+    //----------------------------------------------------------------------------------------------
     // EVENT HANDLERS TARGET STATE CONFLICT
     //----------------------------------------------------------------------------------------------
 

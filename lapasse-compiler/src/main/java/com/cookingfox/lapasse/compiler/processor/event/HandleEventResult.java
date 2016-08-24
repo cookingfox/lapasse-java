@@ -40,6 +40,11 @@ public class HandleEventResult {
     protected HandleEventMethodParams methodParams;
 
     /**
+     * State type, defined by the handler method parameter.
+     */
+    protected TypeMirror methodParamStateType;
+
+    /**
      * The handler method parameters.
      */
     protected List<? extends VariableElement> parameters;
@@ -86,6 +91,13 @@ public class HandleEventResult {
      */
     public Name getMethodName() {
         return methodName;
+    }
+
+    /**
+     * @return State type, defined by the handler method parameter.
+     */
+    public TypeMirror getMethodParamStateType() {
+        return methodParamStateType;
     }
 
     /**

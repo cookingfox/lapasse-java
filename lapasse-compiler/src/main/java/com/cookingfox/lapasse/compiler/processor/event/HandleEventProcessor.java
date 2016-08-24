@@ -64,7 +64,7 @@ public class HandleEventProcessor {
         result.stateType = determineStateType(returnType);
         result.eventType = determineEventType();
 
-        detectAnnotationMethodParamsConflict();
+        detectTypesConflict();
 
         return result;
     }
@@ -91,18 +91,27 @@ public class HandleEventProcessor {
     }
 
     /**
-     * Checks whether there is a conflict between the event annotation and method parameter.
+     * Checks whether there is a conflict between the types defined by the annotation, the method's
+     * parameters and the method's return type.
      *
-     * @throws Exception when there is a conflict between the event annotation and method parameter.
+     * @throws Exception when there is a conflict between the defined types.
      */
-    protected void detectAnnotationMethodParamsConflict() throws Exception {
+    protected void detectTypesConflict() throws Exception {
         TypeMirror annotationEventType = result.getAnnotationEventType();
         TypeMirror eventType = result.getEventType();
+        TypeMirror methodParamStateType = result.getMethodParamStateType();
+        TypeMirror stateType = result.getStateType();
 
-        // throw if there is a type mismatch
+        // compare annotation and method event type
         if (annotationEventType != null && !types.isSameType(eventType, annotationEventType)) {
             throw new Exception(String.format("Annotation parameter for event (`%s`) has " +
                     "different type than method parameter (`%s`)", annotationEventType, eventType));
+        }
+
+        // compare method and return value state type
+        if (methodParamStateType != null && !types.isSameType(methodParamStateType, stateType)) {
+            throw new Exception(String.format("Method parameter for state (`%s`) has different " +
+                    "type than return type (`%s`)", methodParamStateType, stateType));
         }
     }
 
@@ -193,14 +202,24 @@ public class HandleEventProcessor {
         }
 
         if (numParams == 1) {
-            return firstIsEvent ? METHOD_ONE_PARAM_EVENT : METHOD_ONE_PARAM_STATE;
+            if (firstIsEvent) {
+                return METHOD_ONE_PARAM_EVENT;
+            }
+
+            result.methodParamStateType = firstParam.asType();
+
+            return METHOD_ONE_PARAM_STATE;
         }
 
         VariableElement secondParam = parameters.get(1);
 
         if (firstIsEvent && isSubtype(secondParam, State.class)) {
+            result.methodParamStateType = secondParam.asType();
+
             return METHOD_TWO_PARAMS_EVENT_STATE;
         } else if (firstIsState && isSubtype(secondParam, Event.class)) {
+            result.methodParamStateType = firstParam.asType();
+
             return METHOD_TWO_PARAMS_STATE_EVENT;
         }
 
