@@ -1,5 +1,8 @@
 package com.cookingfox.lapasse.compiler.processor;
 
+import com.cookingfox.lapasse.annotation.HandleCommand;
+import com.cookingfox.lapasse.annotation.HandleEvent;
+
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
@@ -49,6 +52,15 @@ public final class ProcessorHelper {
             throw new Exception("Handler methods are not allowed to declare a `throws` clause. " +
                     "If possible, create an event for the 'exceptional' use case. If you really " +
                     "need to throw, use an unchecked exception (extends `RuntimeException`).");
+        }
+
+        boolean hasCommandAnnotation = method.getAnnotation(HandleCommand.class) != null;
+        boolean hasEventAnnotation = method.getAnnotation(HandleEvent.class) != null;
+
+        // cannot have both annotations
+        if (hasCommandAnnotation && hasEventAnnotation) {
+            throw new Exception("Annotated handler method can not have both a command and an " +
+                    "event annotation");
         }
 
         return method;

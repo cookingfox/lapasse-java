@@ -1,5 +1,6 @@
 package integration;
 
+import com.cookingfox.lapasse.annotation.HandleCommand;
 import com.cookingfox.lapasse.annotation.HandleEvent;
 import com.cookingfox.lapasse.api.state.State;
 import com.cookingfox.lapasse.compiler.LaPasseAnnotationProcessor;
@@ -38,11 +39,28 @@ public class HandleEventErrorTest {
     }
 
     //----------------------------------------------------------------------------------------------
-    // EVENT HANDLER THROWS
+    // EVENT HANDLER METHOD ALSO HAS COMMAND ANNOTATION
     //----------------------------------------------------------------------------------------------
 
     @Test
-    public void event_handler_throws() throws Exception {
+    public void event_handler_method_also_has_command_annotation() throws Exception {
+        MethodSpec method = createHandleEventMethod()
+                .addAnnotation(HandleCommand.class)
+                .addParameter(CountState.class, "state")
+                .addParameter(CountIncremented.class, "event")
+                .returns(CountState.class)
+                .build();
+
+        assertCompileFails(createSource(method),
+                "Annotated handler method can not have both a command and an event annotation");
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // EVENT HANDLER METHOD THROWS
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void event_handler_method_throws() throws Exception {
         MethodSpec method = createHandleEventMethod()
                 .addParameter(CountState.class, "state")
                 .addParameter(CountIncremented.class, "event")

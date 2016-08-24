@@ -1,6 +1,7 @@
 package integration;
 
 import com.cookingfox.lapasse.annotation.HandleCommand;
+import com.cookingfox.lapasse.annotation.HandleEvent;
 import com.cookingfox.lapasse.compiler.LaPasseAnnotationProcessor;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
@@ -44,6 +45,23 @@ public class HandleCommandErrorTest {
     }
 
     //----------------------------------------------------------------------------------------------
+    // COMMAND HANDLER METHOD ALSO HAS EVENT ANNOTATION
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void command_handler_method_also_has_event_annotation() throws Exception {
+        MethodSpec method = createHandleCommandMethod()
+                .addAnnotation(HandleEvent.class)
+                .addParameter(CountState.class, "state")
+                .addParameter(IncrementCount.class, "command")
+                .returns(CountIncremented.class)
+                .build();
+
+        assertCompileFails(createSource(method),
+                "Annotated handler method can not have both a command and an event annotation");
+    }
+
+    //----------------------------------------------------------------------------------------------
     // COMMAND HANDLER THROWS
     //----------------------------------------------------------------------------------------------
 
@@ -69,7 +87,7 @@ public class HandleCommandErrorTest {
                 .addParameter(CountState.class, "state")
                 .addParameter(IncrementCount.class, "command")
                 .addParameter(String.class, "foo")
-                .returns(ClassName.get(CountIncremented.class))
+                .returns(CountIncremented.class)
                 .build();
 
         assertCompileFails(createSource(method),
@@ -146,7 +164,7 @@ public class HandleCommandErrorTest {
         MethodSpec method = createHandleCommandMethod()
                 .addParameter(CountState.class, "state")
                 .addParameter(IncrementCount.class, "command")
-                .returns(ClassName.get(Boolean.class))
+                .returns(Boolean.class)
                 .build();
 
         assertCompileFails(createSource(method),

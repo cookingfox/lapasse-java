@@ -52,12 +52,12 @@ public class HandleEventProcessor {
      */
     public HandleEventResult process() throws Exception {
         ExecutableElement method = ProcessorHelper.validateAndGetAnnotatedMethod(element);
-        HandleEvent annotation = method.getAnnotation(HandleEvent.class);
+        HandleEvent eventAnnotation = method.getAnnotation(HandleEvent.class);
         List<? extends VariableElement> parameters = method.getParameters();
         TypeMirror returnType = method.getReturnType();
 
         // populate result
-        result.annotationParams = determineAnnotationParams(annotation);
+        result.annotationParams = determineAnnotationParams(eventAnnotation);
         result.methodParams = determineMethodParams(parameters);
         result.methodName = element.getSimpleName();
         result.parameters = parameters;
