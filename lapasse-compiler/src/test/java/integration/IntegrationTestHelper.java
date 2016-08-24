@@ -1,6 +1,7 @@
 package integration;
 
 import com.cookingfox.lapasse.annotation.HandleCommand;
+import com.cookingfox.lapasse.annotation.HandleEvent;
 import com.cookingfox.lapasse.compiler.LaPasseAnnotationProcessor;
 import com.google.testing.compile.JavaFileObjects;
 import com.squareup.javapoet.*;
@@ -35,6 +36,13 @@ public final class IntegrationTestHelper {
      */
     public static MethodSpec.Builder createHandleCommandMethod() {
         return createHandlerMethod(AnnotationSpec.builder(HandleCommand.class).build());
+    }
+
+    /**
+     * @return The spec builder for a {@link HandleEvent} annotated handler method.
+     */
+    public static MethodSpec.Builder createHandleEventMethod() {
+        return createHandlerMethod(AnnotationSpec.builder(HandleEvent.class).build());
     }
 
     /**

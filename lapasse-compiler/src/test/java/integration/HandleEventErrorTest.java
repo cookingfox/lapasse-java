@@ -1,14 +1,19 @@
 package integration;
 
 import com.cookingfox.lapasse.annotation.HandleEvent;
+import com.cookingfox.lapasse.api.state.State;
 import com.cookingfox.lapasse.compiler.LaPasseAnnotationProcessor;
-import com.google.testing.compile.JavaFileObjects;
+import com.squareup.javapoet.AnnotationSpec;
+import com.squareup.javapoet.MethodSpec;
+import fixtures.example.event.CountIncremented;
+import fixtures.example.state.CountState;
+import fixtures.example2.event.ExampleEvent;
+import fixtures.example2.state.ExampleState;
 import org.junit.Test;
 
-import javax.tools.JavaFileObject;
+import javax.lang.model.element.Modifier;
 
-import static com.google.common.truth.Truth.assertAbout;
-import static com.google.testing.compile.JavaSourceSubjectFactory.javaSource;
+import static integration.IntegrationTestHelper.*;
 
 /**
  * Integration tests for {@link LaPasseAnnotationProcessor} and {@link HandleEvent} processor
@@ -22,25 +27,14 @@ public class HandleEventErrorTest {
 
     @Test
     public void event_handler_method_not_accessible() throws Exception {
-        JavaFileObject source = JavaFileObjects.forSourceLines("test.Test",
-                "package test;",
-                "",
-                "import com.cookingfox.lapasse.annotation.HandleEvent;",
-                "import fixtures.example.event.CountIncremented;",
-                "import fixtures.example.state.CountState;",
-                "",
-                "public class Test {",
-                "    @HandleEvent",
-                "    private CountState handle(CountState state, CountIncremented event) {",
-                "        return new CountState(state.getCount() + event.getCount());",
-                "    }",
-                "}"
-        );
+        MethodSpec method = createHandleEventMethod()
+                .addModifiers(Modifier.PRIVATE)
+                .addParameter(CountState.class, "state")
+                .addParameter(CountIncremented.class, "event")
+                .build();
 
-        assertAbout(javaSource()).that(source)
-                .processedWith(new LaPasseAnnotationProcessor())
-                .failsToCompile()
-                .withErrorContaining("Method is not accessible");
+        assertCompileFails(createSource(method),
+                "Method is not accessible");
     }
 
     //----------------------------------------------------------------------------------------------
@@ -49,25 +43,30 @@ public class HandleEventErrorTest {
 
     @Test
     public void event_handler_throws() throws Exception {
-        JavaFileObject source = JavaFileObjects.forSourceLines("test.Test",
-                "package test;",
-                "",
-                "import com.cookingfox.lapasse.annotation.HandleEvent;",
-                "import fixtures.example.event.CountIncremented;",
-                "import fixtures.example.state.CountState;",
-                "",
-                "public class Test {",
-                "    @HandleEvent",
-                "    public CountState handle(CountState state, CountIncremented event) throws Exception {",
-                "        throw new Exception(\"example error\");",
-                "    }",
-                "}"
-        );
+        MethodSpec method = createHandleEventMethod()
+                .addParameter(CountState.class, "state")
+                .addParameter(CountIncremented.class, "event")
+                .addException(Exception.class)
+                .build();
 
-        assertAbout(javaSource()).that(source)
-                .processedWith(new LaPasseAnnotationProcessor())
-                .failsToCompile()
-                .withErrorContaining("Handler methods are not allowed to declare a `throws` clause.");
+        assertCompileFails(createSource(method),
+                "Handler methods are not allowed to declare a `throws` clause.");
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // EVENT HANDLER RETURN TYPE DOES NOT EXTEND STATE
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void event_handler_return_type_does_not_extend_state() throws Exception {
+        MethodSpec method = createHandleEventMethod()
+                .addParameter(CountState.class, "state")
+                .addParameter(CountIncremented.class, "event")
+                .returns(Boolean.class)
+                .build();
+
+        assertCompileFails(createSource(method),
+                "Return type of @HandleEvent annotated method must extend");
     }
 
     //----------------------------------------------------------------------------------------------
@@ -75,26 +74,15 @@ public class HandleEventErrorTest {
     //----------------------------------------------------------------------------------------------
 
     @Test
-    public void event_handler_return_type_does_not_extend_state() throws Exception {
-        JavaFileObject source = JavaFileObjects.forSourceLines("test.Test",
-                "package test;",
-                "",
-                "import com.cookingfox.lapasse.annotation.HandleEvent;",
-                "import fixtures.example.event.CountIncremented;",
-                "import fixtures.example.state.CountState;",
-                "",
-                "public class Test {",
-                "    @HandleEvent",
-                "    public State handle(CountState state, CountIncremented event) {",
-                "        return new CountState(state.getCount() + event.getCount());",
-                "    }",
-                "}"
-        );
+    public void event_handler_return_type_does_not_extend_state_raw_state() throws Exception {
+        MethodSpec method = createHandleEventMethod()
+                .addParameter(CountState.class, "state")
+                .addParameter(CountIncremented.class, "event")
+                .returns(State.class)
+                .build();
 
-        assertAbout(javaSource()).that(source)
-                .processedWith(new LaPasseAnnotationProcessor())
-                .failsToCompile()
-                .withErrorContaining("Return type of @HandleEvent annotated method must extend");
+        assertCompileFails(createSource(method),
+                "Return type of @HandleEvent annotated method must extend");
     }
 
     //----------------------------------------------------------------------------------------------
@@ -103,25 +91,12 @@ public class HandleEventErrorTest {
 
     @Test
     public void event_handler_no_method_or_annotation_params() throws Exception {
-        JavaFileObject source = JavaFileObjects.forSourceLines("test.Test",
-                "package test;",
-                "",
-                "import com.cookingfox.lapasse.annotation.HandleEvent;",
-                "import fixtures.example.event.CountIncremented;",
-                "import fixtures.example.state.CountState;",
-                "",
-                "public class Test {",
-                "    @HandleEvent",
-                "    public CountState handle() {",
-                "        return new CountState(0);",
-                "    }",
-                "}"
-        );
+        MethodSpec method = createHandleEventMethod()
+                .returns(CountState.class)
+                .build();
 
-        assertAbout(javaSource()).that(source)
-                .processedWith(new LaPasseAnnotationProcessor())
-                .failsToCompile()
-                .withErrorContaining("Could not determine the target event type");
+        assertCompileFails(createSource(method),
+                "Could not determine the target event type");
     }
 
     //----------------------------------------------------------------------------------------------
@@ -130,52 +105,13 @@ public class HandleEventErrorTest {
 
     @Test
     public void event_handler_no_event_method_param_no_annotation_params() throws Exception {
-        JavaFileObject source = JavaFileObjects.forSourceLines("test.Test",
-                "package test;",
-                "",
-                "import com.cookingfox.lapasse.annotation.HandleEvent;",
-                "import fixtures.example.event.CountIncremented;",
-                "import fixtures.example.state.CountState;",
-                "",
-                "public class Test {",
-                "    @HandleEvent",
-                "    public CountState handle(CountState state) {",
-                "        return new CountState(0);",
-                "    }",
-                "}"
-        );
+        MethodSpec method = createHandleEventMethod()
+                .addParameter(CountState.class, "state")
+                .returns(CountState.class)
+                .build();
 
-        assertAbout(javaSource()).that(source)
-                .processedWith(new LaPasseAnnotationProcessor())
-                .failsToCompile()
-                .withErrorContaining("Could not determine the target event type");
-    }
-
-    //----------------------------------------------------------------------------------------------
-    // EVENT HANDLER EVENT TYPE NOT DETERMINABLE
-    //----------------------------------------------------------------------------------------------
-
-    @Test
-    public void event_handler_event_type_not_determinable() throws Exception {
-        JavaFileObject source = JavaFileObjects.forSourceLines("test.Test",
-                "package test;",
-                "",
-                "import com.cookingfox.lapasse.annotation.HandleEvent;",
-                "import fixtures.example.event.CountIncremented;",
-                "import fixtures.example.state.CountState;",
-                "",
-                "public class Test {",
-                "    @HandleEvent",
-                "    public CountState handle(CountState state) {",
-                "        return new CountState(0);",
-                "    }",
-                "}"
-        );
-
-        assertAbout(javaSource()).that(source)
-                .processedWith(new LaPasseAnnotationProcessor())
-                .failsToCompile()
-                .withErrorContaining("Could not determine the target event type");
+        assertCompileFails(createSource(method),
+                "Could not determine the target event type");
     }
 
     //----------------------------------------------------------------------------------------------
@@ -184,25 +120,15 @@ public class HandleEventErrorTest {
 
     @Test
     public void event_handler_method_params_invalid_number() throws Exception {
-        JavaFileObject source = JavaFileObjects.forSourceLines("test.Test",
-                "package test;",
-                "",
-                "import com.cookingfox.lapasse.annotation.HandleEvent;",
-                "import fixtures.example.event.CountIncremented;",
-                "import fixtures.example.state.CountState;",
-                "",
-                "public class Test {",
-                "    @HandleEvent",
-                "    public CountState handle(CountState state, CountIncremented event, Object foo) {",
-                "        return new CountState(0);",
-                "    }",
-                "}"
-        );
+        MethodSpec method = createHandleEventMethod()
+                .addParameter(CountState.class, "state")
+                .addParameter(CountIncremented.class, "event")
+                .addParameter(Object.class, "foo")
+                .returns(CountState.class)
+                .build();
 
-        assertAbout(javaSource()).that(source)
-                .processedWith(new LaPasseAnnotationProcessor())
-                .failsToCompile()
-                .withErrorContaining("Method parameters are invalid (expected State and Event");
+        assertCompileFails(createSource(method),
+                "Method parameters are invalid (expected State and Event");
     }
 
     //----------------------------------------------------------------------------------------------
@@ -211,25 +137,14 @@ public class HandleEventErrorTest {
 
     @Test
     public void event_handler_method_params_both_invalid_types() throws Exception {
-        JavaFileObject source = JavaFileObjects.forSourceLines("test.Test",
-                "package test;",
-                "",
-                "import com.cookingfox.lapasse.annotation.HandleEvent;",
-                "import fixtures.example.event.CountIncremented;",
-                "import fixtures.example.state.CountState;",
-                "",
-                "public class Test {",
-                "    @HandleEvent",
-                "    public CountState handle(Integer foo, String bar) {",
-                "        return new CountState(0);",
-                "    }",
-                "}"
-        );
+        MethodSpec method = createHandleEventMethod()
+                .addParameter(Integer.class, "foo")
+                .addParameter(String.class, "bar")
+                .returns(CountState.class)
+                .build();
 
-        assertAbout(javaSource()).that(source)
-                .processedWith(new LaPasseAnnotationProcessor())
-                .failsToCompile()
-                .withErrorContaining("Method parameters are invalid (expected State and Event");
+        assertCompileFails(createSource(method),
+                "Method parameters are invalid (expected State and Event");
     }
 
     //----------------------------------------------------------------------------------------------
@@ -238,25 +153,14 @@ public class HandleEventErrorTest {
 
     @Test
     public void event_handler_method_params_event_and_invalid_type() throws Exception {
-        JavaFileObject source = JavaFileObjects.forSourceLines("test.Test",
-                "package test;",
-                "",
-                "import com.cookingfox.lapasse.annotation.HandleEvent;",
-                "import fixtures.example.event.CountIncremented;",
-                "import fixtures.example.state.CountState;",
-                "",
-                "public class Test {",
-                "    @HandleEvent",
-                "    public CountState handle(CountIncremented event, String foo) {",
-                "        return new CountState(0);",
-                "    }",
-                "}"
-        );
+        MethodSpec method = createHandleEventMethod()
+                .addParameter(CountIncremented.class, "event")
+                .addParameter(String.class, "foo")
+                .returns(CountState.class)
+                .build();
 
-        assertAbout(javaSource()).that(source)
-                .processedWith(new LaPasseAnnotationProcessor())
-                .failsToCompile()
-                .withErrorContaining("Method parameters are invalid (expected State and Event");
+        assertCompileFails(createSource(method),
+                "Method parameters are invalid (expected State and Event");
     }
 
     //----------------------------------------------------------------------------------------------
@@ -265,25 +169,14 @@ public class HandleEventErrorTest {
 
     @Test
     public void event_handler_method_params_state_and_invalid_type() throws Exception {
-        JavaFileObject source = JavaFileObjects.forSourceLines("test.Test",
-                "package test;",
-                "",
-                "import com.cookingfox.lapasse.annotation.HandleEvent;",
-                "import fixtures.example.event.CountIncremented;",
-                "import fixtures.example.state.CountState;",
-                "",
-                "public class Test {",
-                "    @HandleEvent",
-                "    public CountState handle(CountState state, String foo) {",
-                "        return new CountState(0);",
-                "    }",
-                "}"
-        );
+        MethodSpec method = createHandleEventMethod()
+                .addParameter(CountState.class, "state")
+                .addParameter(String.class, "foo")
+                .returns(CountState.class)
+                .build();
 
-        assertAbout(javaSource()).that(source)
-                .processedWith(new LaPasseAnnotationProcessor())
-                .failsToCompile()
-                .withErrorContaining("Method parameters are invalid (expected State and Event");
+        assertCompileFails(createSource(method),
+                "Method parameters are invalid (expected State and Event");
     }
 
     //----------------------------------------------------------------------------------------------
@@ -292,26 +185,18 @@ public class HandleEventErrorTest {
 
     @Test
     public void event_handler_conflict_annotation_method_event_param() throws Exception {
-        JavaFileObject source = JavaFileObjects.forSourceLines("test.Test",
-                "package test;",
-                "",
-                "import com.cookingfox.lapasse.annotation.HandleEvent;",
-                "import fixtures.example.event.CountIncremented;",
-                "import fixtures.example.state.CountState;",
-                "import fixtures.example2.event.ExampleEvent;",
-                "",
-                "public class Test {",
-                "    @HandleEvent(event = ExampleEvent.class)",
-                "    public CountState handle(CountState state, CountIncremented event) {",
-                "        return new CountState(state.getCount() + event.getCount());",
-                "    }",
-                "}"
-        );
+        AnnotationSpec annotation = AnnotationSpec.builder(HandleEvent.class)
+                .addMember("event", "$T.class", ExampleEvent.class)
+                .build();
 
-        assertAbout(javaSource()).that(source)
-                .processedWith(new LaPasseAnnotationProcessor())
-                .failsToCompile()
-                .withErrorContaining("Annotation parameter for event");
+        MethodSpec method = createHandlerMethod(annotation)
+                .addParameter(CountState.class, "state")
+                .addParameter(CountIncremented.class, "event")
+                .returns(CountState.class)
+                .build();
+
+        assertCompileFails(createSource(method),
+                "Annotation parameter for event");
     }
 
     //----------------------------------------------------------------------------------------------
@@ -320,32 +205,20 @@ public class HandleEventErrorTest {
 
     @Test
     public void event_handlers_target_state_conflict() throws Exception {
-        JavaFileObject source = JavaFileObjects.forSourceLines("test.Test",
-                "package test;",
-                "",
-                "import com.cookingfox.lapasse.annotation.HandleEvent;",
-                "import fixtures.example.event.CountIncremented;",
-                "import fixtures.example.state.CountState;",
-                "import fixtures.example2.event.ExampleEvent;",
-                "import fixtures.example2.state.ExampleState;",
-                "",
-                "public class Test {",
-                "    @HandleEvent",
-                "    public CountState handle(CountState state, CountIncremented event) {",
-                "        return new CountState(state.getCount() + event.getCount());",
-                "    }",
-                "",
-                "    @HandleEvent",
-                "    public ExampleState handle(ExampleState state, ExampleEvent event) {",
-                "        return new ExampleState();",
-                "    }",
-                "}"
-        );
+        MethodSpec method1 = createHandleEventMethod()
+                .addParameter(CountState.class, "state")
+                .addParameter(CountIncremented.class, "event")
+                .returns(CountState.class)
+                .build();
 
-        assertAbout(javaSource()).that(source)
-                .processedWith(new LaPasseAnnotationProcessor())
-                .failsToCompile()
-                .withErrorContaining("Mapped event handler does not match expected concrete State");
+        MethodSpec method2 = createHandleEventMethod()
+                .addParameter(ExampleState.class, "state")
+                .addParameter(ExampleEvent.class, "event")
+                .returns(ExampleState.class)
+                .build();
+
+        assertCompileFails(createSource(method1, method2),
+                "Mapped event handler does not match expected concrete State");
     }
 
 }

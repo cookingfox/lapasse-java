@@ -411,6 +411,75 @@ public class HandleCommandSuccessTest {
     }
 
     //----------------------------------------------------------------------------------------------
+    // SYNC COMMAND HANDLER: BASE EVENT TYPE
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void sync_command_handler_base_event_type() throws Exception {
+        String sourceFqcn = "test.Test";
+        String expectedFqcn = sourceFqcn + LaPasse.GENERATED_SUFFIX;
+
+        JavaFileObject source = JavaFileObjects.forSourceLines(sourceFqcn,
+                "package test;",
+                "",
+                "import com.cookingfox.lapasse.annotation.HandleCommand;",
+                "import com.cookingfox.lapasse.api.event.Event;",
+                "import fixtures.example.command.IncrementCount;",
+                "import fixtures.example.event.CountIncremented;",
+                "import fixtures.example.state.CountState;",
+                "",
+                "public class Test {",
+                "    @HandleCommand",
+                "    public Event handle(CountState state, IncrementCount command) {",
+                "        return new CountIncremented(command.getCount());",
+                "    }",
+                "}"
+        );
+
+        JavaFileObject expected = JavaFileObjects.forSourceLines(expectedFqcn,
+                "// Generated code from LaPasse - do not modify!",
+                "package test;",
+                "",
+                "import com.cookingfox.lapasse.api.command.handler.SyncCommandHandler;",
+                "import com.cookingfox.lapasse.api.event.Event;",
+                "import com.cookingfox.lapasse.api.facade.Facade;",
+                "import com.cookingfox.lapasse.impl.internal.HandlerMapper;",
+                "import fixtures.example.command.IncrementCount;",
+                "import fixtures.example.state.CountState;",
+                "import java.lang.Override;",
+                "",
+                "public class Test$$LaPasseGenerated<T extends Test> implements HandlerMapper {",
+                "    final T origin;",
+                "",
+                "    final Facade<CountState> facade;",
+                "",
+                "    final SyncCommandHandler<CountState, IncrementCount, Event> handler1 = new SyncCommandHandler<CountState, IncrementCount, Event>() {",
+                "        @Override",
+                "        public Event handle(CountState state, IncrementCount command) {",
+                "            return origin.handle(state, command);",
+                "        }",
+                "    };",
+                "",
+                "    public Test$$LaPasseGenerated(T origin, Facade<CountState> facade) {",
+                "        this.origin = origin;",
+                "        this.facade = facade;",
+                "    }",
+                "",
+                "    @Override",
+                "    public void mapHandlers() {",
+                "        facade.mapCommandHandler(IncrementCount.class, handler1);",
+                "    }",
+                "}"
+        );
+
+        assertAbout(javaSource()).that(source)
+                .processedWith(new LaPasseAnnotationProcessor())
+                .compilesWithoutError()
+                .and()
+                .generatesSources(expected);
+    }
+
+    //----------------------------------------------------------------------------------------------
     // SYNC MULTI COMMAND HANDLER
     //----------------------------------------------------------------------------------------------
 

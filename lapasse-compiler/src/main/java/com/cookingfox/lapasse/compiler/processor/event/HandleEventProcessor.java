@@ -18,6 +18,7 @@ import java.util.List;
 import static com.cookingfox.lapasse.compiler.processor.event.HandleEventAnnotationParams.ANNOTATION_NO_PARAMS;
 import static com.cookingfox.lapasse.compiler.processor.event.HandleEventAnnotationParams.ANNOTATION_ONE_PARAM_EVENT;
 import static com.cookingfox.lapasse.compiler.processor.event.HandleEventMethodParams.*;
+import static com.cookingfox.lapasse.compiler.utils.TypeUtils.equalsType;
 import static com.cookingfox.lapasse.compiler.utils.TypeUtils.isSubtype;
 
 /**
@@ -211,10 +212,10 @@ public class HandleEventProcessor {
      *
      * @param returnType The return type of the handler method
      * @return The concrete state type of the handler method.
-     * @throws Exception when the return type is a valid state type.
+     * @throws Exception when the return type is an invalid state type.
      */
     protected TypeMirror determineStateType(TypeMirror returnType) throws Exception {
-        if (!isSubtype(returnType, State.class)) {
+        if (!isSubtype(returnType, State.class) || equalsType(returnType, State.class)) {
             throw new Exception("Return type of @HandleEvent annotated method must extend "
                     + State.class.getName());
         }
