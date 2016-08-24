@@ -5,6 +5,7 @@ import com.cookingfox.lapasse.api.event.exception.EventHandlerReturnedNullExcept
 import com.cookingfox.lapasse.api.event.handler.EventHandler;
 import com.cookingfox.lapasse.api.event.logging.EventLogger;
 import com.cookingfox.lapasse.api.message.exception.NoMessageHandlersException;
+import com.cookingfox.lapasse.api.state.State;
 import com.cookingfox.lapasse.impl.logging.DefaultLogger;
 import com.cookingfox.lapasse.impl.logging.DefaultLoggersHelper;
 import fixtures.example.event.CountIncremented;
@@ -29,13 +30,13 @@ public class DefaultEventBusTest {
     //----------------------------------------------------------------------------------------------
 
     private DefaultEventBus<CountState> eventBus;
-    private DefaultLoggersHelper<CountState> loggers;
+    private TestLoggersHelper<CountState> loggers;
     private FixtureMessageStore messageStore;
     private FixtureStateManager stateManager;
 
     @Before
     public void setUp() throws Exception {
-        loggers = new DefaultLoggersHelper<>();
+        loggers = new TestLoggersHelper<>();
         messageStore = new FixtureMessageStore();
         stateManager = new FixtureStateManager(new CountState(0));
         eventBus = new DefaultEventBus<>(messageStore, loggers, stateManager);
@@ -207,7 +208,12 @@ public class DefaultEventBusTest {
         EventLogger<CountState> logger = new DefaultLogger<>();
 
         eventBus.addEventLogger(logger);
+
+        assertTrue(loggers.hasEventLogger(logger));
+
         eventBus.removeEventLogger(logger);
+
+        assertFalse(loggers.hasEventLogger(logger));
     }
 
     //----------------------------------------------------------------------------------------------
@@ -226,6 +232,16 @@ public class DefaultEventBusTest {
         boolean result = eventBus.shouldHandleMessageType(new FixtureMessage());
 
         assertFalse(result);
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // HELPER CLASSES
+    //----------------------------------------------------------------------------------------------
+
+    class TestLoggersHelper<S extends State> extends DefaultLoggersHelper<S> {
+        public boolean hasEventLogger(EventLogger logger) {
+            return eventLoggers.contains(logger);
+        }
     }
 
 }

@@ -27,6 +27,8 @@ import rx.observers.TestSubscriber;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -67,6 +69,18 @@ public class DefaultRxCommandBusTest {
         commandBus.dispose();
 
         assertTrue(commandBus.subscriptions.isUnsubscribed());
+    }
+
+    @Test
+    public void dispose_should_call_super_dispose() throws Exception {
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+
+        assertFalse(executor.isShutdown());
+
+        commandBus.setCommandHandlerExecutor(executor);
+        commandBus.dispose();
+
+        assertTrue(executor.isShutdown());
     }
 
     //----------------------------------------------------------------------------------------------

@@ -1,15 +1,13 @@
 package com.cookingfox.lapasse.compiler;
 
-import com.cookingfox.lapasse.compiler.LaPasseAnnotationProcessor.GenerationModel;
 import com.cookingfox.lapasse.compiler.exception.AnnotationProcessorException;
-import com.cookingfox.lapasse.compiler.processor.ProcessorResults;
-import com.cookingfox.lapasse.compiler.processor.command.HandleCommandResult;
-import com.cookingfox.lapasse.compiler.processor.event.HandleEventResult;
+import com.cookingfox.lapasse.compiler.processor.command.HandleCommandAnnotationParams;
+import com.cookingfox.lapasse.compiler.processor.command.HandleCommandMethodParams;
+import com.cookingfox.lapasse.compiler.processor.command.HandleCommandReturnValue;
+import com.cookingfox.lapasse.compiler.processor.event.HandleEventAnnotationParams;
+import com.cookingfox.lapasse.compiler.processor.event.HandleEventMethodParams;
 import com.squareup.javapoet.JavaFile;
-import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
-import fixtures.example.command.IncrementCount;
-import fixtures.example.event.CountIncremented;
 import org.junit.Test;
 
 import javax.annotation.processing.Filer;
@@ -17,6 +15,7 @@ import java.io.IOException;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static testing.TestingUtils.superficialEnumCodeCoverage;
 
 /**
  * Unit tests for {@link LaPasseAnnotationProcessor}.
@@ -24,42 +23,16 @@ import static org.mockito.Mockito.when;
 public class LaPasseAnnotationProcessorTest {
 
     //----------------------------------------------------------------------------------------------
-    // TESTS: generateCommandHandlers
+    // TESTS: enums
     //----------------------------------------------------------------------------------------------
 
-    @Test(expected = AnnotationProcessorException.class)
-    public void generateCommandHandlers_should_throw_if_method_params_null() throws Exception {
-        HandleCommandResult handleCommandResult = mock(HandleCommandResult.class);
-        when(handleCommandResult.getCommandTypeName()).thenReturn(TypeName.get(IncrementCount.class));
-        when(handleCommandResult.getReturnTypeName()).thenReturn(TypeName.get(CountIncremented.class));
-
-        ProcessorResults processorResults = new ProcessorResults();
-        processorResults.addHandleCommandResult(handleCommandResult);
-
-        GenerationModel model = new GenerationModel();
-        model.processorResults = processorResults;
-
-        LaPasseAnnotationProcessor processor = new LaPasseAnnotationProcessor();
-        processor.generateCommandHandlers(model);
-    }
-
-    //----------------------------------------------------------------------------------------------
-    // TESTS: generateEventHandlers
-    //----------------------------------------------------------------------------------------------
-
-    @Test(expected = AnnotationProcessorException.class)
-    public void generateEventHandlers_should_throw_if_method_params_null() throws Exception {
-        HandleEventResult handleEventResult = mock(HandleEventResult.class);
-        when(handleEventResult.getEventTypeName()).thenReturn(TypeName.get(CountIncremented.class));
-
-        ProcessorResults processorResults = new ProcessorResults();
-        processorResults.addHandleEventResult(handleEventResult);
-
-        GenerationModel model = new GenerationModel();
-        model.processorResults = processorResults;
-
-        LaPasseAnnotationProcessor processor = new LaPasseAnnotationProcessor();
-        processor.generateEventHandlers(model);
+    @Test
+    public void should_cover_all_enums() throws Exception {
+        superficialEnumCodeCoverage(HandleCommandAnnotationParams.class);
+        superficialEnumCodeCoverage(HandleCommandMethodParams.class);
+        superficialEnumCodeCoverage(HandleCommandReturnValue.class);
+        superficialEnumCodeCoverage(HandleEventAnnotationParams.class);
+        superficialEnumCodeCoverage(HandleEventMethodParams.class);
     }
 
     //----------------------------------------------------------------------------------------------

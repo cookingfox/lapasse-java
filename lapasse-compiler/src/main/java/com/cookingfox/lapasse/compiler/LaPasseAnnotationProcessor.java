@@ -198,9 +198,8 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
      * Generate the command handlers.
      *
      * @param model The processed data to use for code generation.
-     * @throws AnnotationProcessorException when an error occurs.
      */
-    protected void generateCommandHandlers(GenerationModel model) throws AnnotationProcessorException {
+    protected void generateCommandHandlers(GenerationModel model) {
         for (HandleCommandResult result : model.processorResults.getHandleCommandResults()) {
             String fieldName = FIELD_PREFIX + (++model.fieldNameCounter);
 
@@ -211,10 +210,6 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
             HandleCommandReturnValue returnValue = result.getReturnValue();
             TypeName returnType = result.getReturnTypeName();
             HandleCommandMethodParams methodParams = result.getMethodParams();
-
-            if (methodParams == null) {
-                throw new AnnotationProcessorException("Method params is null", model.origin);
-            }
 
             // build handler method
             MethodSpec.Builder handlerMethodBuilder = MethodSpec.methodBuilder(METHOD_HANDLE)
@@ -316,9 +311,8 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
      * Generate the event handlers.
      *
      * @param model The processed data to use for code generation.
-     * @throws AnnotationProcessorException when an error occurs.
      */
-    protected void generateEventHandlers(GenerationModel model) throws AnnotationProcessorException {
+    protected void generateEventHandlers(GenerationModel model) {
         for (HandleEventResult result : model.processorResults.getHandleEventResults()) {
             String fieldName = FIELD_PREFIX + (++model.fieldNameCounter);
 
@@ -326,10 +320,6 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
             Name methodName = result.getMethodName();
             TypeName eventType = result.getEventTypeName();
             HandleEventMethodParams methodParams = result.getMethodParams();
-
-            if (methodParams == null) {
-                throw new AnnotationProcessorException("Method params is null", model.origin);
-            }
 
             // build handler method
             MethodSpec.Builder handlerMethodBuilder = MethodSpec.methodBuilder(METHOD_HANDLE)

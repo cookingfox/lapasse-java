@@ -7,6 +7,7 @@ import com.cookingfox.lapasse.api.command.handler.*;
 import com.cookingfox.lapasse.api.command.logging.CommandLogger;
 import com.cookingfox.lapasse.api.event.Event;
 import com.cookingfox.lapasse.api.message.exception.NoMessageHandlersException;
+import com.cookingfox.lapasse.api.state.State;
 import com.cookingfox.lapasse.impl.logging.DefaultLogger;
 import com.cookingfox.lapasse.impl.logging.DefaultLoggersHelper;
 import fixtures.event.bus.FixtureEventBus;
@@ -40,14 +41,14 @@ public class DefaultCommandBusTest {
 
     private DefaultCommandBus<CountState> commandBus;
     private FixtureEventBus eventBus;
-    private DefaultLoggersHelper<CountState> loggers;
+    private TestLoggersHelper<CountState> loggers;
     private FixtureMessageStore messageStore;
     private FixtureStateManager stateManager;
 
     @Before
     public void setUp() throws Exception {
         eventBus = new FixtureEventBus();
-        loggers = new DefaultLoggersHelper<>();
+        loggers = new TestLoggersHelper<>();
         messageStore = new FixtureMessageStore();
         stateManager = new FixtureStateManager(new CountState(0));
         commandBus = new DefaultCommandBus<>(messageStore, eventBus, loggers, stateManager);
@@ -428,11 +429,16 @@ public class DefaultCommandBusTest {
     //----------------------------------------------------------------------------------------------
 
     @Test
-    public void removeCommandLogger_should_not_throw_if_logger_added() throws Exception {
+    public void removeCommandLogger_should_remove_logger() throws Exception {
         CommandLogger logger = new DefaultLogger<>();
 
         commandBus.addCommandLogger(logger);
+
+        assertTrue(loggers.hasCommandLogger(logger));
+
         commandBus.removeCommandLogger(logger);
+
+        assertFalse(loggers.hasCommandLogger(logger));
     }
 
     //----------------------------------------------------------------------------------------------
@@ -460,6 +466,16 @@ public class DefaultCommandBusTest {
         boolean result = commandBus.shouldHandleMessageType(new FixtureMessage());
 
         assertFalse(result);
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // HELPER CLASSES
+    //----------------------------------------------------------------------------------------------
+
+    class TestLoggersHelper<S extends State> extends DefaultLoggersHelper<S> {
+        public boolean hasCommandLogger(CommandLogger logger) {
+            return commandLoggers.contains(logger);
+        }
     }
 
 }
