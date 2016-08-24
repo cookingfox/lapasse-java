@@ -26,8 +26,19 @@ import static com.cookingfox.lapasse.compiler.utils.TypeUtils.isSubtype;
  */
 public class HandleEventProcessor {
 
+    /**
+     * The annotated element.
+     */
     protected final Element element;
+
+    /**
+     * Value Object containing the processing results.
+     */
     protected final HandleEventResult result = new HandleEventResult();
+
+    /**
+     * Utility methods for operating on types.
+     */
     protected final Types types;
 
     //----------------------------------------------------------------------------------------------
@@ -155,26 +166,36 @@ public class HandleEventProcessor {
      * @throws Exception when the concrete event type could not be determined.
      */
     protected TypeMirror determineEventType() throws Exception {
-        List<? extends VariableElement> methodParameters = result.getParameters();
+        TypeMirror eventType = null;
 
+        // determine with method params
         switch (result.getMethodParams()) {
             case METHOD_ONE_PARAM_EVENT:
             case METHOD_TWO_PARAMS_EVENT_STATE:
                 // first param
-                return methodParameters.get(0).asType();
+                eventType = result.getParameters().get(0).asType();
+                break;
 
             case METHOD_TWO_PARAMS_STATE_EVENT:
                 // second param
-                return methodParameters.get(1).asType();
+                eventType = result.getParameters().get(1).asType();
+                break;
         }
 
-        if (result.getAnnotationParams() == ANNOTATION_ONE_PARAM_EVENT) {
-            return result.getAnnotationEventType();
+        // determine with annotation params
+        if (eventType == null && result.getAnnotationParams() == ANNOTATION_ONE_PARAM_EVENT) {
+            eventType = result.getAnnotationEventType();
         }
 
-        throw new Exception(String.format("Could not determine the target event type. Add an " +
-                "event method parameter or add the type to the annotation: " +
-                "`@%s(event = MyEvent.class)`", HandleEvent.class.getSimpleName()));
+        // no event type: throw
+        if (eventType == null) {
+            throw new Exception(String.format("Could not determine the target event type. Add an " +
+                    "event method parameter or add the type to the annotation: " +
+                    "`@%s(event = MyEvent.class)`", HandleEvent.class.getSimpleName()));
+        }
+
+        // validate event
+        return extendsEvent(eventType);
     }
 
     /**
@@ -206,7 +227,7 @@ public class HandleEventProcessor {
                 return METHOD_ONE_PARAM_EVENT;
             }
 
-            result.methodParamStateType = firstParam.asType();
+            result.methodParamStateType = extendsState(firstParam.asType());
 
             return METHOD_ONE_PARAM_STATE;
         }
@@ -214,11 +235,11 @@ public class HandleEventProcessor {
         VariableElement secondParam = parameters.get(1);
 
         if (firstIsEvent && isSubtype(secondParam, State.class)) {
-            result.methodParamStateType = secondParam.asType();
+            result.methodParamStateType = extendsState(secondParam.asType());
 
             return METHOD_TWO_PARAMS_EVENT_STATE;
         } else if (firstIsState && isSubtype(secondParam, Event.class)) {
-            result.methodParamStateType = firstParam.asType();
+            result.methodParamStateType = extendsState(firstParam.asType());
 
             return METHOD_TWO_PARAMS_STATE_EVENT;
         }
@@ -240,6 +261,38 @@ public class HandleEventProcessor {
         }
 
         return returnType;
+    }
+
+    /**
+     * Asserts the provided type extends event.
+     *
+     * @param type The type to validate.
+     * @return The provided type, if valid.
+     * @throws Exception when the provided is equal to the event base type.
+     */
+    protected TypeMirror extendsEvent(TypeMirror type) throws Exception {
+        if (equalsType(type, Event.class)) {
+            throw new Exception(String.format("Event parameter cannot be the base type `%s`",
+                    Event.class.getName()));
+        }
+
+        return type;
+    }
+
+    /**
+     * Asserts the provided type extends state.
+     *
+     * @param type The type to validate.
+     * @return The provided type, if valid.
+     * @throws Exception when the provided is equal to the state base type.
+     */
+    protected TypeMirror extendsState(TypeMirror type) throws Exception {
+        if (equalsType(type, State.class)) {
+            throw new Exception(String.format("State parameter cannot be the base type `%s`",
+                    State.class.getName()));
+        }
+
+        return type;
     }
 
 }

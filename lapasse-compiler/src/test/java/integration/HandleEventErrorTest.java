@@ -2,6 +2,7 @@ package integration;
 
 import com.cookingfox.lapasse.annotation.HandleCommand;
 import com.cookingfox.lapasse.annotation.HandleEvent;
+import com.cookingfox.lapasse.api.event.Event;
 import com.cookingfox.lapasse.api.state.State;
 import com.cookingfox.lapasse.compiler.LaPasseAnnotationProcessor;
 import com.squareup.javapoet.AnnotationSpec;
@@ -195,6 +196,100 @@ public class HandleEventErrorTest {
 
         assertCompileFails(createSource(method),
                 "Method parameters are invalid (expected State and Event");
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // EVENT HANDLER INVALID METHOD PARAM BASE STATE TYPE
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void event_handler_invalid_method_param_base_state_type() throws Exception {
+        MethodSpec method = createHandleEventMethod()
+                .addParameter(State.class, "state")
+                .returns(CountState.class)
+                .build();
+
+        assertCompileFails(createSource(method),
+                "State parameter cannot be the base type");
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // EVENT HANDLER INVALID METHOD PARAMS BASE STATE TYPE
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void event_handler_invalid_method_params_base_state_type() throws Exception {
+        MethodSpec method = createHandleEventMethod()
+                .addParameter(State.class, "state")
+                .addParameter(CountIncremented.class, "event")
+                .returns(CountState.class)
+                .build();
+
+        assertCompileFails(createSource(method),
+                "State parameter cannot be the base type");
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // EVENT HANDLER INVALID METHOD PARAMS BASE STATE TYPE DIFFERENT ORDER
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void event_handler_invalid_method_params_base_state_type_different_order() throws Exception {
+        MethodSpec method = createHandleEventMethod()
+                .addParameter(CountIncremented.class, "event")
+                .addParameter(State.class, "state")
+                .returns(CountState.class)
+                .build();
+
+        assertCompileFails(createSource(method),
+                "State parameter cannot be the base type");
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // EVENT HANDLER INVALID METHOD PARAM BASE EVENT TYPE
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void event_handler_invalid_method_param_base_event_type() throws Exception {
+        MethodSpec method = createHandleEventMethod()
+                .addParameter(Event.class, "event")
+                .returns(CountState.class)
+                .build();
+
+        assertCompileFails(createSource(method),
+                "Event parameter cannot be the base type");
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // EVENT HANDLER INVALID METHOD PARAMS BASE EVENT TYPE
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void event_handler_invalid_method_params_base_event_type() throws Exception {
+        MethodSpec method = createHandleEventMethod()
+                .addParameter(CountState.class, "state")
+                .addParameter(Event.class, "event")
+                .returns(CountState.class)
+                .build();
+
+        assertCompileFails(createSource(method),
+                "Event parameter cannot be the base type");
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // EVENT HANDLER INVALID METHOD PARAMS BASE EVENT TYPE DIFFERENT ORDER
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void event_handler_invalid_method_params_base_event_type_different_order() throws Exception {
+        MethodSpec method = createHandleEventMethod()
+                .addParameter(Event.class, "event")
+                .addParameter(CountState.class, "state")
+                .returns(CountState.class)
+                .build();
+
+        assertCompileFails(createSource(method),
+                "Event parameter cannot be the base type");
     }
 
     //----------------------------------------------------------------------------------------------
