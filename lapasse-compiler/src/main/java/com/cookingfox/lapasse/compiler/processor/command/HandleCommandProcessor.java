@@ -78,9 +78,7 @@ public class HandleCommandProcessor {
      * @throws Exception when the handler method is invalid.
      */
     public HandleCommandResult process() throws Exception {
-        checkMethod();
-
-        ExecutableElement method = (ExecutableElement) element;
+        ExecutableElement method = ProcessorHelper.validateAndGetAnnotatedMethod(element);
         HandleCommand annotation = method.getAnnotation(HandleCommand.class);
         List<? extends VariableElement> parameters = method.getParameters();
         TypeMirror returnType = method.getReturnType();
@@ -103,18 +101,6 @@ public class HandleCommandProcessor {
     //----------------------------------------------------------------------------------------------
     // PROTECTED METHODS
     //----------------------------------------------------------------------------------------------
-
-    /**
-     * Performs basic checks of the handler method, such as accessibility from LaPasse.
-     *
-     * @throws Exception when the handler method is invalid.
-     */
-    protected void checkMethod() throws Exception {
-        if (!ProcessorHelper.isAccessible(element)) {
-            throw new Exception("Method is not accessible - it must be a non-static method with " +
-                    "public, protected or package-level access");
-        }
-    }
 
     /**
      * Creates an exception for when the handler method's parameters are invalid.

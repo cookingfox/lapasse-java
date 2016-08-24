@@ -45,6 +45,60 @@ public class HandleCommandErrorTest {
     }
 
     //----------------------------------------------------------------------------------------------
+    // COMMAND HANDLER ANNOTATION ON FIELD
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void command_handler_annotation_on_field() throws Exception {
+        JavaFileObject source = JavaFileObjects.forSourceLines("test.Test",
+                "package test;",
+                "",
+                "import com.cookingfox.lapasse.annotation.HandleCommand;",
+                "import fixtures.example.command.IncrementCount;",
+                "import fixtures.example.event.CountIncremented;",
+                "import fixtures.example.state.CountState;",
+                "",
+                "public class Test {",
+                "    @HandleCommand",
+                "    public CountIncremented handle;",
+                "}"
+        );
+
+        assertAbout(javaSource()).that(source)
+                .processedWith(new LaPasseAnnotationProcessor())
+                .failsToCompile()
+                .withErrorContaining("Annotation can only be applied to a method");
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // COMMAND HANDLER THROWS
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void command_handler_throws() throws Exception {
+        JavaFileObject source = JavaFileObjects.forSourceLines("test.Test",
+                "package test;",
+                "",
+                "import com.cookingfox.lapasse.annotation.HandleCommand;",
+                "import fixtures.example.command.IncrementCount;",
+                "import fixtures.example.event.CountIncremented;",
+                "import fixtures.example.state.CountState;",
+                "",
+                "public class Test {",
+                "    @HandleCommand",
+                "    public CountIncremented handle(CountState state, IncrementCount command) throws Exception {",
+                "        throw new Exception(\"example error\");",
+                "    }",
+                "}"
+        );
+
+        assertAbout(javaSource()).that(source)
+                .processedWith(new LaPasseAnnotationProcessor())
+                .failsToCompile()
+                .withErrorContaining("Handler methods are not allowed to declare a `throws` clause.");
+    }
+
+    //----------------------------------------------------------------------------------------------
     // COMMAND HANDLER METHOD PARAMS INVALID NUMBER
     //----------------------------------------------------------------------------------------------
 

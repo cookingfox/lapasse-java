@@ -44,6 +44,57 @@ public class HandleEventErrorTest {
     }
 
     //----------------------------------------------------------------------------------------------
+    // EVENT HANDLER ANNOTATION ON FIELD
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void event_handler_annotation_on_field() throws Exception {
+        JavaFileObject source = JavaFileObjects.forSourceLines("test.Test",
+                "package test;",
+                "",
+                "import com.cookingfox.lapasse.annotation.HandleEvent;",
+                "import fixtures.example.event.CountIncremented;",
+                "",
+                "public class Test {",
+                "    @HandleEvent",
+                "    public CountIncremented handle;",
+                "}"
+        );
+
+        assertAbout(javaSource()).that(source)
+                .processedWith(new LaPasseAnnotationProcessor())
+                .failsToCompile()
+                .withErrorContaining("Annotation can only be applied to a method");
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // EVENT HANDLER THROWS
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void event_handler_throws() throws Exception {
+        JavaFileObject source = JavaFileObjects.forSourceLines("test.Test",
+                "package test;",
+                "",
+                "import com.cookingfox.lapasse.annotation.HandleEvent;",
+                "import fixtures.example.event.CountIncremented;",
+                "import fixtures.example.state.CountState;",
+                "",
+                "public class Test {",
+                "    @HandleEvent",
+                "    public CountState handle(CountState state, CountIncremented event) throws Exception {",
+                "        throw new Exception(\"example error\");",
+                "    }",
+                "}"
+        );
+
+        assertAbout(javaSource()).that(source)
+                .processedWith(new LaPasseAnnotationProcessor())
+                .failsToCompile()
+                .withErrorContaining("Handler methods are not allowed to declare a `throws` clause.");
+    }
+
+    //----------------------------------------------------------------------------------------------
     // EVENT HANDLER RETURN TYPE DOES NOT EXTEND STATE (raw State type)
     //----------------------------------------------------------------------------------------------
 
