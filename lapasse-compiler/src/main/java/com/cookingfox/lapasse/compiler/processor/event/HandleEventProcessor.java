@@ -68,10 +68,10 @@ public class HandleEventProcessor {
         TypeMirror returnType = method.getReturnType();
 
         // populate result
-        result.annotationParams = determineAnnotationParams(eventAnnotation);
-        result.methodParams = determineMethodParams(parameters);
         result.methodName = element.getSimpleName();
         result.parameters = parameters;
+        result.annotationParams = determineAnnotationParams(eventAnnotation);
+        result.methodParams = determineMethodParams(parameters);
         result.stateType = determineStateType(returnType);
         result.eventType = determineEventType();
 

@@ -53,8 +53,19 @@ public class HandleCommandProcessor {
     // PROPERTIES
     //----------------------------------------------------------------------------------------------
 
+    /**
+     * The annotated element.
+     */
     protected final Element element;
+
+    /**
+     * Value Object containing the processing results.
+     */
     protected final HandleCommandResult result = new HandleCommandResult();
+
+    /**
+     * Utility methods for operating on types.
+     */
     protected final Types types;
 
     //----------------------------------------------------------------------------------------------
@@ -84,14 +95,14 @@ public class HandleCommandProcessor {
         TypeMirror returnType = method.getReturnType();
 
         // populate result
+        result.methodName = element.getSimpleName();
+        result.parameters = parameters;
+        result.returnType = returnType;
         result.annotationParams = determineAnnotationParams(annotation);
         result.methodParams = determineMethodParams(parameters);
         result.returnValue = determineReturnValue(returnType);
-        result.returnType = returnType;
-        result.methodName = element.getSimpleName();
-        result.parameters = parameters;
-        result.commandType = determineCommandType();
         result.stateType = determineStateType();
+        result.commandType = determineCommandType();
 
         detectAnnotationMethodParamsConflict();
 
@@ -137,16 +148,15 @@ public class HandleCommandProcessor {
      */
     protected void detectAnnotationMethodParamsConflict() throws Exception {
         TypeMirror annotationCommandType = result.getAnnotationCommandType();
+        TypeMirror annotationStateType = result.getAnnotationStateType();
         TypeMirror commandType = result.getCommandType();
+        TypeMirror stateType = result.getStateType();
 
         // command type mismatch
         if (annotationCommandType != null && !types.isSameType(commandType, annotationCommandType)) {
             throw new Exception(String.format("Annotation parameter for command (`%s`) has " +
                     "different type than method parameter (`%s`)", annotationCommandType, commandType));
         }
-
-        TypeMirror annotationStateType = result.getAnnotationStateType();
-        TypeMirror stateType = result.getStateType();
 
         // state type mismatch
         if (annotationStateType != null && !types.isSameType(stateType, annotationStateType)) {
@@ -214,27 +224,38 @@ public class HandleCommandProcessor {
      * @throws Exception when the concrete command type could not be determined.
      */
     protected TypeMirror determineCommandType() throws Exception {
+        TypeMirror commandType = null;
+
         switch (result.getMethodParams()) {
             case METHOD_ONE_PARAM_COMMAND:
             case METHOD_TWO_PARAMS_COMMAND_STATE:
                 // first param
-                return result.getParameters().get(0).asType();
+                commandType = result.getParameters().get(0).asType();
+                break;
 
             case METHOD_TWO_PARAMS_STATE_COMMAND:
                 // second param
-                return result.getParameters().get(1).asType();
+                commandType = result.getParameters().get(1).asType();
+                break;
         }
 
-        switch (result.getAnnotationParams()) {
-            case ANNOTATION_ONE_PARAM_COMMAND:
-            case ANNOTATION_TWO_PARAMS_COMMAND_STATE:
-                return result.getAnnotationCommandType();
+        if (commandType == null) {
+            switch (result.getAnnotationParams()) {
+                case ANNOTATION_ONE_PARAM_COMMAND:
+                case ANNOTATION_TWO_PARAMS_COMMAND_STATE:
+                    commandType = result.getAnnotationCommandType();
+                    break;
+            }
         }
 
-        throw new Exception(String.format("Could not determine command type based on the " +
-                "method's parameters or annotation. Make sure at least the target command class " +
-                "is available as a method parameter or as an annotation value: " +
-                "`@%s(command = MyCommand.class)`", HandleCommand.class.getSimpleName()));
+        if (commandType == null) {
+            throw new Exception(String.format("Could not determine command type based on the " +
+                    "method's parameters or annotation. Make sure at least the target command class " +
+                    "is available as a method parameter or as an annotation value: " +
+                    "`@%s(command = MyCommand.class)`", HandleCommand.class.getSimpleName()));
+        }
+
+        return extendsCommand(commandType);
     }
 
     /**
@@ -344,25 +365,67 @@ public class HandleCommandProcessor {
      *
      * @return The concrete state type if available, or null.
      */
-    protected TypeMirror determineStateType() {
+    protected TypeMirror determineStateType() throws Exception {
+        TypeMirror stateType = null;
+
         switch (result.getMethodParams()) {
             case METHOD_ONE_PARAM_STATE:
             case METHOD_TWO_PARAMS_STATE_COMMAND:
                 // first param
-                return result.getParameters().get(0).asType();
+                stateType = result.getParameters().get(0).asType();
+                break;
 
             case METHOD_TWO_PARAMS_COMMAND_STATE:
                 // second param
-                return result.getParameters().get(1).asType();
+                stateType = result.getParameters().get(1).asType();
+                break;
         }
 
-        switch (result.getAnnotationParams()) {
-            case ANNOTATION_ONE_PARAM_STATE:
-            case ANNOTATION_TWO_PARAMS_COMMAND_STATE:
-                return result.getAnnotationStateType();
+        if (stateType == null) {
+            switch (result.getAnnotationParams()) {
+                case ANNOTATION_ONE_PARAM_STATE:
+                case ANNOTATION_TWO_PARAMS_COMMAND_STATE:
+                    return result.getAnnotationStateType();
+            }
+        }
+
+        if (stateType != null) {
+            return extendsState(stateType);
         }
 
         return null;
+    }
+
+    /**
+     * Asserts the provided type extends command.
+     *
+     * @param type The type to validate.
+     * @return The provided type, if valid.
+     * @throws Exception when the provided is equal to the command base type.
+     */
+    protected TypeMirror extendsCommand(TypeMirror type) throws Exception {
+        if (equalsType(type, Command.class)) {
+            throw new Exception(String.format("Command parameter cannot be the base type `%s`",
+                    Command.class.getName()));
+        }
+
+        return type;
+    }
+
+    /**
+     * Asserts the provided type extends state.
+     *
+     * @param type The type to validate.
+     * @return The provided type, if valid.
+     * @throws Exception when the provided is equal to the state base type.
+     */
+    protected TypeMirror extendsState(TypeMirror type) throws Exception {
+        if (equalsType(type, State.class)) {
+            throw new Exception(String.format("State parameter cannot be the base type `%s`",
+                    State.class.getName()));
+        }
+
+        return type;
     }
 
 }

@@ -2,6 +2,8 @@ package integration;
 
 import com.cookingfox.lapasse.annotation.HandleCommand;
 import com.cookingfox.lapasse.annotation.HandleEvent;
+import com.cookingfox.lapasse.api.command.Command;
+import com.cookingfox.lapasse.api.state.State;
 import com.cookingfox.lapasse.compiler.LaPasseAnnotationProcessor;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
@@ -137,6 +139,94 @@ public class HandleCommandErrorTest {
 
         assertCompileFails(createSource(method),
                 "Method parameters are invalid (expected State and Command");
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // COMMAND HANDLER INVALID METHOD PARAM STATE BASE TYPE
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void command_handler_invalid_method_param_state_base_type() throws Exception {
+        MethodSpec method = createHandleCommandMethod()
+                .addParameter(State.class, "state")
+                .build();
+
+        assertCompileFails(createSource(method),
+                "State parameter cannot be the base type");
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // COMMAND HANDLER INVALID METHOD PARAMS STATE BASE TYPE
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void command_handler_invalid_method_params_state_base_type() throws Exception {
+        MethodSpec method = createHandleCommandMethod()
+                .addParameter(State.class, "state")
+                .addParameter(IncrementCount.class, "command")
+                .build();
+
+        assertCompileFails(createSource(method),
+                "State parameter cannot be the base type");
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // COMMAND HANDLER INVALID METHOD PARAMS STATE BASE TYPE DIFFERENT ORDER
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void command_handler_invalid_method_params_state_base_type_different_order() throws Exception {
+        MethodSpec method = createHandleCommandMethod()
+                .addParameter(IncrementCount.class, "command")
+                .addParameter(State.class, "state")
+                .build();
+
+        assertCompileFails(createSource(method),
+                "State parameter cannot be the base type");
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // COMMAND HANDLER INVALID METHOD PARAM COMMAND BASE TYPE
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void command_handler_invalid_method_param_command_base_type() throws Exception {
+        MethodSpec method = createHandleCommandMethod()
+                .addParameter(Command.class, "command")
+                .build();
+
+        assertCompileFails(createSource(method),
+                "Command parameter cannot be the base type");
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // COMMAND HANDLER INVALID METHOD PARAMS COMMAND BASE TYPE
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void command_handler_invalid_method_params_command_base_type() throws Exception {
+        MethodSpec method = createHandleCommandMethod()
+                .addParameter(CountState.class, "state")
+                .addParameter(Command.class, "command")
+                .build();
+
+        assertCompileFails(createSource(method),
+                "Command parameter cannot be the base type");
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // COMMAND HANDLER INVALID METHOD PARAMS COMMAND BASE TYPE DIFFERENT ORDER
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void command_handler_invalid_method_params_command_base_type_different_order() throws Exception {
+        MethodSpec method = createHandleCommandMethod()
+                .addParameter(Command.class, "command")
+                .addParameter(CountState.class, "state")
+                .build();
+
+        assertCompileFails(createSource(method),
+                "Command parameter cannot be the base type");
     }
 
     //----------------------------------------------------------------------------------------------
