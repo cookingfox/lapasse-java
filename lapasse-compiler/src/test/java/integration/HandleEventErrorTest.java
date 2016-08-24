@@ -44,30 +44,6 @@ public class HandleEventErrorTest {
     }
 
     //----------------------------------------------------------------------------------------------
-    // EVENT HANDLER ANNOTATION ON FIELD
-    //----------------------------------------------------------------------------------------------
-
-    @Test
-    public void event_handler_annotation_on_field() throws Exception {
-        JavaFileObject source = JavaFileObjects.forSourceLines("test.Test",
-                "package test;",
-                "",
-                "import com.cookingfox.lapasse.annotation.HandleEvent;",
-                "import fixtures.example.event.CountIncremented;",
-                "",
-                "public class Test {",
-                "    @HandleEvent",
-                "    public CountIncremented handle;",
-                "}"
-        );
-
-        assertAbout(javaSource()).that(source)
-                .processedWith(new LaPasseAnnotationProcessor())
-                .failsToCompile()
-                .withErrorContaining("Annotation can only be applied to a method");
-    }
-
-    //----------------------------------------------------------------------------------------------
     // EVENT HANDLER THROWS
     //----------------------------------------------------------------------------------------------
 

@@ -263,38 +263,29 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
                         model.targetStateName, commandName, eventTypeName);
             }
 
-            // add handler method statement (contents)
-            switch (methodParams) {
-                case METHOD_NO_PARAMS:
-                    callerStatement += "$N.$N()";
-                    handlerMethodBuilder.addStatement(callerStatement,
-                            VAR_ORIGIN, methodName);
-                    break;
+            List<CharSequence> statementArgs = new LinkedList<>();
+            statementArgs.add(VAR_ORIGIN);
+            statementArgs.add(methodName);
 
-                case METHOD_ONE_PARAM_COMMAND:
-                    callerStatement += "$N.$N($N)";
-                    handlerMethodBuilder.addStatement(callerStatement,
-                            VAR_ORIGIN, methodName, VAR_COMMAND);
-                    break;
-
-                case METHOD_ONE_PARAM_STATE:
-                    callerStatement += "$N.$N($N)";
-                    handlerMethodBuilder.addStatement(callerStatement,
-                            VAR_ORIGIN, methodName, VAR_STATE);
-                    break;
-
-                case METHOD_TWO_PARAMS_COMMAND_STATE:
-                    callerStatement += "$N.$N($N, $N)";
-                    handlerMethodBuilder.addStatement(callerStatement,
-                            VAR_ORIGIN, methodName, VAR_COMMAND, VAR_STATE);
-                    break;
-
-                case METHOD_TWO_PARAMS_STATE_COMMAND:
-                    callerStatement += "$N.$N($N, $N)";
-                    handlerMethodBuilder.addStatement(callerStatement,
-                            VAR_ORIGIN, methodName, VAR_STATE, VAR_COMMAND);
-                    break;
+            if (methodParams == HandleCommandMethodParams.METHOD_ONE_PARAM_COMMAND) {
+                callerStatement += "$N.$N($N)";
+                statementArgs.add(VAR_COMMAND);
+            } else if (methodParams == HandleCommandMethodParams.METHOD_ONE_PARAM_STATE) {
+                callerStatement += "$N.$N($N)";
+                statementArgs.add(VAR_STATE);
+            } else if (methodParams == HandleCommandMethodParams.METHOD_TWO_PARAMS_COMMAND_STATE) {
+                callerStatement += "$N.$N($N, $N)";
+                statementArgs.add(VAR_COMMAND);
+                statementArgs.add(VAR_STATE);
+            } else if (methodParams == HandleCommandMethodParams.METHOD_TWO_PARAMS_STATE_COMMAND) {
+                callerStatement += "$N.$N($N, $N)";
+                statementArgs.add(VAR_STATE);
+                statementArgs.add(VAR_COMMAND);
+            } else {
+                callerStatement += "$N.$N()";
             }
+
+            handlerMethodBuilder.addStatement(callerStatement, statementArgs.toArray());
 
             // add handler implementation
             TypeSpec handlerImpl = TypeSpec.anonymousClassBuilder("")
@@ -347,33 +338,31 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
                     .addParameter(model.targetStateName, VAR_STATE)
                     .addParameter(eventType, VAR_EVENT);
 
-            // add handler method statement (contents)
-            switch (methodParams) {
-                case METHOD_NO_PARAMS:
-                    handlerMethodBuilder.addStatement("return $N.$N()",
-                            VAR_ORIGIN, methodName);
-                    break;
+            List<CharSequence> statementArgs = new LinkedList<>();
+            statementArgs.add(VAR_ORIGIN);
+            statementArgs.add(methodName);
 
-                case METHOD_ONE_PARAM_EVENT:
-                    handlerMethodBuilder.addStatement("return $N.$N($N)",
-                            VAR_ORIGIN, methodName, VAR_EVENT);
-                    break;
+            String callerStatement = "return ";
 
-                case METHOD_ONE_PARAM_STATE:
-                    handlerMethodBuilder.addStatement("return $N.$N($N)",
-                            VAR_ORIGIN, methodName, VAR_STATE);
-                    break;
-
-                case METHOD_TWO_PARAMS_EVENT_STATE:
-                    handlerMethodBuilder.addStatement("return $N.$N($N, $N)",
-                            VAR_ORIGIN, methodName, VAR_EVENT, VAR_STATE);
-                    break;
-
-                case METHOD_TWO_PARAMS_STATE_EVENT:
-                    handlerMethodBuilder.addStatement("return $N.$N($N, $N)",
-                            VAR_ORIGIN, methodName, VAR_STATE, VAR_EVENT);
-                    break;
+            if (methodParams == HandleEventMethodParams.METHOD_ONE_PARAM_EVENT) {
+                callerStatement += "$N.$N($N)";
+                statementArgs.add(VAR_EVENT);
+            } else if (methodParams == HandleEventMethodParams.METHOD_ONE_PARAM_STATE) {
+                callerStatement += "$N.$N($N)";
+                statementArgs.add(VAR_STATE);
+            } else if (methodParams == HandleEventMethodParams.METHOD_TWO_PARAMS_EVENT_STATE) {
+                callerStatement += "$N.$N($N, $N)";
+                statementArgs.add(VAR_EVENT);
+                statementArgs.add(VAR_STATE);
+            } else if (methodParams == HandleEventMethodParams.METHOD_TWO_PARAMS_STATE_EVENT) {
+                callerStatement += "$N.$N($N, $N)";
+                statementArgs.add(VAR_STATE);
+                statementArgs.add(VAR_EVENT);
+            } else {
+                callerStatement += "$N.$N()";
             }
+
+            handlerMethodBuilder.addStatement(callerStatement, statementArgs.toArray());
 
             MethodSpec handlerMethod = handlerMethodBuilder.returns(model.targetStateName)
                     .build();

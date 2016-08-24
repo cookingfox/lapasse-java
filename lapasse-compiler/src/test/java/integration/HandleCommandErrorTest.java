@@ -45,32 +45,6 @@ public class HandleCommandErrorTest {
     }
 
     //----------------------------------------------------------------------------------------------
-    // COMMAND HANDLER ANNOTATION ON FIELD
-    //----------------------------------------------------------------------------------------------
-
-    @Test
-    public void command_handler_annotation_on_field() throws Exception {
-        JavaFileObject source = JavaFileObjects.forSourceLines("test.Test",
-                "package test;",
-                "",
-                "import com.cookingfox.lapasse.annotation.HandleCommand;",
-                "import fixtures.example.command.IncrementCount;",
-                "import fixtures.example.event.CountIncremented;",
-                "import fixtures.example.state.CountState;",
-                "",
-                "public class Test {",
-                "    @HandleCommand",
-                "    public CountIncremented handle;",
-                "}"
-        );
-
-        assertAbout(javaSource()).that(source)
-                .processedWith(new LaPasseAnnotationProcessor())
-                .failsToCompile()
-                .withErrorContaining("Annotation can only be applied to a method");
-    }
-
-    //----------------------------------------------------------------------------------------------
     // COMMAND HANDLER THROWS
     //----------------------------------------------------------------------------------------------
 

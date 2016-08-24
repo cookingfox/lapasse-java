@@ -1,7 +1,6 @@
 package com.cookingfox.lapasse.compiler.processor;
 
 import javax.lang.model.element.Element;
-import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import java.util.Arrays;
@@ -37,11 +36,6 @@ public final class ProcessorHelper {
      * @throws Exception when the element is not a valid method.
      */
     public static ExecutableElement validateAndGetAnnotatedMethod(Element element) throws Exception {
-        // annotation not on method
-        if (element.getKind() != ElementKind.METHOD) {
-            throw new Exception("Annotation can only be applied to a method");
-        }
-
         // annotated method is not accessible
         if (!Collections.disjoint(element.getModifiers(), FORBIDDEN_MODIFIERS)) {
             throw new Exception("Method is not accessible - it must be a non-static method with " +

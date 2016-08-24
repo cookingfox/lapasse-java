@@ -2,7 +2,6 @@ package testing;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -28,24 +27,6 @@ public final class TestingUtils {
         } catch (Exception e) {
             assertTrue(e instanceof InvocationTargetException);
             assertTrue(UnsupportedOperationException.class.isInstance(e.getCause()));
-        }
-    }
-
-    /**
-     * Superficial enum code coverage: extracts all values from the enum and calls the synthetic
-     * method `valueOf` on each value's name.
-     *
-     * @param enumClass The enum to test.
-     */
-    public static void superficialEnumCodeCoverage(Class<? extends Enum<?>> enumClass) {
-        try {
-            Method valueOf = enumClass.getMethod("valueOf", String.class);
-
-            for (Enum<?> o : (Enum<?>[]) enumClass.getMethod("values").invoke(null)) {
-                valueOf.invoke(null, o.name());
-            }
-        } catch (Throwable e) {
-            throw new RuntimeException(e);
         }
     }
 
