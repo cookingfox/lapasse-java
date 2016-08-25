@@ -4,12 +4,19 @@ import com.cookingfox.lapasse.annotation.HandleEvent;
 import com.cookingfox.lapasse.compiler.LaPasseAnnotationProcessor;
 import com.cookingfox.lapasse.impl.helper.LaPasse;
 import com.google.testing.compile.JavaFileObjects;
+import com.squareup.javapoet.AnnotationSpec;
+import com.squareup.javapoet.MethodSpec;
+import fixtures.example.command.IncrementCount;
+import fixtures.example.event.CountIncremented;
+import fixtures.example.state.CountState;
 import org.junit.Test;
 
 import javax.tools.JavaFileObject;
 
+import static com.cookingfox.lapasse.compiler.LaPasseAnnotationProcessor.*;
 import static com.google.common.truth.Truth.assertAbout;
 import static com.google.testing.compile.JavaSourceSubjectFactory.javaSource;
+import static integration.IntegrationTestHelper.*;
 
 /**
  * Integration tests for {@link LaPasseAnnotationProcessor} and successful {@link HandleEvent}
@@ -26,20 +33,14 @@ public class HandleEventSuccessTest {
         String sourceFqcn = "test.Test";
         String expectedFqcn = sourceFqcn + LaPasse.GENERATED_SUFFIX;
 
-        JavaFileObject source = JavaFileObjects.forSourceLines(sourceFqcn,
-                "package test;",
-                "",
-                "import com.cookingfox.lapasse.annotation.HandleEvent;",
-                "import fixtures.example.event.CountIncremented;",
-                "import fixtures.example.state.CountState;",
-                "",
-                "public class Test {",
-                "    @HandleEvent",
-                "    public CountState handle(CountState state, CountIncremented event) {",
-                "        return new CountState(state.getCount() + event.getCount());",
-                "    }",
-                "}"
-        );
+        MethodSpec method = createHandleEventMethod()
+                .addParameter(CountState.class, VAR_STATE)
+                .addParameter(CountIncremented.class, VAR_EVENT)
+                .addStatement("return new $T($N.getCount())", CountState.class, VAR_EVENT)
+                .returns(CountState.class)
+                .build();
+
+        JavaFileObject source = createSource(method);
 
         JavaFileObject expected = JavaFileObjects.forSourceLines(expectedFqcn,
                 "// Generated code from LaPasse - do not modify!",
@@ -92,20 +93,14 @@ public class HandleEventSuccessTest {
         String sourceFqcn = "test.Test";
         String expectedFqcn = sourceFqcn + LaPasse.GENERATED_SUFFIX;
 
-        JavaFileObject source = JavaFileObjects.forSourceLines(sourceFqcn,
-                "package test;",
-                "",
-                "import com.cookingfox.lapasse.annotation.HandleEvent;",
-                "import fixtures.example.event.CountIncremented;",
-                "import fixtures.example.state.CountState;",
-                "",
-                "public class Test {",
-                "    @HandleEvent",
-                "    public CountState handle(CountIncremented event, CountState state) {",
-                "        return new CountState(state.getCount() + event.getCount());",
-                "    }",
-                "}"
-        );
+        MethodSpec method = createHandleEventMethod()
+                .addParameter(CountIncremented.class, VAR_EVENT)
+                .addParameter(CountState.class, VAR_STATE)
+                .addStatement("return new $T($N.getCount())", CountState.class, VAR_EVENT)
+                .returns(CountState.class)
+                .build();
+
+        JavaFileObject source = createSource(method);
 
         JavaFileObject expected = JavaFileObjects.forSourceLines(expectedFqcn,
                 "// Generated code from LaPasse - do not modify!",
@@ -158,20 +153,13 @@ public class HandleEventSuccessTest {
         String sourceFqcn = "test.Test";
         String expectedFqcn = sourceFqcn + LaPasse.GENERATED_SUFFIX;
 
-        JavaFileObject source = JavaFileObjects.forSourceLines(sourceFqcn,
-                "package test;",
-                "",
-                "import com.cookingfox.lapasse.annotation.HandleEvent;",
-                "import fixtures.example.event.CountIncremented;",
-                "import fixtures.example.state.CountState;",
-                "",
-                "public class Test {",
-                "    @HandleEvent",
-                "    public CountState handle(CountIncremented event) {",
-                "        return new CountState(event.getCount());",
-                "    }",
-                "}"
-        );
+        MethodSpec method = createHandleEventMethod()
+                .addParameter(CountIncremented.class, VAR_EVENT)
+                .addStatement("return new $T($N.getCount())", CountState.class, VAR_EVENT)
+                .returns(CountState.class)
+                .build();
+
+        JavaFileObject source = createSource(method);
 
         JavaFileObject expected = JavaFileObjects.forSourceLines(expectedFqcn,
                 "// Generated code from LaPasse - do not modify!",
@@ -224,20 +212,16 @@ public class HandleEventSuccessTest {
         String sourceFqcn = "test.Test";
         String expectedFqcn = sourceFqcn + LaPasse.GENERATED_SUFFIX;
 
-        JavaFileObject source = JavaFileObjects.forSourceLines(sourceFqcn,
-                "package test;",
-                "",
-                "import com.cookingfox.lapasse.annotation.HandleEvent;",
-                "import fixtures.example.event.CountIncremented;",
-                "import fixtures.example.state.CountState;",
-                "",
-                "public class Test {",
-                "    @HandleEvent(event = CountIncremented.class)",
-                "    public CountState handle() {",
-                "        return new CountState(0);",
-                "    }",
-                "}"
-        );
+        AnnotationSpec annotation = AnnotationSpec.builder(HandleEvent.class)
+                .addMember(VAR_EVENT, "$T.class", CountIncremented.class)
+                .build();
+
+        MethodSpec method = createHandlerMethod(annotation)
+                .addStatement("return new $T(1)", CountState.class)
+                .returns(CountState.class)
+                .build();
+
+        JavaFileObject source = createSource(method);
 
         JavaFileObject expected = JavaFileObjects.forSourceLines(expectedFqcn,
                 "// Generated code from LaPasse - do not modify!",
@@ -290,20 +274,17 @@ public class HandleEventSuccessTest {
         String sourceFqcn = "test.Test";
         String expectedFqcn = sourceFqcn + LaPasse.GENERATED_SUFFIX;
 
-        JavaFileObject source = JavaFileObjects.forSourceLines(sourceFqcn,
-                "package test;",
-                "",
-                "import com.cookingfox.lapasse.annotation.HandleEvent;",
-                "import fixtures.example.event.CountIncremented;",
-                "import fixtures.example.state.CountState;",
-                "",
-                "public class Test {",
-                "    @HandleEvent(event = CountIncremented.class)",
-                "    public CountState handle(CountState state) {",
-                "        return new CountState(0);",
-                "    }",
-                "}"
-        );
+        AnnotationSpec annotation = AnnotationSpec.builder(HandleEvent.class)
+                .addMember(VAR_EVENT, "$T.class", CountIncremented.class)
+                .build();
+
+        MethodSpec method = createHandlerMethod(annotation)
+                .addParameter(CountState.class, VAR_STATE)
+                .addStatement("return new $T(1)", CountState.class)
+                .returns(CountState.class)
+                .build();
+
+        JavaFileObject source = createSource(method);
 
         JavaFileObject expected = JavaFileObjects.forSourceLines(expectedFqcn,
                 "// Generated code from LaPasse - do not modify!",
@@ -356,27 +337,19 @@ public class HandleEventSuccessTest {
         String sourceFqcn = "test.Test";
         String expectedFqcn = sourceFqcn + LaPasse.GENERATED_SUFFIX;
 
-        JavaFileObject source = JavaFileObjects.forSourceLines(sourceFqcn,
-                "package test;",
-                "",
-                "import com.cookingfox.lapasse.annotation.HandleCommand;",
-                "import com.cookingfox.lapasse.annotation.HandleEvent;",
-                "import fixtures.example.command.IncrementCount;",
-                "import fixtures.example.event.CountIncremented;",
-                "import fixtures.example.state.CountState;",
-                "",
-                "public class Test {",
-                "    @HandleCommand",
-                "    public CountIncremented handle(IncrementCount command) {",
-                "        return new CountIncremented(command.getCount());",
-                "    }",
-                "",
-                "    @HandleEvent",
-                "    public CountState handle(CountIncremented event) {",
-                "        return new CountState(event.getCount());",
-                "    }",
-                "}"
-        );
+        MethodSpec handleCommand = createHandleCommandMethod()
+                .addParameter(IncrementCount.class, VAR_COMMAND)
+                .addStatement("return new $T($N.getCount())", CountIncremented.class, VAR_COMMAND)
+                .returns(CountIncremented.class)
+                .build();
+
+        MethodSpec handleEvent = createHandleEventMethod()
+                .addParameter(CountIncremented.class, VAR_EVENT)
+                .addStatement("return new $T($N.getCount())", CountState.class, VAR_EVENT)
+                .returns(CountState.class)
+                .build();
+
+        JavaFileObject source = createSource(handleCommand, handleEvent);
 
         JavaFileObject expected = JavaFileObjects.forSourceLines(expectedFqcn,
                 "// Generated code from LaPasse - do not modify!",
