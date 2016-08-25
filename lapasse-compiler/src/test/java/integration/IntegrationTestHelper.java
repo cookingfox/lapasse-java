@@ -9,6 +9,7 @@ import com.squareup.javapoet.*;
 import javax.tools.JavaFileObject;
 import java.util.Arrays;
 
+import static com.cookingfox.lapasse.compiler.LaPasseAnnotationProcessor.METHOD_HANDLE;
 import static com.google.common.truth.Truth.assertAbout;
 import static com.google.testing.compile.JavaSourceSubjectFactory.javaSource;
 
@@ -17,10 +18,21 @@ import static com.google.testing.compile.JavaSourceSubjectFactory.javaSource;
  */
 public final class IntegrationTestHelper {
 
+    //----------------------------------------------------------------------------------------------
+    // CONSTANTS
+    //----------------------------------------------------------------------------------------------
+
+    public final static String TEST_CLASS = "Test";
+    public final static String TEST_PACKAGE = "test";
+
+    //----------------------------------------------------------------------------------------------
+    // PUBLIC METHODS
+    //----------------------------------------------------------------------------------------------
+
     /**
      * Asserts that compilation of the provided `source` fails with `errorContaining`.
      *
-     * @param source          The source to compile.
+     * @param source          The source code to compile.
      * @param errorContaining The text that should be included in the error message.
      */
     public static void assertCompileFails(JavaFileObject source, String errorContaining) {
@@ -29,6 +41,21 @@ public final class IntegrationTestHelper {
                 .processedWith(new LaPasseAnnotationProcessor())
                 .failsToCompile()
                 .withErrorContaining(errorContaining);
+    }
+
+    /**
+     * Asserts that compilation of the provided `source` results in `generated`.
+     *
+     * @param source    The source code to compile.
+     * @param generated The expected generated source code.
+     */
+    public static void assertCompileSuccess(JavaFileObject source, JavaFileObject generated) {
+        assertAbout(javaSource())
+                .that(source)
+                .processedWith(new LaPasseAnnotationProcessor())
+                .compilesWithoutError()
+                .and()
+                .generatesSources(generated);
     }
 
     /**
@@ -52,7 +79,7 @@ public final class IntegrationTestHelper {
      * @return The method spec builder.
      */
     public static MethodSpec.Builder createHandlerMethod(AnnotationSpec annotation) {
-        return MethodSpec.methodBuilder("handle")
+        return MethodSpec.methodBuilder(METHOD_HANDLE)
                 .addAnnotation(annotation);
     }
 
@@ -64,7 +91,7 @@ public final class IntegrationTestHelper {
      * @return The created java file object.
      */
     public static JavaFileObject createSource(MethodSpec... methods) {
-        ClassName className = ClassName.get("test", "Test");
+        ClassName className = ClassName.get(TEST_PACKAGE, TEST_CLASS);
 
         TypeSpec type = TypeSpec.classBuilder(className)
                 .addMethods(Arrays.asList(methods))

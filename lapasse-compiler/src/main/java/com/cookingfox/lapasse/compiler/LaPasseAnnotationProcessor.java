@@ -43,7 +43,11 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
     //----------------------------------------------------------------------------------------------
 
     public static final String FIELD_PREFIX = "handler";
+    public static final String FILE_COMMENT = "Generated code from LaPasse - do not modify!";
     public static final String METHOD_HANDLE = "handle";
+    public static final String METHOD_MAP_COMMAND_HANDLER = "mapCommandHandler";
+    public static final String METHOD_MAP_EVENT_HANDLER = "mapEventHandler";
+    public static final String METHOD_MAP_HANDLERS = "mapHandlers";
     public static final String VAR_COMMAND = "command";
     public static final String VAR_EVENT = "event";
     public static final String VAR_FACADE = "facade";
@@ -137,7 +141,7 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
 
             // create java file from type spec
             JavaFile javaFile = JavaFile.builder(model.packageName, typeSpec)
-                    .addFileComment("Generated code from LaPasse - do not modify!")
+                    .addFileComment(FILE_COMMENT)
                     .build();
 
             writeJavaFile(javaFile, origin);
@@ -185,7 +189,7 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
                 .addMethod(constructor);
 
         // create HandlerMapper (builder)
-        MethodSpec.Builder mapHandlersBuilder = MethodSpec.methodBuilder("mapHandlers")
+        MethodSpec.Builder mapHandlersBuilder = MethodSpec.methodBuilder(METHOD_MAP_HANDLERS)
                 .addModifiers(Modifier.PUBLIC)
                 .addAnnotation(Override.class);
 
@@ -210,14 +214,6 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
             HandleCommandReturnValue returnValue = result.getReturnValue();
             TypeName returnType = result.getReturnTypeName();
             HandleCommandMethodParams methodParams = result.getMethodParams();
-
-            // build handler method
-            MethodSpec.Builder handlerMethodBuilder = MethodSpec.methodBuilder(METHOD_HANDLE)
-                    .addAnnotation(Override.class)
-                    .addModifiers(Modifier.PUBLIC)
-                    .addParameter(model.targetStateName, VAR_STATE)
-                    .addParameter(commandName, VAR_COMMAND)
-                    .returns(returnType);
 
             ParameterizedTypeName handlerType;
             String callerStatement = "";
@@ -280,12 +276,20 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
                 callerStatement += "$N.$N()";
             }
 
-            handlerMethodBuilder.addStatement(callerStatement, statementArgs.toArray());
+            // build handler method
+            MethodSpec handleMethodImpl = MethodSpec.methodBuilder(METHOD_HANDLE)
+                    .addAnnotation(Override.class)
+                    .addModifiers(Modifier.PUBLIC)
+                    .addParameter(model.targetStateName, VAR_STATE)
+                    .addParameter(commandName, VAR_COMMAND)
+                    .addStatement(callerStatement, statementArgs.toArray())
+                    .returns(returnType)
+                    .build();
 
             // add handler implementation
             TypeSpec handlerImpl = TypeSpec.anonymousClassBuilder("")
                     .addSuperinterface(handlerType)
-                    .addMethod(handlerMethodBuilder.build())
+                    .addMethod(handleMethodImpl)
                     .build();
 
             // create field for handler
@@ -299,8 +303,9 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
 
             // add handler mapping to HandlerMapper
             model.mapHandlersBuilder.addStatement(
-                    "$N.mapCommandHandler($T.class, $N)",
+                    "$N.$N($T.class, $N)",
                     VAR_FACADE,
+                    METHOD_MAP_COMMAND_HANDLER,
                     commandName,
                     fieldName
             );
@@ -320,13 +325,6 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
             Name methodName = result.getMethodName();
             TypeName eventType = result.getEventTypeName();
             HandleEventMethodParams methodParams = result.getMethodParams();
-
-            // build handler method
-            MethodSpec.Builder handlerMethodBuilder = MethodSpec.methodBuilder(METHOD_HANDLE)
-                    .addAnnotation(Override.class)
-                    .addModifiers(Modifier.PUBLIC)
-                    .addParameter(model.targetStateName, VAR_STATE)
-                    .addParameter(eventType, VAR_EVENT);
 
             List<CharSequence> statementArgs = new LinkedList<>();
             statementArgs.add(VAR_ORIGIN);
@@ -352,14 +350,19 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
                 callerStatement += "$N.$N()";
             }
 
-            handlerMethodBuilder.addStatement(callerStatement, statementArgs.toArray());
-
-            MethodSpec handlerMethod = handlerMethodBuilder.returns(model.targetStateName)
-                    .build();
-
             // create parameterized name for handler
             ParameterizedTypeName handlerType = ParameterizedTypeName.get(
                     ClassName.get(EventHandler.class), model.targetStateName, eventType);
+
+            // build handler method
+            MethodSpec handlerMethod = MethodSpec.methodBuilder(METHOD_HANDLE)
+                    .addAnnotation(Override.class)
+                    .addModifiers(Modifier.PUBLIC)
+                    .addParameter(model.targetStateName, VAR_STATE)
+                    .addParameter(eventType, VAR_EVENT)
+                    .addStatement(callerStatement, statementArgs.toArray())
+                    .returns(model.targetStateName)
+                    .build();
 
             // create anonymous handler implementation
             TypeSpec handlerImpl = TypeSpec.anonymousClassBuilder("")
@@ -378,8 +381,9 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
 
             // add handler mapping to HandlerMapper
             model.mapHandlersBuilder.addStatement(
-                    "$N.mapEventHandler($T.class, $N)",
+                    "$N.$N($T.class, $N)",
                     VAR_FACADE,
+                    METHOD_MAP_EVENT_HANDLER,
                     eventType,
                     fieldName
             );
