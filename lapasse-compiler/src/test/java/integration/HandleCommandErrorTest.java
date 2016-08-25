@@ -22,6 +22,8 @@ import javax.lang.model.element.Modifier;
 import java.util.Collection;
 import java.util.concurrent.Callable;
 
+import static com.cookingfox.lapasse.compiler.LaPasseAnnotationProcessor.VAR_COMMAND;
+import static com.cookingfox.lapasse.compiler.LaPasseAnnotationProcessor.VAR_STATE;
 import static integration.IntegrationTestHelper.*;
 
 /**
@@ -38,8 +40,8 @@ public class HandleCommandErrorTest {
     public void command_handler_method_not_accessible() throws Exception {
         MethodSpec method = createHandleCommandMethod()
                 .addModifiers(Modifier.PRIVATE)
-                .addParameter(CountState.class, "state")
-                .addParameter(IncrementCount.class, "command")
+                .addParameter(CountState.class, VAR_STATE)
+                .addParameter(IncrementCount.class, VAR_COMMAND)
                 .build();
 
         assertCompileFails(createSource(method),
@@ -54,8 +56,8 @@ public class HandleCommandErrorTest {
     public void command_handler_method_also_has_event_annotation() throws Exception {
         MethodSpec method = createHandleCommandMethod()
                 .addAnnotation(HandleEvent.class)
-                .addParameter(CountState.class, "state")
-                .addParameter(IncrementCount.class, "command")
+                .addParameter(CountState.class, VAR_STATE)
+                .addParameter(IncrementCount.class, VAR_COMMAND)
                 .returns(CountIncremented.class)
                 .build();
 
@@ -71,8 +73,8 @@ public class HandleCommandErrorTest {
     public void command_handler_throws() throws Exception {
         MethodSpec method = createHandleCommandMethod()
                 .addException(Exception.class)
-                .addParameter(CountState.class, "state")
-                .addParameter(IncrementCount.class, "command")
+                .addParameter(CountState.class, VAR_STATE)
+                .addParameter(IncrementCount.class, VAR_COMMAND)
                 .build();
 
         assertCompileFails(createSource(method),
@@ -86,8 +88,8 @@ public class HandleCommandErrorTest {
     @Test
     public void command_handler_method_params_invalid_number() throws Exception {
         MethodSpec method = createHandleCommandMethod()
-                .addParameter(CountState.class, "state")
-                .addParameter(IncrementCount.class, "command")
+                .addParameter(CountState.class, VAR_STATE)
+                .addParameter(IncrementCount.class, VAR_COMMAND)
                 .addParameter(String.class, "foo")
                 .returns(CountIncremented.class)
                 .build();
@@ -118,7 +120,7 @@ public class HandleCommandErrorTest {
     @Test
     public void command_handler_method_params_command_and_invalid_type() throws Exception {
         MethodSpec method = createHandleCommandMethod()
-                .addParameter(IncrementCount.class, "command")
+                .addParameter(IncrementCount.class, VAR_COMMAND)
                 .addParameter(String.class, "foo")
                 .build();
 
@@ -133,7 +135,7 @@ public class HandleCommandErrorTest {
     @Test
     public void command_handler_method_params_state_and_invalid_type() throws Exception {
         MethodSpec method = createHandleCommandMethod()
-                .addParameter(CountState.class, "state")
+                .addParameter(CountState.class, VAR_STATE)
                 .addParameter(String.class, "foo")
                 .build();
 
@@ -148,7 +150,7 @@ public class HandleCommandErrorTest {
     @Test
     public void command_handler_invalid_method_param_state_base_type() throws Exception {
         MethodSpec method = createHandleCommandMethod()
-                .addParameter(State.class, "state")
+                .addParameter(State.class, VAR_STATE)
                 .build();
 
         assertCompileFails(createSource(method),
@@ -162,8 +164,8 @@ public class HandleCommandErrorTest {
     @Test
     public void command_handler_invalid_method_params_state_base_type() throws Exception {
         MethodSpec method = createHandleCommandMethod()
-                .addParameter(State.class, "state")
-                .addParameter(IncrementCount.class, "command")
+                .addParameter(State.class, VAR_STATE)
+                .addParameter(IncrementCount.class, VAR_COMMAND)
                 .build();
 
         assertCompileFails(createSource(method),
@@ -177,8 +179,8 @@ public class HandleCommandErrorTest {
     @Test
     public void command_handler_invalid_method_params_state_base_type_different_order() throws Exception {
         MethodSpec method = createHandleCommandMethod()
-                .addParameter(IncrementCount.class, "command")
-                .addParameter(State.class, "state")
+                .addParameter(IncrementCount.class, VAR_COMMAND)
+                .addParameter(State.class, VAR_STATE)
                 .build();
 
         assertCompileFails(createSource(method),
@@ -192,7 +194,7 @@ public class HandleCommandErrorTest {
     @Test
     public void command_handler_invalid_method_param_command_base_type() throws Exception {
         MethodSpec method = createHandleCommandMethod()
-                .addParameter(Command.class, "command")
+                .addParameter(Command.class, VAR_COMMAND)
                 .build();
 
         assertCompileFails(createSource(method),
@@ -206,8 +208,8 @@ public class HandleCommandErrorTest {
     @Test
     public void command_handler_invalid_method_params_command_base_type() throws Exception {
         MethodSpec method = createHandleCommandMethod()
-                .addParameter(CountState.class, "state")
-                .addParameter(Command.class, "command")
+                .addParameter(CountState.class, VAR_STATE)
+                .addParameter(Command.class, VAR_COMMAND)
                 .build();
 
         assertCompileFails(createSource(method),
@@ -221,8 +223,8 @@ public class HandleCommandErrorTest {
     @Test
     public void command_handler_invalid_method_params_command_base_type_different_order() throws Exception {
         MethodSpec method = createHandleCommandMethod()
-                .addParameter(Command.class, "command")
-                .addParameter(CountState.class, "state")
+                .addParameter(Command.class, VAR_COMMAND)
+                .addParameter(CountState.class, VAR_STATE)
                 .build();
 
         assertCompileFails(createSource(method),
@@ -236,8 +238,8 @@ public class HandleCommandErrorTest {
     @Test
     public void command_handler_return_type_not_declared() throws Exception {
         MethodSpec method = createHandleCommandMethod()
-                .addParameter(CountState.class, "state")
-                .addParameter(IncrementCount.class, "command")
+                .addParameter(CountState.class, VAR_STATE)
+                .addParameter(IncrementCount.class, VAR_COMMAND)
                 .returns(ClassName.bestGuess("FooBarBaz"))
                 .build();
 
@@ -252,8 +254,8 @@ public class HandleCommandErrorTest {
     @Test
     public void command_handler_return_type_invalid() throws Exception {
         MethodSpec method = createHandleCommandMethod()
-                .addParameter(CountState.class, "state")
-                .addParameter(IncrementCount.class, "command")
+                .addParameter(CountState.class, VAR_STATE)
+                .addParameter(IncrementCount.class, VAR_COMMAND)
                 .returns(Boolean.class)
                 .build();
 
@@ -268,8 +270,8 @@ public class HandleCommandErrorTest {
     @Test
     public void command_handler_return_type_invalid_collection_type() throws Exception {
         MethodSpec method = createHandleCommandMethod()
-                .addParameter(CountState.class, "state")
-                .addParameter(IncrementCount.class, "command")
+                .addParameter(CountState.class, VAR_STATE)
+                .addParameter(IncrementCount.class, VAR_COMMAND)
                 .returns(ParameterizedTypeName.get(Collection.class, String.class))
                 .build();
 
@@ -284,8 +286,8 @@ public class HandleCommandErrorTest {
     @Test
     public void command_handler_return_type_invalid_callable_type() throws Exception {
         MethodSpec method = createHandleCommandMethod()
-                .addParameter(CountState.class, "state")
-                .addParameter(IncrementCount.class, "command")
+                .addParameter(CountState.class, VAR_STATE)
+                .addParameter(IncrementCount.class, VAR_COMMAND)
                 .returns(ParameterizedTypeName.get(Callable.class, String.class))
                 .build();
 
@@ -300,8 +302,8 @@ public class HandleCommandErrorTest {
     @Test
     public void command_handler_return_type_invalid_observable_type() throws Exception {
         MethodSpec method = createHandleCommandMethod()
-                .addParameter(CountState.class, "state")
-                .addParameter(IncrementCount.class, "command")
+                .addParameter(CountState.class, VAR_STATE)
+                .addParameter(IncrementCount.class, VAR_COMMAND)
                 .returns(ParameterizedTypeName.get(Observable.class, String.class))
                 .build();
 
@@ -316,8 +318,8 @@ public class HandleCommandErrorTest {
     @Test
     public void command_handler_return_type_invalid_callable_collection_type() throws Exception {
         MethodSpec method = createHandleCommandMethod()
-                .addParameter(CountState.class, "state")
-                .addParameter(IncrementCount.class, "command")
+                .addParameter(CountState.class, VAR_STATE)
+                .addParameter(IncrementCount.class, VAR_COMMAND)
                 .returns(ParameterizedTypeName.get(ClassName.get(Callable.class),
                         ParameterizedTypeName.get(Collection.class, String.class)))
                 .build();
@@ -333,8 +335,8 @@ public class HandleCommandErrorTest {
     @Test
     public void command_handler_return_type_invalid_observable_collection_type() throws Exception {
         MethodSpec method = createHandleCommandMethod()
-                .addParameter(CountState.class, "state")
-                .addParameter(IncrementCount.class, "command")
+                .addParameter(CountState.class, VAR_STATE)
+                .addParameter(IncrementCount.class, VAR_COMMAND)
                 .returns(ParameterizedTypeName.get(ClassName.get(Observable.class),
                         ParameterizedTypeName.get(Collection.class, String.class)))
                 .build();
@@ -363,7 +365,7 @@ public class HandleCommandErrorTest {
     @Test
     public void command_handler_state_not_determinable() throws Exception {
         MethodSpec method = createHandleCommandMethod()
-                .addParameter(IncrementCount.class, "command")
+                .addParameter(IncrementCount.class, VAR_COMMAND)
                 .build();
 
         assertCompileFails(createSource(method),
@@ -377,7 +379,7 @@ public class HandleCommandErrorTest {
     @Test
     public void command_handler_command_not_determinable_only_state_method_param() throws Exception {
         MethodSpec method = createHandleCommandMethod()
-                .addParameter(CountState.class, "state")
+                .addParameter(CountState.class, VAR_STATE)
                 .build();
 
         assertCompileFails(createSource(method),
@@ -391,12 +393,12 @@ public class HandleCommandErrorTest {
     @Test
     public void command_handler_conflict_annotation_method_command_param() throws Exception {
         AnnotationSpec annotation = AnnotationSpec.builder(HandleCommand.class)
-                .addMember("command", "$T.class", ExampleCommand.class)
+                .addMember(VAR_COMMAND, "$T.class", ExampleCommand.class)
                 .build();
 
         MethodSpec method = createHandlerMethod(annotation)
-                .addParameter(CountState.class, "state")
-                .addParameter(IncrementCount.class, "command")
+                .addParameter(CountState.class, VAR_STATE)
+                .addParameter(IncrementCount.class, VAR_COMMAND)
                 .build();
 
         assertCompileFails(createSource(method),
@@ -410,12 +412,12 @@ public class HandleCommandErrorTest {
     @Test
     public void command_handler_conflict_annotation_method_state_param() throws Exception {
         AnnotationSpec annotation = AnnotationSpec.builder(HandleCommand.class)
-                .addMember("state", "$T.class", ExampleState.class)
+                .addMember(VAR_STATE, "$T.class", ExampleState.class)
                 .build();
 
         MethodSpec method = createHandlerMethod(annotation)
-                .addParameter(CountState.class, "state")
-                .addParameter(IncrementCount.class, "command")
+                .addParameter(CountState.class, VAR_STATE)
+                .addParameter(IncrementCount.class, VAR_COMMAND)
                 .build();
 
         assertCompileFails(createSource(method),
@@ -429,14 +431,14 @@ public class HandleCommandErrorTest {
     @Test
     public void command_handlers_target_state_conflict() throws Exception {
         MethodSpec method1 = createHandleCommandMethod()
-                .addParameter(CountState.class, "state")
-                .addParameter(IncrementCount.class, "command")
+                .addParameter(CountState.class, VAR_STATE)
+                .addParameter(IncrementCount.class, VAR_COMMAND)
                 .returns(CountIncremented.class)
                 .build();
 
         MethodSpec method2 = createHandleCommandMethod()
-                .addParameter(ExampleState.class, "state")
-                .addParameter(ExampleCommand.class, "command")
+                .addParameter(ExampleState.class, VAR_STATE)
+                .addParameter(ExampleCommand.class, VAR_COMMAND)
                 .returns(ExampleEvent.class)
                 .build();
 

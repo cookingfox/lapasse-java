@@ -15,6 +15,8 @@ import org.junit.Test;
 
 import javax.lang.model.element.Modifier;
 
+import static com.cookingfox.lapasse.compiler.LaPasseAnnotationProcessor.VAR_EVENT;
+import static com.cookingfox.lapasse.compiler.LaPasseAnnotationProcessor.VAR_STATE;
 import static integration.IntegrationTestHelper.*;
 
 /**
@@ -31,8 +33,8 @@ public class HandleEventErrorTest {
     public void event_handler_method_not_accessible() throws Exception {
         MethodSpec method = createHandleEventMethod()
                 .addModifiers(Modifier.PRIVATE)
-                .addParameter(CountState.class, "state")
-                .addParameter(CountIncremented.class, "event")
+                .addParameter(CountState.class, VAR_STATE)
+                .addParameter(CountIncremented.class, VAR_EVENT)
                 .build();
 
         assertCompileFails(createSource(method),
@@ -47,8 +49,8 @@ public class HandleEventErrorTest {
     public void event_handler_method_also_has_command_annotation() throws Exception {
         MethodSpec method = createHandleEventMethod()
                 .addAnnotation(HandleCommand.class)
-                .addParameter(CountState.class, "state")
-                .addParameter(CountIncremented.class, "event")
+                .addParameter(CountState.class, VAR_STATE)
+                .addParameter(CountIncremented.class, VAR_EVENT)
                 .returns(CountState.class)
                 .build();
 
@@ -63,8 +65,8 @@ public class HandleEventErrorTest {
     @Test
     public void event_handler_method_throws() throws Exception {
         MethodSpec method = createHandleEventMethod()
-                .addParameter(CountState.class, "state")
-                .addParameter(CountIncremented.class, "event")
+                .addParameter(CountState.class, VAR_STATE)
+                .addParameter(CountIncremented.class, VAR_EVENT)
                 .addException(Exception.class)
                 .build();
 
@@ -79,8 +81,8 @@ public class HandleEventErrorTest {
     @Test
     public void event_handler_return_type_does_not_extend_state() throws Exception {
         MethodSpec method = createHandleEventMethod()
-                .addParameter(CountState.class, "state")
-                .addParameter(CountIncremented.class, "event")
+                .addParameter(CountState.class, VAR_STATE)
+                .addParameter(CountIncremented.class, VAR_EVENT)
                 .returns(Boolean.class)
                 .build();
 
@@ -95,8 +97,8 @@ public class HandleEventErrorTest {
     @Test
     public void event_handler_return_type_does_not_extend_state_raw_state() throws Exception {
         MethodSpec method = createHandleEventMethod()
-                .addParameter(CountState.class, "state")
-                .addParameter(CountIncremented.class, "event")
+                .addParameter(CountState.class, VAR_STATE)
+                .addParameter(CountIncremented.class, VAR_EVENT)
                 .returns(State.class)
                 .build();
 
@@ -125,7 +127,7 @@ public class HandleEventErrorTest {
     @Test
     public void event_handler_no_event_method_param_no_annotation_params() throws Exception {
         MethodSpec method = createHandleEventMethod()
-                .addParameter(CountState.class, "state")
+                .addParameter(CountState.class, VAR_STATE)
                 .returns(CountState.class)
                 .build();
 
@@ -140,8 +142,8 @@ public class HandleEventErrorTest {
     @Test
     public void event_handler_method_params_invalid_number() throws Exception {
         MethodSpec method = createHandleEventMethod()
-                .addParameter(CountState.class, "state")
-                .addParameter(CountIncremented.class, "event")
+                .addParameter(CountState.class, VAR_STATE)
+                .addParameter(CountIncremented.class, VAR_EVENT)
                 .addParameter(Object.class, "foo")
                 .returns(CountState.class)
                 .build();
@@ -173,7 +175,7 @@ public class HandleEventErrorTest {
     @Test
     public void event_handler_method_params_event_and_invalid_type() throws Exception {
         MethodSpec method = createHandleEventMethod()
-                .addParameter(CountIncremented.class, "event")
+                .addParameter(CountIncremented.class, VAR_EVENT)
                 .addParameter(String.class, "foo")
                 .returns(CountState.class)
                 .build();
@@ -189,7 +191,7 @@ public class HandleEventErrorTest {
     @Test
     public void event_handler_method_params_state_and_invalid_type() throws Exception {
         MethodSpec method = createHandleEventMethod()
-                .addParameter(CountState.class, "state")
+                .addParameter(CountState.class, VAR_STATE)
                 .addParameter(String.class, "foo")
                 .returns(CountState.class)
                 .build();
@@ -205,7 +207,7 @@ public class HandleEventErrorTest {
     @Test
     public void event_handler_invalid_method_param_base_state_type() throws Exception {
         MethodSpec method = createHandleEventMethod()
-                .addParameter(State.class, "state")
+                .addParameter(State.class, VAR_STATE)
                 .returns(CountState.class)
                 .build();
 
@@ -220,8 +222,8 @@ public class HandleEventErrorTest {
     @Test
     public void event_handler_invalid_method_params_base_state_type() throws Exception {
         MethodSpec method = createHandleEventMethod()
-                .addParameter(State.class, "state")
-                .addParameter(CountIncremented.class, "event")
+                .addParameter(State.class, VAR_STATE)
+                .addParameter(CountIncremented.class, VAR_EVENT)
                 .returns(CountState.class)
                 .build();
 
@@ -236,8 +238,8 @@ public class HandleEventErrorTest {
     @Test
     public void event_handler_invalid_method_params_base_state_type_different_order() throws Exception {
         MethodSpec method = createHandleEventMethod()
-                .addParameter(CountIncremented.class, "event")
-                .addParameter(State.class, "state")
+                .addParameter(CountIncremented.class, VAR_EVENT)
+                .addParameter(State.class, VAR_STATE)
                 .returns(CountState.class)
                 .build();
 
@@ -252,7 +254,7 @@ public class HandleEventErrorTest {
     @Test
     public void event_handler_invalid_method_param_base_event_type() throws Exception {
         MethodSpec method = createHandleEventMethod()
-                .addParameter(Event.class, "event")
+                .addParameter(Event.class, VAR_EVENT)
                 .returns(CountState.class)
                 .build();
 
@@ -267,8 +269,8 @@ public class HandleEventErrorTest {
     @Test
     public void event_handler_invalid_method_params_base_event_type() throws Exception {
         MethodSpec method = createHandleEventMethod()
-                .addParameter(CountState.class, "state")
-                .addParameter(Event.class, "event")
+                .addParameter(CountState.class, VAR_STATE)
+                .addParameter(Event.class, VAR_EVENT)
                 .returns(CountState.class)
                 .build();
 
@@ -283,8 +285,8 @@ public class HandleEventErrorTest {
     @Test
     public void event_handler_invalid_method_params_base_event_type_different_order() throws Exception {
         MethodSpec method = createHandleEventMethod()
-                .addParameter(Event.class, "event")
-                .addParameter(CountState.class, "state")
+                .addParameter(Event.class, VAR_EVENT)
+                .addParameter(CountState.class, VAR_STATE)
                 .returns(CountState.class)
                 .build();
 
@@ -299,12 +301,12 @@ public class HandleEventErrorTest {
     @Test
     public void event_handler_conflict_annotation_method_event_param() throws Exception {
         AnnotationSpec annotation = AnnotationSpec.builder(HandleEvent.class)
-                .addMember("event", "$T.class", ExampleEvent.class)
+                .addMember(VAR_EVENT, "$T.class", ExampleEvent.class)
                 .build();
 
         MethodSpec method = createHandlerMethod(annotation)
-                .addParameter(CountState.class, "state")
-                .addParameter(CountIncremented.class, "event")
+                .addParameter(CountState.class, VAR_STATE)
+                .addParameter(CountIncremented.class, VAR_EVENT)
                 .returns(CountState.class)
                 .build();
 
@@ -319,8 +321,8 @@ public class HandleEventErrorTest {
     @Test
     public void event_handler_conflict_state_return_type_method_param() throws Exception {
         MethodSpec method = createHandleEventMethod()
-                .addParameter(CountState.class, "state")
-                .addParameter(CountIncremented.class, "event")
+                .addParameter(CountState.class, VAR_STATE)
+                .addParameter(CountIncremented.class, VAR_EVENT)
                 .returns(ExampleState.class)
                 .build();
 
@@ -335,8 +337,8 @@ public class HandleEventErrorTest {
     @Test
     public void event_handler_conflict_state_return_type_method_param_different_order() throws Exception {
         MethodSpec method = createHandleEventMethod()
-                .addParameter(CountIncremented.class, "event")
-                .addParameter(CountState.class, "state")
+                .addParameter(CountIncremented.class, VAR_EVENT)
+                .addParameter(CountState.class, VAR_STATE)
                 .returns(ExampleState.class)
                 .build();
 
@@ -351,14 +353,14 @@ public class HandleEventErrorTest {
     @Test
     public void event_handlers_target_state_conflict() throws Exception {
         MethodSpec method1 = createHandleEventMethod()
-                .addParameter(CountState.class, "state")
-                .addParameter(CountIncremented.class, "event")
+                .addParameter(CountState.class, VAR_STATE)
+                .addParameter(CountIncremented.class, VAR_EVENT)
                 .returns(CountState.class)
                 .build();
 
         MethodSpec method2 = createHandleEventMethod()
-                .addParameter(ExampleState.class, "state")
-                .addParameter(ExampleEvent.class, "event")
+                .addParameter(ExampleState.class, VAR_STATE)
+                .addParameter(ExampleEvent.class, VAR_EVENT)
                 .returns(ExampleState.class)
                 .build();
 

@@ -42,13 +42,13 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
     // CONSTANTS
     //----------------------------------------------------------------------------------------------
 
-    protected static final String FIELD_PREFIX = "handler";
-    protected static final String METHOD_HANDLE = "handle";
-    protected static final String VAR_COMMAND = "command";
-    protected static final String VAR_EVENT = "event";
-    protected static final String VAR_FACADE = "facade";
-    protected static final String VAR_ORIGIN = "origin";
-    protected static final String VAR_STATE = "state";
+    public static final String FIELD_PREFIX = "handler";
+    public static final String METHOD_HANDLE = "handle";
+    public static final String VAR_COMMAND = "command";
+    public static final String VAR_EVENT = "event";
+    public static final String VAR_FACADE = "facade";
+    public static final String VAR_ORIGIN = "origin";
+    public static final String VAR_STATE = "state";
 
     //----------------------------------------------------------------------------------------------
     // PROPERTIES
