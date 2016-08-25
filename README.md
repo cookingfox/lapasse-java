@@ -32,7 +32,7 @@ and add the project to the `dependencies` block in your `build.gradle`:
 
 ```groovy
 dependencies {
-    compile 'com.cookingfox:lapasse:0.5.0'
+    compile 'com.cookingfox:lapasse:0.5.1'
 }
 ```
 
@@ -55,7 +55,7 @@ and add the project to the `dependencies` block in your `pom.xml`:
 <dependency>
     <groupId>com.cookingfox</groupId>
     <artifactId>lapasse</artifactId>
-    <version>0.5.0</version>
+    <version>0.5.1</version>
 </dependency>
 ```
 
@@ -67,9 +67,9 @@ download it, replace `lapasse` with `lapasse-rx` in the above dependency declara
 ## Usage
 
 Javadocs (hosted on javadoc.io):
-- [LaPasse (core)](http://www.javadoc.io/doc/com.cookingfox/lapasse/0.5.0)
-- [LaPasse Rx extension](http://www.javadoc.io/doc/com.cookingfox/lapasse-rx/0.5.0)
-- [LaPasse Compiler (annotation processor)](http://www.javadoc.io/doc/com.cookingfox/lapasse-compiler/0.5.0)
+- [LaPasse (core)](http://www.javadoc.io/doc/com.cookingfox/lapasse/0.5.1)
+- [LaPasse Rx extension](http://www.javadoc.io/doc/com.cookingfox/lapasse-rx/0.5.1)
+- [LaPasse Compiler (annotation processor)](http://www.javadoc.io/doc/com.cookingfox/lapasse-compiler/0.5.1)
 
 ## Samples
 

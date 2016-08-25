@@ -1,5 +1,10 @@
 # LaPasse for Java: Change Log
 
+## [0.5.1](../../tree/0.5.1) (2016-08-25)
+
+- Compiler: improved error reporting and detection of conflicts.
+- Compiler: also uses JavaPoet library in integration tests.
+
 ## [0.5.0](../../tree/0.5.0) (2016-08-23)
 
 - Makes annotated handler method parameters more flexible: parameters can be omitted, order is no
