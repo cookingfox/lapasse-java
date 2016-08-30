@@ -74,10 +74,10 @@ Javadocs (hosted on javadoc.io):
 ## Samples
 
 You can find the following sample applications in the [`lapasse-samples`](lapasse-samples) folder:
-- [TODO app "vanilla"](lapasse-samples/src/main/java/com/cookingfox/lapasse/samples/todo_vanilla):
+- [Tasks app "vanilla"](lapasse-samples/src/main/java/com/cookingfox/lapasse/samples/tasks_vanilla):
 uses the core LaPasse library (no extensions) and no annotations.
-- [TODO app with annotations](lapasse-samples/src/main/java/com/cookingfox/lapasse/samples/todo_annotations):
+- [Tasks app with annotations](lapasse-samples/src/main/java/com/cookingfox/lapasse/samples/tasks_annotations):
 uses the core LaPasse library (no extensions) and annotations.
-- [TODO app with Immutables](lapasse-samples/src/main/java/com/cookingfox/lapasse/samples/todo_immutables):
+- [Tasks app with Immutables](lapasse-samples/src/main/java/com/cookingfox/lapasse/samples/tasks_immutables):
 uses the core LaPasse library (no extensions), annotations and
 [Immutables library](http://immutables.github.io/).
