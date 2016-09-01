@@ -6,6 +6,7 @@ LaPasse requires at minimum Java 7.
 
 [![Build Status](https://travis-ci.org/cookingfox/lapasse-java.svg?branch=master)](https://travis-ci.org/cookingfox/lapasse-java)
 [![codecov](https://codecov.io/gh/cookingfox/lapasse-java/branch/master/graph/badge.svg)](https://codecov.io/gh/cookingfox/lapasse-java)
+[![Dependency Status](https://www.versioneye.com/user/projects/57c7f55d69d9490042f73165/badge.svg?style=flat-square)](https://www.versioneye.com/user/projects/57c7f55d69d9490042f73165)
 
 ### _Note: proper documentation is in the works!_
 
