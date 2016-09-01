@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <!-- Module parent -->
@@ -38,7 +40,7 @@
         <dependency>
             <groupId>com.squareup</groupId>
             <artifactId>javapoet</artifactId>
-            <version>1.7.0</version>
+            <version>${javapoet.version}</version>
         </dependency>
 
         <!-- Test dependencies -->
@@ -46,7 +48,7 @@
         <dependency>
             <groupId>com.google.testing.compile</groupId>
             <artifactId>compile-testing</artifactId>
-            <version>0.9</version>
+            <version>${compile-testing.version}</version>
             <scope>test</scope>
         </dependency>
 
@@ -60,14 +62,14 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>2.0.101-beta</version>
+            <version>${mockito.version}</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>com.google.truth</groupId>
             <artifactId>truth</artifactId>
-            <version>0.28</version>
+            <version>${truth.version}</version>
             <scope>test</scope>
         </dependency>
 
