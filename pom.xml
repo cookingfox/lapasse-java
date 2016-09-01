@@ -199,6 +199,9 @@
                 <groupId>com.versioneye</groupId>
                 <artifactId>versioneye-maven-plugin</artifactId>
                 <version>${versioneye-maven-plugin.version}</version>
+                <configuration>
+                    <projectId>57c7f07886473900166e9d9e</projectId>
+                </configuration>
             </plugin>
 
         </plugins>

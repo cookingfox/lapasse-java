@@ -48,6 +48,16 @@
                 </executions>
             </plugin>
 
+            <!-- Dependency version tracking -->
+            <plugin>
+                <groupId>com.versioneye</groupId>
+                <artifactId>versioneye-maven-plugin</artifactId>
+                <version>${versioneye-maven-plugin.version}</version>
+                <configuration>
+                    <projectId>57c7f078864739001080801e</projectId>
+                </configuration>
+            </plugin>
+
         </plugins>
     </build>
 

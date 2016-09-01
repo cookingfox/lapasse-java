@@ -54,4 +54,18 @@
 
     </dependencies>
 
+    <build>
+        <plugins>
+            <!-- Dependency version tracking -->
+            <plugin>
+                <groupId>com.versioneye</groupId>
+                <artifactId>versioneye-maven-plugin</artifactId>
+                <version>${versioneye-maven-plugin.version}</version>
+                <configuration>
+                    <projectId>57c7f07912b52600168519c2</projectId>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>

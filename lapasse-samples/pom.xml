@@ -103,6 +103,16 @@
                 </configuration>
             </plugin>
 
+            <!-- Dependency version tracking -->
+            <plugin>
+                <groupId>com.versioneye</groupId>
+                <artifactId>versioneye-maven-plugin</artifactId>
+                <version>${versioneye-maven-plugin.version}</version>
+                <configuration>
+                    <projectId>57c7f07b12b52600168519d8</projectId>
+                </configuration>
+            </plugin>
+
         </plugins>
 
     </build>
