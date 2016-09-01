@@ -25,7 +25,7 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
-            <version>${junit.version}</version>
+            <version>4.12</version>
         </dependency>
 
     </dependencies>
@@ -38,7 +38,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>${maven-jar-plugin.version}</version>
+                <version>3.0.2</version>
                 <executions>
                     <execution>
                         <goals>
@@ -46,16 +46,6 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
-
-            <!-- Dependency version tracking -->
-            <plugin>
-                <groupId>com.versioneye</groupId>
-                <artifactId>versioneye-maven-plugin</artifactId>
-                <version>${versioneye-maven-plugin.version}</version>
-                <configuration>
-                    <projectId>57c7f078864739001080801e</projectId>
-                </configuration>
             </plugin>
 
         </plugins>
