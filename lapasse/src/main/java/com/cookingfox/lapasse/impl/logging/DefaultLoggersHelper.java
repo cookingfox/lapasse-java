@@ -88,13 +88,13 @@ public class DefaultLoggersHelper<S extends State> implements LoggersHelper<S> {
     }
 
     @Override
-    public void onEventHandlerError(Throwable error, Event event, S newState) {
+    public void onEventHandlerError(Throwable error, Event event) {
         if (eventLoggers.isEmpty()) {
             throw new NoRegisteredEventLoggerException(error, event);
         }
 
         for (EventLogger<S> logger : eventLoggers) {
-            logger.onEventHandlerError(error, event, newState);
+            logger.onEventHandlerError(error, event);
         }
     }
 

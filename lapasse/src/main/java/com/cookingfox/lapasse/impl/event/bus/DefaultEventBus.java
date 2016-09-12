@@ -83,7 +83,7 @@ public class DefaultEventBus<S extends State>
             // attempt to create a new state by applying the event to the current state
             newState = eventHandler.handle(stateManager.getCurrentState(), event);
         } catch (Exception e) {
-            loggerHelper.onEventHandlerError(e, event, null);
+            loggerHelper.onEventHandlerError(e, event);
             return;
         }
 
@@ -92,7 +92,7 @@ public class DefaultEventBus<S extends State>
 
         if (newState == null) {
             // handler returned null: log error
-            loggerHelper.onEventHandlerError(new EventHandlerReturnedNullException(event), event, null);
+            loggerHelper.onEventHandlerError(new EventHandlerReturnedNullException(event), event);
         } else {
             // handler returned new state: pass to state manager
             stateManager.handleNewState(newState, event);

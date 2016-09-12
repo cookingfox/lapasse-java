@@ -13,7 +13,7 @@ public class DefaultLoggerTest {
         DefaultLogger<State> logger = new DefaultLogger<>();
         logger.onCommandHandlerError(null, null, null);
         logger.onCommandHandlerResult(null, null);
-        logger.onEventHandlerError(null, null, null);
+        logger.onEventHandlerError(null, null);
         logger.onEventHandlerResult(null, null);
     }
 

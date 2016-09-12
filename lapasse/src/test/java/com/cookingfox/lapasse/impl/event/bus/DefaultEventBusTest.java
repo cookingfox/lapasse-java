@@ -109,14 +109,12 @@ public class DefaultEventBusTest {
     public void executeHandler_should_log_error_if_handler_returns_null() throws Exception {
         final AtomicReference<Throwable> calledError = new AtomicReference<>();
         final AtomicReference<Event> calledEvent = new AtomicReference<>();
-        final AtomicReference<CountState> calledNewState = new AtomicReference<>();
 
         eventBus.addEventLogger(new DefaultLogger<CountState>() {
             @Override
-            public void onEventHandlerError(Throwable error, Event event, CountState newState) {
+            public void onEventHandlerError(Throwable error, Event event) {
                 calledError.set(error);
                 calledEvent.set(event);
-                calledNewState.set(newState);
             }
         });
 
@@ -134,23 +132,20 @@ public class DefaultEventBusTest {
         // noinspection all
         assertTrue(calledError.get() instanceof EventHandlerReturnedNullException);
         assertSame(event, calledEvent.get());
-        assertNull(calledNewState.get());
     }
 
     @Test
     public void executeHandler_should_log_error_if_handler_throws() throws Exception {
         final AtomicReference<Throwable> calledError = new AtomicReference<>();
         final AtomicReference<Event> calledEvent = new AtomicReference<>();
-        final AtomicReference<CountState> calledNewState = new AtomicReference<>();
 
         final RuntimeException targetException = new RuntimeException("Example error");
 
         eventBus.addEventLogger(new DefaultLogger<CountState>() {
             @Override
-            public void onEventHandlerError(Throwable error, Event event, CountState newState) {
+            public void onEventHandlerError(Throwable error, Event event) {
                 calledError.set(error);
                 calledEvent.set(event);
-                calledNewState.set(newState);
             }
         });
 
@@ -168,7 +163,6 @@ public class DefaultEventBusTest {
         // noinspection all
         assertSame(targetException, calledError.get());
         assertSame(event, calledEvent.get());
-        assertNull(calledNewState.get());
     }
 
     @Test

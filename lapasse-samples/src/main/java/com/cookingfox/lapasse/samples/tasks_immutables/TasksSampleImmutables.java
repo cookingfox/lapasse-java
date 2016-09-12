@@ -74,7 +74,7 @@ public class TasksSampleImmutables implements CombinedLogger<TasksState>, OnStat
     }
 
     @Override
-    public void onEventHandlerError(Throwable error, Event event, TasksState newState) {
+    public void onEventHandlerError(Throwable error, Event event) {
         error.printStackTrace();
     }
 

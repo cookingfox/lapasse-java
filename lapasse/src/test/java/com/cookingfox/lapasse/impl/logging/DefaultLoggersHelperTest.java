@@ -119,7 +119,7 @@ public class DefaultLoggersHelperTest {
 
         loggers.addEventLogger(new EventLogger<CountState>() {
             @Override
-            public void onEventHandlerError(Throwable error, Event event, CountState newState) {
+            public void onEventHandlerError(Throwable error, Event event) {
                 eventErrorCalled.set(true);
             }
 
@@ -129,7 +129,7 @@ public class DefaultLoggersHelperTest {
             }
         });
 
-        loggers.onEventHandlerError(null, null, null);
+        loggers.onEventHandlerError(null, null);
         loggers.onEventHandlerResult(null, null);
 
         assertTrue(eventErrorCalled.get());
@@ -169,7 +169,7 @@ public class DefaultLoggersHelperTest {
 
     @Test(expected = NoRegisteredEventLoggerException.class)
     public void onEventHandlerError_should_throw_if_no_event_loggers() throws Exception {
-        loggers.onEventHandlerError(null, null, null);
+        loggers.onEventHandlerError(null, null);
     }
 
     //----------------------------------------------------------------------------------------------
@@ -200,7 +200,7 @@ public class DefaultLoggersHelperTest {
             }
 
             @Override
-            public void onEventHandlerError(Throwable error, Event event, CountState newState) {
+            public void onEventHandlerError(Throwable error, Event event) {
                 eventErrorCalled.set(true);
             }
 
@@ -212,7 +212,7 @@ public class DefaultLoggersHelperTest {
 
         loggers.onCommandHandlerError(null, null, null);
         loggers.onCommandHandlerResult(null, null);
-        loggers.onEventHandlerError(null, null, null);
+        loggers.onEventHandlerError(null, null);
         loggers.onEventHandlerResult(null, null);
 
         assertTrue(commandErrorCalled.get());

@@ -25,7 +25,7 @@ public class DefaultLogger<S extends State> implements CombinedLogger<S> {
     }
 
     @Override
-    public void onEventHandlerError(Throwable error, Event event, S newState) {
+    public void onEventHandlerError(Throwable error, Event event) {
         // override in subclass
     }
 
