@@ -1,5 +1,9 @@
 # LaPasse for Java: Change Log
 
+## [0.5.2](../../tree/0.5.2) (2016-09-13)
+
+- Adds `RxLoggerHelper` with methods for logging operations from an Rx context.
+
 ## [0.5.1](../../tree/0.5.1) (2016-08-25)
 
 - Compiler: improved error reporting and detection of conflicts.
