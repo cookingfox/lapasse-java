@@ -1,5 +1,9 @@
 # LaPasse for Java: Change Log
 
+## [0.5.3](../../tree/0.5.3) (2016-09-14)
+
+- Removes events parameter from command handler error in logger.
+
 ## [0.5.2](../../tree/0.5.2) (2016-09-13)
 
 - Adds `RxLoggerHelper` with methods for logging operations from an Rx context.
