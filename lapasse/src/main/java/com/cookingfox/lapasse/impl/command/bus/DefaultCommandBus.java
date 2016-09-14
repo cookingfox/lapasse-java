@@ -259,7 +259,7 @@ public class DefaultCommandBus<S extends State>
      */
     protected void handleMultiResult(Throwable error, Command command, Collection<Event> events) {
         if (error != null) {
-            loggerHelper.onCommandHandlerError(error, command, events);
+            loggerHelper.onCommandHandlerError(error, command);
             return;
         }
 

@@ -11,7 +11,7 @@ public class DefaultLoggerTest {
     @Test
     public void public_methods_should_not_throw_for_null_values() throws Exception {
         DefaultLogger<State> logger = new DefaultLogger<>();
-        logger.onCommandHandlerError(null, null, null);
+        logger.onCommandHandlerError(null, null);
         logger.onCommandHandlerResult(null, null);
         logger.onEventHandlerError(null, null);
         logger.onEventHandlerResult(null, null);

@@ -52,13 +52,13 @@ public class DefaultLoggersHelper<S extends State> implements LoggersHelper<S> {
     }
 
     @Override
-    public void onCommandHandlerError(Throwable error, Command command, Collection<Event> events) {
+    public void onCommandHandlerError(Throwable error, Command command) {
         if (commandLoggers.isEmpty()) {
             throw new NoRegisteredCommandLoggerException(error, command);
         }
 
         for (CommandLogger logger : commandLoggers) {
-            logger.onCommandHandlerError(error, command, events);
+            logger.onCommandHandlerError(error, command);
         }
     }
 

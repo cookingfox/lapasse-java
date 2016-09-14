@@ -15,7 +15,7 @@ import java.util.Collection;
 public class DefaultLogger<S extends State> implements CombinedLogger<S> {
 
     @Override
-    public void onCommandHandlerError(Throwable error, Command command, Collection<Event> events) {
+    public void onCommandHandlerError(Throwable error, Command command) {
         // override in subclass
     }
 

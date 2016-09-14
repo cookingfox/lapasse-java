@@ -49,8 +49,7 @@ public final class RxLoggerHelper {
                 // create logger
                 final CommandLogger logger = new NoopCommandLogger() {
                     @Override
-                    public void onCommandHandlerError(final Throwable e, final Command command,
-                                                      final Collection<Event> events) {
+                    public void onCommandHandlerError(final Throwable e, final Command command) {
                         subscriber.onNext(new CommandHandlerError() {
                             @Override
                             public Command getCommand() {
@@ -60,11 +59,6 @@ public final class RxLoggerHelper {
                             @Override
                             public Throwable getError() {
                                 return e;
-                            }
-
-                            @Override
-                            public Collection<Event> getEvents() {
-                                return events;
                             }
                         });
                     }
@@ -226,7 +220,7 @@ public final class RxLoggerHelper {
     static class NoopCommandLogger implements CommandLogger {
 
         @Override
-        public void onCommandHandlerError(Throwable e, Command command, Collection<Event> events) {
+        public void onCommandHandlerError(Throwable e, Command command) {
             // override in subclass
         }
 

@@ -15,10 +15,8 @@ public interface CommandLogger {
      *
      * @param error   The error that occurred.
      * @param command The command that was handled.
-     * @param events  The resulting event(s). Note: command handlers are not required to produce
-     *                events.
      */
-    void onCommandHandlerError(Throwable error, Command command, Collection<Event> events);
+    void onCommandHandlerError(Throwable error, Command command);
 
     /**
      * Called when a command handler returns a result.

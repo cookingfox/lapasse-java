@@ -248,16 +248,14 @@ public class DefaultCommandBusTest {
     public void executeHandler_should_log_error_of_throwing_single_handler() throws Exception {
         final AtomicReference<Throwable> calledError = new AtomicReference<>();
         final AtomicReference<Command> calledCommand = new AtomicReference<>();
-        final AtomicReference<Collection<Event>> calledEvents = new AtomicReference<>();
 
         final RuntimeException targetException = new RuntimeException("Example error");
 
         commandBus.addCommandLogger(new DefaultLogger<CountState>() {
             @Override
-            public void onCommandHandlerError(Throwable error, Command command, Collection<Event> events) {
+            public void onCommandHandlerError(Throwable error, Command command) {
                 calledError.set(error);
                 calledCommand.set(command);
-                calledEvents.set(events);
             }
         });
 
@@ -274,7 +272,6 @@ public class DefaultCommandBusTest {
 
         assertSame(targetException, calledError.get());
         assertSame(command, calledCommand.get());
-        assertNull(calledEvents.get());
     }
 
     @Test
@@ -310,16 +307,14 @@ public class DefaultCommandBusTest {
     public void executeHandler_should_log_error_of_throwing_multi_handler() throws Exception {
         final AtomicReference<Throwable> calledError = new AtomicReference<>();
         final AtomicReference<Command> calledCommand = new AtomicReference<>();
-        final AtomicReference<Collection<Event>> calledEvents = new AtomicReference<>();
 
         final RuntimeException targetException = new RuntimeException("Example error");
 
         commandBus.addCommandLogger(new DefaultLogger<CountState>() {
             @Override
-            public void onCommandHandlerError(Throwable error, Command command, Collection<Event> events) {
+            public void onCommandHandlerError(Throwable error, Command command) {
                 calledError.set(error);
                 calledCommand.set(command);
-                calledEvents.set(events);
             }
         });
 
@@ -336,7 +331,6 @@ public class DefaultCommandBusTest {
 
         assertSame(targetException, calledError.get());
         assertSame(command, calledCommand.get());
-        assertNull(calledEvents.get());
     }
 
     @Test

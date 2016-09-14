@@ -137,7 +137,7 @@ public class DefaultRxCommandBusTest {
 
         loggers.addLogger(new DefaultLogger<CountState>() {
             @Override
-            public void onCommandHandlerError(Throwable error, Command command, Collection<Event> events) {
+            public void onCommandHandlerError(Throwable error, Command command) {
                 calledError.set(error);
             }
         });
@@ -164,7 +164,7 @@ public class DefaultRxCommandBusTest {
 
         loggers.addLogger(new DefaultLogger<CountState>() {
             @Override
-            public void onCommandHandlerError(Throwable error, Command command, Collection<Event> events) {
+            public void onCommandHandlerError(Throwable error, Command command) {
                 calledError.set(error);
             }
         });
@@ -234,7 +234,7 @@ public class DefaultRxCommandBusTest {
 
         loggers.addLogger(new DefaultLogger<CountState>() {
             @Override
-            public void onCommandHandlerError(Throwable error, Command command, Collection<Event> events) {
+            public void onCommandHandlerError(Throwable error, Command command) {
                 calledError.set(error);
             }
         });
@@ -261,7 +261,7 @@ public class DefaultRxCommandBusTest {
 
         loggers.addLogger(new DefaultLogger<CountState>() {
             @Override
-            public void onCommandHandlerError(Throwable error, Command command, Collection<Event> events) {
+            public void onCommandHandlerError(Throwable error, Command command) {
                 calledError.set(error);
             }
         });

@@ -66,7 +66,7 @@ public class TasksSampleVanilla implements CombinedLogger<TasksState>, OnStateCh
     }
 
     @Override
-    public void onCommandHandlerError(Throwable error, Command command, Collection<Event> events) {
+    public void onCommandHandlerError(Throwable error, Command command) {
         error.printStackTrace();
     }
 

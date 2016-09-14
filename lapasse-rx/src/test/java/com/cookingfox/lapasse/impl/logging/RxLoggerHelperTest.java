@@ -69,7 +69,6 @@ public class RxLoggerHelperTest {
         assertNotNull(vo);
         assertSame(command, vo.getCommand());
         assertSame(error, vo.getError());
-        assertNull(vo.getEvents());
     }
 
     @Test
@@ -270,7 +269,7 @@ public class RxLoggerHelperTest {
     @Test
     public void DefaultCommandLogger_should_not_throw_if_not_overridden() throws Exception {
         NoopCommandLogger logger = new NoopCommandLogger();
-        logger.onCommandHandlerError(null, null, null);
+        logger.onCommandHandlerError(null, null);
         logger.onCommandHandlerResult(null, null);
     }
 

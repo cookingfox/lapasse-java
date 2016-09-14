@@ -50,7 +50,7 @@ public class DefaultLoggersHelperTest {
 
         loggers.addCommandLogger(new CommandLogger() {
             @Override
-            public void onCommandHandlerError(Throwable error, Command command, Collection<Event> events) {
+            public void onCommandHandlerError(Throwable error, Command command) {
                 commandErrorCalled.set(true);
             }
 
@@ -60,7 +60,7 @@ public class DefaultLoggersHelperTest {
             }
         });
 
-        loggers.onCommandHandlerError(null, null, null);
+        loggers.onCommandHandlerError(null, null);
         loggers.onCommandHandlerResult(null, null);
 
         assertTrue(commandErrorCalled.get());
@@ -100,7 +100,7 @@ public class DefaultLoggersHelperTest {
 
     @Test(expected = NoRegisteredCommandLoggerException.class)
     public void onCommandHandlerError_should_throw_if_no_command_loggers() throws Exception {
-        loggers.onCommandHandlerError(null, null, null);
+        loggers.onCommandHandlerError(null, null);
     }
 
     //----------------------------------------------------------------------------------------------
@@ -190,7 +190,7 @@ public class DefaultLoggersHelperTest {
 
         loggers.addLogger(new DefaultLogger<CountState>() {
             @Override
-            public void onCommandHandlerError(Throwable error, Command command, Collection<Event> events) {
+            public void onCommandHandlerError(Throwable error, Command command) {
                 commandErrorCalled.set(true);
             }
 
@@ -210,7 +210,7 @@ public class DefaultLoggersHelperTest {
             }
         });
 
-        loggers.onCommandHandlerError(null, null, null);
+        loggers.onCommandHandlerError(null, null);
         loggers.onCommandHandlerResult(null, null);
         loggers.onEventHandlerError(null, null);
         loggers.onEventHandlerResult(null, null);
