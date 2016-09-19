@@ -1,7 +1,6 @@
 package com.cookingfox.lapasse.impl.state.manager;
 
 import com.cookingfox.lapasse.api.event.Event;
-import com.cookingfox.lapasse.api.exception.ListenerNotAddedException;
 import com.cookingfox.lapasse.api.state.State;
 import com.cookingfox.lapasse.api.state.manager.StateManager;
 import com.cookingfox.lapasse.api.state.observer.OnStateChanged;
@@ -74,10 +73,6 @@ public class DefaultStateManager<S extends State> implements StateManager<S> {
     @Override
     public void removeStateChangedListener(OnStateChanged<S> listener) {
         Objects.requireNonNull(listener, "Listener can not be null");
-
-        if (!stateChangedListeners.contains(listener)) {
-            throw new ListenerNotAddedException(listener, this);
-        }
 
         stateChangedListeners.remove(listener);
     }

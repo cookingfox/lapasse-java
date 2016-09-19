@@ -1,6 +1,5 @@
 package com.cookingfox.lapasse.impl.message.store;
 
-import com.cookingfox.lapasse.api.exception.ListenerNotAddedException;
 import com.cookingfox.lapasse.api.message.Message;
 import com.cookingfox.lapasse.api.message.store.MessageStore;
 import com.cookingfox.lapasse.api.message.store.OnMessageAdded;
@@ -35,13 +34,7 @@ public abstract class AbstractMessageStore implements MessageStore {
 
     @Override
     public void removeMessageAddedListener(OnMessageAdded listener) {
-        Objects.requireNonNull(listener, "Listener can not be null");
-
-        if (!messageAddedListeners.contains(listener)) {
-            throw new ListenerNotAddedException(listener, this);
-        }
-
-        messageAddedListeners.remove(listener);
+        messageAddedListeners.remove(Objects.requireNonNull(listener, "Listener can not be null"));
     }
 
     //----------------------------------------------------------------------------------------------

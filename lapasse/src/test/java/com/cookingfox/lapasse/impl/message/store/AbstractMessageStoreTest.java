@@ -1,6 +1,5 @@
 package com.cookingfox.lapasse.impl.message.store;
 
-import com.cookingfox.lapasse.api.exception.ListenerNotAddedException;
 import com.cookingfox.lapasse.api.message.Message;
 import com.cookingfox.lapasse.api.message.store.OnMessageAdded;
 import fixtures.message.FixtureMessage;
@@ -85,8 +84,8 @@ public class AbstractMessageStoreTest {
         messageStore.removeMessageAddedListener(null);
     }
 
-    @Test(expected = ListenerNotAddedException.class)
-    public void removeMessageAddedListener_should_throw_if_not_added() throws Exception {
+    @Test
+    public void removeMessageAddedListener_should_not_throw_if_not_added() throws Exception {
         messageStore.removeMessageAddedListener(new OnMessageAdded() {
             @Override
             public void onMessageAdded(Message message) {

@@ -1,7 +1,6 @@
 package com.cookingfox.lapasse.impl.state.manager;
 
 import com.cookingfox.lapasse.api.event.Event;
-import com.cookingfox.lapasse.api.exception.ListenerNotAddedException;
 import com.cookingfox.lapasse.api.state.observer.OnStateChanged;
 import fixtures.example.event.CountIncremented;
 import fixtures.example.state.CountState;
@@ -156,8 +155,8 @@ public class DefaultStateManagerTest {
         stateManager.removeStateChangedListener(null);
     }
 
-    @Test(expected = ListenerNotAddedException.class)
-    public void removeStateChangedListener_should_throw_if_not_added() throws Exception {
+    @Test
+    public void removeStateChangedListener_should_not_throw_if_not_added() throws Exception {
         stateManager.removeStateChangedListener(new OnStateChanged<CountState>() {
             @Override
             public void onStateChanged(CountState state, Event event) {

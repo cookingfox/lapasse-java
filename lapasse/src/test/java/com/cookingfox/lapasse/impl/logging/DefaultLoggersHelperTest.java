@@ -6,7 +6,6 @@ import com.cookingfox.lapasse.api.command.logging.CommandLogger;
 import com.cookingfox.lapasse.api.event.Event;
 import com.cookingfox.lapasse.api.event.exception.NoRegisteredEventLoggerException;
 import com.cookingfox.lapasse.api.event.logging.EventLogger;
-import com.cookingfox.lapasse.api.exception.LoggerNotAddedException;
 import com.cookingfox.lapasse.api.state.State;
 import fixtures.example.state.CountState;
 import org.junit.Before;
@@ -76,8 +75,8 @@ public class DefaultLoggersHelperTest {
         loggers.removeCommandLogger(null);
     }
 
-    @Test(expected = LoggerNotAddedException.class)
-    public void removeCommandLogger_should_throw_if_not_added() throws Exception {
+    @Test
+    public void removeCommandLogger_should_not_throw_if_not_added() throws Exception {
         loggers.removeCommandLogger(new DefaultLogger<>());
     }
 
@@ -145,8 +144,8 @@ public class DefaultLoggersHelperTest {
         loggers.removeEventLogger(null);
     }
 
-    @Test(expected = LoggerNotAddedException.class)
-    public void removeEventLogger_should_throw_if_not_added() throws Exception {
+    @Test
+    public void removeEventLogger_should_not_throw_if_not_added() throws Exception {
         loggers.removeEventLogger(new DefaultLogger<CountState>());
     }
 
@@ -230,8 +229,8 @@ public class DefaultLoggersHelperTest {
         loggers.removeLogger(null);
     }
 
-    @Test(expected = LoggerNotAddedException.class)
-    public void removeLogger_should_throw_if_not_added() throws Exception {
+    @Test
+    public void removeLogger_should_not_throw_if_not_added() throws Exception {
         loggers.removeLogger(new DefaultLogger<CountState>());
     }
 

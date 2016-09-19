@@ -6,7 +6,6 @@ import com.cookingfox.lapasse.api.command.logging.CommandLogger;
 import com.cookingfox.lapasse.api.event.Event;
 import com.cookingfox.lapasse.api.event.exception.NoRegisteredEventLoggerException;
 import com.cookingfox.lapasse.api.event.logging.EventLogger;
-import com.cookingfox.lapasse.api.exception.LoggerNotAddedException;
 import com.cookingfox.lapasse.api.logging.CombinedLogger;
 import com.cookingfox.lapasse.api.logging.LoggersHelper;
 import com.cookingfox.lapasse.api.state.State;
@@ -44,11 +43,7 @@ public class DefaultLoggersHelper<S extends State> implements LoggersHelper<S> {
 
     @Override
     public void removeCommandLogger(CommandLogger logger) {
-        if (!commandLoggers.contains(Objects.requireNonNull(logger, "Logger can not be null"))) {
-            throw new LoggerNotAddedException(logger, this);
-        }
-
-        commandLoggers.remove(logger);
+        commandLoggers.remove(Objects.requireNonNull(logger, "Logger can not be null"));
     }
 
     @Override
@@ -80,11 +75,7 @@ public class DefaultLoggersHelper<S extends State> implements LoggersHelper<S> {
 
     @Override
     public void removeEventLogger(EventLogger<S> logger) {
-        if (!eventLoggers.contains(Objects.requireNonNull(logger, "Logger can not be null"))) {
-            throw new LoggerNotAddedException(logger, this);
-        }
-
-        eventLoggers.remove(logger);
+        eventLoggers.remove(Objects.requireNonNull(logger, "Logger can not be null"));
     }
 
     @Override
