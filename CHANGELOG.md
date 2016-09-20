@@ -1,5 +1,9 @@
 # LaPasse for Java: Change Log
 
+## [0.5.4](../../tree/0.5.4) (2016-09-20)
+
+- Removing a listener or logger will no longer throw if it has not been added.
+
 ## [0.5.3](../../tree/0.5.3) (2016-09-14)
 
 - Removes events parameter from command handler error in logger.
