@@ -129,12 +129,32 @@ public class DefaultStateManagerTest {
         });
 
         CountState newState = new CountState(1);
-        CountIncremented event = new CountIncremented(1);
+        CountIncremented event = new CountIncremented(newState.getCount());
 
         stateManager.handleNewState(newState, event);
 
         assertSame(newState, listenerState.get());
         assertSame(event, listenerEvent.get());
+    }
+
+    @Test
+    public void handleNewState_should_not_notify_listeners_if_not_changed() throws Exception {
+        final AtomicBoolean called = new AtomicBoolean(false);
+
+        stateManager.addStateChangedListener(new OnStateChanged<CountState>() {
+            @Override
+            public void onStateChanged(CountState state, Event event) {
+                called.set(true);
+            }
+        });
+
+        // new state equal to initial state
+        CountState newState = new CountState(initialState.getCount());
+        CountIncremented event = new CountIncremented(newState.getCount());
+
+        stateManager.handleNewState(newState, event);
+
+        assertFalse(called.get());
     }
 
     //----------------------------------------------------------------------------------------------

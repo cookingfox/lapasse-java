@@ -20,11 +20,12 @@ public class DefaultRxStateManagerTest {
     // TEST SETUP
     //----------------------------------------------------------------------------------------------
 
+    private final CountState initialState = new CountState(0);
     private DefaultRxStateManager<CountState> stateManager;
 
     @Before
     public void setUp() throws Exception {
-        stateManager = new DefaultRxStateManager<>(new CountState(0));
+        stateManager = new DefaultRxStateManager<>(initialState);
     }
 
     //----------------------------------------------------------------------------------------------
@@ -54,6 +55,22 @@ public class DefaultRxStateManagerTest {
         String toString = stateChanged.toString();
         assertTrue(toString.contains("event="));
         assertTrue(toString.contains("state="));
+    }
+
+    @Test
+    public void observeStateChanges_should_not_emit_if_no_change() throws Exception {
+        TestSubscriber<StateChanged<CountState>> subscriber = TestSubscriber.create();
+
+        stateManager.observeStateChanges().subscribe(subscriber);
+
+        // new state equal to initial state
+        CountState newState = new CountState(initialState.getCount());
+        CountIncremented event = new CountIncremented(newState.getCount());
+
+        stateManager.handleNewState(newState, event);
+
+        subscriber.assertNoErrors();
+        subscriber.assertValueCount(0);
     }
 
     @Test
