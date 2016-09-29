@@ -39,6 +39,11 @@ public class RxLoggerHelperTest {
     // TESTS: observeCommandHandlerErrors
     //----------------------------------------------------------------------------------------------
 
+    @Test(expected = NullPointerException.class)
+    public void observeCommandHandlerErrors_should_throw_if_null() throws Exception {
+        observeCommandHandlerErrors(null);
+    }
+
     @Test
     public void observeCommandHandlerErrors_should_observe_command_error() throws Exception {
         LaPasseRxFacade<CountState> facade = new LaPasseRxFacade.Builder<>(new CountState(0)).build();
@@ -93,6 +98,11 @@ public class RxLoggerHelperTest {
     //----------------------------------------------------------------------------------------------
     // TESTS: observeCommandHandlerResults
     //----------------------------------------------------------------------------------------------
+
+    @Test(expected = NullPointerException.class)
+    public void observeCommandHandlerResults_should_throw_if_null() throws Exception {
+        observeCommandHandlerResults(null);
+    }
 
     @Test
     public void observeCommandHandlerResults_should_observe_command_result() throws Exception {
@@ -156,6 +166,11 @@ public class RxLoggerHelperTest {
     // TESTS: observeEventHandlerErrors
     //----------------------------------------------------------------------------------------------
 
+    @Test(expected = NullPointerException.class)
+    public void observeEventHandlerErrors_should_throw_if_null() throws Exception {
+        observeEventHandlerErrors(null);
+    }
+
     @Test
     public void observeEventHandlerErrors_should_observe_event_error() throws Exception {
         LaPasseRxFacade<CountState> facade = new LaPasseRxFacade.Builder<>(new CountState(0)).build();
@@ -210,6 +225,11 @@ public class RxLoggerHelperTest {
     //----------------------------------------------------------------------------------------------
     // TESTS: observeEventHandlerResults
     //----------------------------------------------------------------------------------------------
+
+    @Test(expected = NullPointerException.class)
+    public void observeEventHandlerResults_should_throw_if_null() throws Exception {
+        observeEventHandlerResults(null);
+    }
 
     @Test
     public void observeEventHandlerResults_should_observe_event_result() throws Exception {
@@ -268,14 +288,14 @@ public class RxLoggerHelperTest {
 
     @Test
     public void DefaultCommandLogger_should_not_throw_if_not_overridden() throws Exception {
-        NoopCommandLogger logger = new NoopCommandLogger();
+        RxCommandLogger<?> logger = new RxCommandLogger<>();
         logger.onCommandHandlerError(null, null);
         logger.onCommandHandlerResult(null, null);
     }
 
     @Test
     public void DefaultEventLogger_should_not_throw_if_not_overridden() throws Exception {
-        NoopEventLogger<CountState> logger = new NoopEventLogger<>();
+        RxEventLogger<CountState, ?> logger = new RxEventLogger<>();
         logger.onEventHandlerError(null, null);
         logger.onEventHandlerResult(null, null);
     }
