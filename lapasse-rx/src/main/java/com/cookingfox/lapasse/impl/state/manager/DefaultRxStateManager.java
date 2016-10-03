@@ -5,8 +5,11 @@ import com.cookingfox.lapasse.api.state.State;
 import com.cookingfox.lapasse.api.state.manager.RxStateManager;
 import com.cookingfox.lapasse.api.state.manager.StateManager;
 import com.cookingfox.lapasse.api.state.observer.OnStateChanged;
+import com.cookingfox.lapasse.api.state.observer.OnStateUpdated;
 import com.cookingfox.lapasse.api.state.observer.StateChanged;
+import com.cookingfox.lapasse.api.state.observer.StateUpdated;
 import com.cookingfox.lapasse.impl.state.observer.StateChangedVo;
+import com.cookingfox.lapasse.impl.state.observer.StateUpdatedVo;
 import rx.Observable;
 import rx.Subscriber;
 import rx.functions.Action0;
@@ -60,6 +63,40 @@ public class DefaultRxStateManager<S extends State>
                         // remove listener, if not yet cleared
                         if (stateChangedListeners.contains(listener)) {
                             removeStateChangedListener(listener);
+                        }
+                    }
+                }));
+            }
+        });
+    }
+
+    @Override
+    public Observable<StateUpdated<S>> observeStateUpdates() {
+        return Observable.create(new Observable.OnSubscribe<StateUpdated<S>>() {
+            @Override
+            public void call(final Subscriber<? super StateUpdated<S>> subscriber) {
+                // create new listener
+                final OnStateUpdated<S> listener = new OnStateUpdated<S>() {
+                    @Override
+                    public void onStateUpdated(final S state, final Event event) {
+                        // wrap parameters with VO
+                        subscriber.onNext(new StateUpdatedVo<>(event, state));
+                    }
+                };
+
+                // add listener
+                addStateUpdatedListener(listener);
+
+                // remove listener on unsubscribe
+                subscriber.add(Subscriptions.create(new Action0() {
+                    @Override
+                    public void call() {
+                        // complete subscriber
+                        subscriber.onCompleted();
+
+                        // remove listener, if not yet cleared
+                        if (stateUpdatedListeners.contains(listener)) {
+                            removeStateUpdatedListener(listener);
                         }
                     }
                 }));

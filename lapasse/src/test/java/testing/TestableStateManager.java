@@ -1,28 +1,26 @@
 package testing;
 
 import com.cookingfox.lapasse.api.state.State;
+import com.cookingfox.lapasse.api.state.manager.StateManager;
 import com.cookingfox.lapasse.api.state.observer.OnStateChanged;
 import com.cookingfox.lapasse.api.state.observer.OnStateUpdated;
-import com.cookingfox.lapasse.impl.state.manager.DefaultStateManager;
 
 /**
- * Implementation of {@link DefaultStateManager} which contains extra methods for testing.
+ * Contains methods for testing a state manager implementation.
  *
  * @param <S> The concrete type of the state object.
  */
-public class TestableStateManager<S extends State> extends DefaultStateManager<S> {
+public interface TestableStateManager<S extends State> extends StateManager<S> {
 
-    //----------------------------------------------------------------------------------------------
-    // CONSTRUCTOR
-    //----------------------------------------------------------------------------------------------
+    /**
+     * @return Number of added {@link OnStateChanged} listeners.
+     */
+    int getStateChangedListenersSize();
 
-    public TestableStateManager(S initialState) {
-        super(initialState);
-    }
-
-    //----------------------------------------------------------------------------------------------
-    // PUBLIC METHODS
-    //----------------------------------------------------------------------------------------------
+    /**
+     * @return Number of added {@link OnStateUpdated} listeners.
+     */
+    int getStateUpdatedListenersSize();
 
     /**
      * Returns whether the provided listener is added.
@@ -30,9 +28,7 @@ public class TestableStateManager<S extends State> extends DefaultStateManager<S
      * @param listener The listener instance.
      * @return Whether the provided listener is added.
      */
-    public boolean hasStateChangedListener(OnStateChanged<S> listener) {
-        return stateChangedListeners.contains(listener);
-    }
+    boolean hasStateChangedListener(OnStateChanged<S> listener);
 
     /**
      * Returns whether the provided listener is added.
@@ -40,8 +36,6 @@ public class TestableStateManager<S extends State> extends DefaultStateManager<S
      * @param listener The listener instance.
      * @return Whether the provided listener is added.
      */
-    public boolean hasStateUpdatedListener(OnStateUpdated<S> listener) {
-        return stateUpdatedListeners.contains(listener);
-    }
+    boolean hasStateUpdatedListener(OnStateUpdated<S> listener);
 
 }

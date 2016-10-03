@@ -2,7 +2,6 @@ package com.cookingfox.lapasse.impl.facade;
 
 import com.cookingfox.lapasse.api.command.bus.CommandBus;
 import com.cookingfox.lapasse.api.event.bus.EventBus;
-import com.cookingfox.lapasse.api.facade.Facade;
 import com.cookingfox.lapasse.api.logging.LoggersHelper;
 import com.cookingfox.lapasse.api.message.store.MessageStore;
 import com.cookingfox.lapasse.api.state.manager.StateManager;
@@ -22,14 +21,14 @@ import static org.junit.Assert.assertTrue;
 /**
  * Unit tests for {@link LaPasseFacade}.
  */
-public class LaPasseFacadeTest extends AbstractFacadeTest {
+public class LaPasseFacadeTest extends AbstractFacadeTest<LaPasseFacade<CountState>> {
 
     //----------------------------------------------------------------------------------------------
     // ABSTRACT TEST IMPLEMENTATIONS (SEE SUPER)
     //----------------------------------------------------------------------------------------------
 
     @Override
-    Facade<CountState> createTestFacade() {
+    LaPasseFacade<CountState> createTestFacade() {
         return facade;
     }
 

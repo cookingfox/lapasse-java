@@ -1,16 +1,14 @@
 package com.cookingfox.lapasse.impl.facade;
 
-import com.cookingfox.lapasse.api.command.bus.CommandBus;
 import com.cookingfox.lapasse.api.command.handler.VoidCommandHandler;
 import com.cookingfox.lapasse.api.event.Event;
 import com.cookingfox.lapasse.api.event.bus.EventBus;
 import com.cookingfox.lapasse.api.event.handler.EventHandler;
-import com.cookingfox.lapasse.api.facade.Facade;
+import com.cookingfox.lapasse.api.facade.RxFacade;
 import com.cookingfox.lapasse.api.logging.CombinedLogger;
 import com.cookingfox.lapasse.api.message.store.MessageStore;
 import com.cookingfox.lapasse.api.state.observer.OnStateChanged;
 import com.cookingfox.lapasse.api.state.observer.OnStateUpdated;
-import com.cookingfox.lapasse.impl.command.bus.DefaultCommandBus;
 import com.cookingfox.lapasse.impl.event.bus.DefaultEventBus;
 import com.cookingfox.lapasse.impl.logging.DefaultLogger;
 import com.cookingfox.lapasse.impl.message.store.NoStorageMessageStore;
@@ -19,8 +17,12 @@ import fixtures.example.event.CountIncremented;
 import fixtures.example.state.CountState;
 import org.junit.Before;
 import org.junit.Test;
-import testing.TestableDefaultStateManager;
+import rx.Scheduler;
+import rx.Subscription;
+import rx.schedulers.Schedulers;
+import testing.TestableDefaultRxStateManager;
 import testing.TestableLoggersHelper;
+import testing.TestableRxCommandBus;
 
 import java.util.Objects;
 import java.util.concurrent.Executors;
@@ -28,35 +30,35 @@ import java.util.concurrent.Executors;
 import static org.junit.Assert.*;
 
 /**
- * Abstract class for {@link Facade} tests.
+ * Abstract class for {@link RxFacade} tests.
  *
  * @param <T> Indicates the concrete facade implementation which this class will test.
  */
-public abstract class AbstractFacadeTest<T extends Facade<CountState>> {
+public abstract class AbstractRxFacadeTest<T extends RxFacade<CountState>> {
 
     //----------------------------------------------------------------------------------------------
     // TESTS SETUP
     //----------------------------------------------------------------------------------------------
 
-    CommandBus<CountState> commandBus;
+    TestableRxCommandBus<CountState> commandBus;
     EventBus<CountState> eventBus;
-    LaPasseFacade<CountState> facade;
+    LaPasseRxFacade<CountState> facade;
     CountState initialState;
     CombinedLogger<CountState> logger = new DefaultLogger<>();
     TestableLoggersHelper<CountState> loggersHelper;
     MessageStore messageStore;
-    TestableDefaultStateManager<CountState> stateManager;
+    TestableDefaultRxStateManager<CountState> stateManager;
     T testSubject;
 
     @Before
     public void setUp() throws Exception {
         initialState = new CountState(0);
         loggersHelper = new TestableLoggersHelper<>();
-        stateManager = new TestableDefaultStateManager<>(initialState);
+        stateManager = new TestableDefaultRxStateManager<>(initialState);
         messageStore = new NoStorageMessageStore();
         eventBus = new DefaultEventBus<>(messageStore, loggersHelper, stateManager);
-        commandBus = new DefaultCommandBus<>(messageStore, eventBus, loggersHelper, stateManager);
-        facade = new LaPasseFacade<>(commandBus, eventBus, loggersHelper, messageStore, stateManager);
+        commandBus = new TestableRxCommandBus<>(messageStore, eventBus, loggersHelper, stateManager);
+        facade = new LaPasseRxFacade<>(commandBus, eventBus, loggersHelper, messageStore, stateManager);
 
         testSubject = Objects.requireNonNull(createTestFacade());
     }
@@ -94,6 +96,23 @@ public abstract class AbstractFacadeTest<T extends Facade<CountState>> {
         testSubject.removeCommandLogger(logger);
 
         assertFalse(loggersHelper.hasCommandLogger(logger));
+    }
+
+    @Test
+    public void rxCommandBus_should_be_ok() throws Exception {
+        assertNull(commandBus.getRawObserveOnScheduler());
+        assertNull(commandBus.getRawSubscribeOnScheduler());
+
+        Scheduler observeScheduler = Schedulers.from(Executors.newSingleThreadExecutor());
+        Scheduler subscribeScheduler = Schedulers.from(Executors.newSingleThreadExecutor());
+
+        assertNotSame(observeScheduler, subscribeScheduler);
+
+        testSubject.setCommandObserveScheduler(observeScheduler);
+        testSubject.setCommandSubscribeScheduler(subscribeScheduler);
+
+        assertSame(observeScheduler, commandBus.getRawObserveOnScheduler());
+        assertSame(subscribeScheduler, commandBus.getRawSubscribeOnScheduler());
     }
 
     @Test
@@ -158,6 +177,21 @@ public abstract class AbstractFacadeTest<T extends Facade<CountState>> {
 
         assertFalse(stateManager.hasStateChangedListener(onStateChanged));
         assertFalse(stateManager.hasStateUpdatedListener(onStateUpdated));
+    }
+
+    @Test
+    public void rxStateManager_should_be_ok() throws Exception {
+        Subscription changesSubscription = testSubject.observeStateChanges().subscribe();
+        Subscription updatesSubscription = testSubject.observeStateUpdates().subscribe();
+
+        assertEquals(1, stateManager.getStateChangedListenersSize());
+        assertEquals(1, stateManager.getStateUpdatedListenersSize());
+
+        changesSubscription.unsubscribe();
+        updatesSubscription.unsubscribe();
+
+        assertEquals(0, stateManager.getStateChangedListenersSize());
+        assertEquals(0, stateManager.getStateUpdatedListenersSize());
     }
 
 }

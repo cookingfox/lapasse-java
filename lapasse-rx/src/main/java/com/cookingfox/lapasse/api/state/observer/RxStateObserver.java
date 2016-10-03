@@ -17,4 +17,11 @@ public interface RxStateObserver<S extends State> extends StateObserver<S> {
      */
     Observable<StateChanged<S>> observeStateChanges();
 
+    /**
+     * Returns an Rx observable for state updates.
+     *
+     * @return An Rx observable for state updates.
+     */
+    Observable<StateUpdated<S>> observeStateUpdates();
+
 }

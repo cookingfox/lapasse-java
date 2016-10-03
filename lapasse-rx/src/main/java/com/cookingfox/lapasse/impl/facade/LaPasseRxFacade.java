@@ -11,6 +11,7 @@ import com.cookingfox.lapasse.api.state.manager.RxStateManager;
 import com.cookingfox.lapasse.api.state.manager.StateManager;
 import com.cookingfox.lapasse.api.state.observer.RxStateObserver;
 import com.cookingfox.lapasse.api.state.observer.StateChanged;
+import com.cookingfox.lapasse.api.state.observer.StateUpdated;
 import com.cookingfox.lapasse.impl.command.bus.DefaultRxCommandBus;
 import com.cookingfox.lapasse.impl.state.manager.DefaultRxStateManager;
 import rx.Observable;
@@ -56,6 +57,11 @@ public class LaPasseRxFacade<S extends State> extends LaPasseFacade<S> implement
     @Override
     public Observable<StateChanged<S>> observeStateChanges() {
         return getRxStateObserver().observeStateChanges();
+    }
+
+    @Override
+    public Observable<StateUpdated<S>> observeStateUpdates() {
+        return getRxStateObserver().observeStateUpdates();
     }
 
     //----------------------------------------------------------------------------------------------

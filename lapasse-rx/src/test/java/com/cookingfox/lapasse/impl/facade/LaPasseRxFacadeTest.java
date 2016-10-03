@@ -1,22 +1,14 @@
 package com.cookingfox.lapasse.impl.facade;
 
 import com.cookingfox.lapasse.api.command.bus.RxCommandBus;
-import com.cookingfox.lapasse.api.command.handler.RxCommandHandler;
-import com.cookingfox.lapasse.api.event.handler.EventHandler;
 import com.cookingfox.lapasse.api.state.manager.RxStateManager;
-import com.cookingfox.lapasse.api.state.observer.StateChanged;
 import com.cookingfox.lapasse.impl.command.bus.DefaultCommandBus;
 import com.cookingfox.lapasse.impl.command.bus.DefaultRxCommandBus;
 import com.cookingfox.lapasse.impl.facade.LaPasseRxFacade.Builder;
 import com.cookingfox.lapasse.impl.state.manager.DefaultRxStateManager;
 import com.cookingfox.lapasse.impl.state.manager.DefaultStateManager;
-import fixtures.example.command.IncrementCount;
-import fixtures.example.event.CountIncremented;
 import fixtures.example.state.CountState;
 import org.junit.Test;
-import rx.Observable;
-import rx.observers.TestSubscriber;
-import rx.schedulers.Schedulers;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
@@ -24,42 +16,18 @@ import static org.junit.Assert.assertSame;
 /**
  * Unit tests for {@link LaPasseRxFacade}.
  */
-public class LaPasseRxFacadeTest {
+public class LaPasseRxFacadeTest extends AbstractRxFacadeTest<LaPasseRxFacade<CountState>> {
 
     //----------------------------------------------------------------------------------------------
-    // TESTS: LaPasseRxFacade
+    // ABSTRACT TEST IMPLEMENTATIONS (SEE SUPER)
     //----------------------------------------------------------------------------------------------
 
-    @Test
-    public void methods_should_not_throw() throws Exception {
-        LaPasseRxFacade<CountState> facade = new Builder<>(new CountState(0)).build();
-
-        facade.setCommandObserveScheduler(Schedulers.immediate());
-        facade.setCommandSubscribeScheduler(Schedulers.immediate());
-
-        TestSubscriber<StateChanged<CountState>> subscriber = TestSubscriber.create();
-
-        facade.observeStateChanges().subscribe(subscriber);
-
-        facade.mapCommandHandler(IncrementCount.class, new RxCommandHandler<CountState, IncrementCount, CountIncremented>() {
-            @Override
-            public Observable<CountIncremented> handle(CountState state, IncrementCount command) {
-                return Observable.just(new CountIncremented(command.getCount()));
-            }
-        });
-
-        facade.mapEventHandler(CountIncremented.class, new EventHandler<CountState, CountIncremented>() {
-            @Override
-            public CountState handle(CountState previousState, CountIncremented event) {
-                return new CountState(previousState.getCount() + event.getCount());
-            }
-        });
-
-        facade.handleCommand(new IncrementCount(123));
-
-        subscriber.assertNoErrors();
-        subscriber.assertValueCount(1);
+    @Override
+    LaPasseRxFacade<CountState> createTestFacade() {
+        return facade;
     }
+
+    // TODO: add `dispose` tests
 
     //----------------------------------------------------------------------------------------------
     // TESTS: Builder
