@@ -2,6 +2,7 @@ package com.cookingfox.lapasse.impl.state.manager;
 
 import com.cookingfox.lapasse.api.event.Event;
 import com.cookingfox.lapasse.api.state.observer.OnStateChanged;
+import com.cookingfox.lapasse.api.state.observer.OnStateUpdated;
 import fixtures.example.event.CountIncremented;
 import fixtures.example.state.CountState;
 import org.junit.Before;
@@ -98,12 +99,12 @@ public class DefaultStateManagerTest {
     }
 
     @Test
-    public void handleNewState_should_not_set_current_state_if_not_changed() throws Exception {
+    public void handleNewState_should_also_set_current_state_if_not_changed() throws Exception {
         CountState newState = new CountState(0);
 
         stateManager.handleNewState(newState, new CountIncremented(0));
 
-        assertNotSame(newState, stateManager.currentState);
+        assertSame(newState, stateManager.currentState);
     }
 
     @Test
@@ -116,7 +117,7 @@ public class DefaultStateManagerTest {
     }
 
     @Test
-    public void handleNewState_should_notify_listeners() throws Exception {
+    public void handleNewState_should_notify_changed_listeners_if_changed() throws Exception {
         final AtomicReference<CountState> listenerState = new AtomicReference<>();
         final AtomicReference<Event> listenerEvent = new AtomicReference<>();
 
@@ -138,7 +139,7 @@ public class DefaultStateManagerTest {
     }
 
     @Test
-    public void handleNewState_should_not_notify_listeners_if_not_changed() throws Exception {
+    public void handleNewState_should_not_notify_changed_listeners_if_not_changed() throws Exception {
         final AtomicBoolean called = new AtomicBoolean(false);
 
         stateManager.addStateChangedListener(new OnStateChanged<CountState>() {
@@ -157,6 +158,51 @@ public class DefaultStateManagerTest {
         assertFalse(called.get());
     }
 
+    @Test
+    public void handleNewState_should_notify_updated_listeners_if_changed() throws Exception {
+        final AtomicReference<CountState> listenerState = new AtomicReference<>();
+        final AtomicReference<Event> listenerEvent = new AtomicReference<>();
+
+        stateManager.addStateUpdatedListener(new OnStateUpdated<CountState>() {
+            @Override
+            public void onStateUpdated(CountState state, Event event) {
+                listenerState.set(state);
+                listenerEvent.set(event);
+            }
+        });
+
+        CountState newState = new CountState(1);
+        CountIncremented event = new CountIncremented(newState.getCount());
+
+        stateManager.handleNewState(newState, event);
+
+        assertSame(newState, listenerState.get());
+        assertSame(event, listenerEvent.get());
+    }
+
+    @Test
+    public void handleNewState_should_notify_updated_listeners_if_not_changed() throws Exception {
+        final AtomicReference<CountState> listenerState = new AtomicReference<>();
+        final AtomicReference<Event> listenerEvent = new AtomicReference<>();
+
+        stateManager.addStateUpdatedListener(new OnStateUpdated<CountState>() {
+            @Override
+            public void onStateUpdated(CountState state, Event event) {
+                listenerState.set(state);
+                listenerEvent.set(event);
+            }
+        });
+
+        // new state equal to initial state
+        CountState newState = new CountState(initialState.getCount());
+        CountIncremented event = new CountIncremented(newState.getCount());
+
+        stateManager.handleNewState(newState, event);
+
+        assertSame(newState, listenerState.get());
+        assertSame(event, listenerEvent.get());
+    }
+
     //----------------------------------------------------------------------------------------------
     // TESTS: addStateChangedListener
     //----------------------------------------------------------------------------------------------
@@ -164,6 +210,15 @@ public class DefaultStateManagerTest {
     @Test(expected = NullPointerException.class)
     public void addStateChangedListener_should_throw_if_listener_null() throws Exception {
         stateManager.addStateChangedListener(null);
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // TESTS: addStateUpdatedListener
+    //----------------------------------------------------------------------------------------------
+
+    @Test(expected = NullPointerException.class)
+    public void addStateUpdatedListener_should_throw_if_listener_null() throws Exception {
+        stateManager.addStateUpdatedListener(null);
     }
 
     //----------------------------------------------------------------------------------------------
@@ -198,6 +253,43 @@ public class DefaultStateManagerTest {
 
         stateManager.addStateChangedListener(listener);
         stateManager.removeStateChangedListener(listener);
+        stateManager.handleNewState(new CountState(1), new CountIncremented(1));
+
+        assertFalse(called.get());
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // TESTS: removeStateUpdatedListener
+    //----------------------------------------------------------------------------------------------
+
+    @Test(expected = NullPointerException.class)
+    public void removeStateUpdatedListener_should_throw_if_null_message() throws Exception {
+        stateManager.removeStateUpdatedListener(null);
+    }
+
+    @Test
+    public void removeStateUpdatedListener_should_not_throw_if_not_added() throws Exception {
+        stateManager.removeStateUpdatedListener(new OnStateUpdated<CountState>() {
+            @Override
+            public void onStateUpdated(CountState state, Event event) {
+                // ignore
+            }
+        });
+    }
+
+    @Test
+    public void removeStateUpdatedListener_should_remove_listener() throws Exception {
+        final AtomicBoolean called = new AtomicBoolean(false);
+
+        OnStateUpdated<CountState> listener = new OnStateUpdated<CountState>() {
+            @Override
+            public void onStateUpdated(CountState state, Event event) {
+                called.set(true);
+            }
+        };
+
+        stateManager.addStateUpdatedListener(listener);
+        stateManager.removeStateUpdatedListener(listener);
         stateManager.handleNewState(new CountState(1), new CountIncremented(1));
 
         assertFalse(called.get());

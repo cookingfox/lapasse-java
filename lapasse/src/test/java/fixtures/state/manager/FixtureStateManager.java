@@ -3,6 +3,7 @@ package fixtures.state.manager;
 import com.cookingfox.lapasse.api.event.Event;
 import com.cookingfox.lapasse.api.state.manager.StateManager;
 import com.cookingfox.lapasse.api.state.observer.OnStateChanged;
+import com.cookingfox.lapasse.api.state.observer.OnStateUpdated;
 import fixtures.example.state.CountState;
 
 import java.util.Objects;
@@ -30,9 +31,7 @@ public class FixtureStateManager implements StateManager<CountState> {
 
     @Override
     public void handleNewState(CountState newState, Event event) {
-        if (!newState.equals(currentState)) {
-            currentState = newState;
-        }
+        currentState = newState;
     }
 
     @Override
@@ -41,7 +40,17 @@ public class FixtureStateManager implements StateManager<CountState> {
     }
 
     @Override
+    public void addStateUpdatedListener(OnStateUpdated<CountState> listener) {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    @Override
     public void removeStateChangedListener(OnStateChanged<CountState> listener) {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    @Override
+    public void removeStateUpdatedListener(OnStateUpdated<CountState> listener) {
         throw new UnsupportedOperationException("Not implemented");
     }
 

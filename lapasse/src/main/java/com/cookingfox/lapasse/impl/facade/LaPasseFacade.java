@@ -15,6 +15,7 @@ import com.cookingfox.lapasse.api.message.store.MessageStore;
 import com.cookingfox.lapasse.api.state.State;
 import com.cookingfox.lapasse.api.state.manager.StateManager;
 import com.cookingfox.lapasse.api.state.observer.OnStateChanged;
+import com.cookingfox.lapasse.api.state.observer.OnStateUpdated;
 import com.cookingfox.lapasse.impl.command.bus.DefaultCommandBus;
 import com.cookingfox.lapasse.impl.event.bus.DefaultEventBus;
 import com.cookingfox.lapasse.impl.logging.DefaultLoggersHelper;
@@ -143,6 +144,11 @@ public class LaPasseFacade<S extends State> implements Facade<S> {
     }
 
     @Override
+    public void addStateUpdatedListener(OnStateUpdated<S> listener) {
+        stateManager.addStateUpdatedListener(listener);
+    }
+
+    @Override
     public S getCurrentState() {
         return stateManager.getCurrentState();
     }
@@ -150,6 +156,11 @@ public class LaPasseFacade<S extends State> implements Facade<S> {
     @Override
     public void removeStateChangedListener(OnStateChanged<S> listener) {
         stateManager.removeStateChangedListener(listener);
+    }
+
+    @Override
+    public void removeStateUpdatedListener(OnStateUpdated<S> listener) {
+        stateManager.removeStateUpdatedListener(listener);
     }
 
     //----------------------------------------------------------------------------------------------

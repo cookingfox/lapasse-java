@@ -10,11 +10,18 @@ import com.cookingfox.lapasse.api.state.State;
 public interface StateObserver<S extends State> {
 
     /**
-     * Add listener for when the state changed.
+     * Adds listener for when the state changed.
      *
      * @param listener The listener to notify when the state changes.
      */
     void addStateChangedListener(OnStateChanged<S> listener);
+
+    /**
+     * Adds listener for when the state is updated.
+     *
+     * @param listener The listener to notify when the state is updated.
+     */
+    void addStateUpdatedListener(OnStateUpdated<S> listener);
 
     /**
      * Returns the current state.
@@ -24,10 +31,17 @@ public interface StateObserver<S extends State> {
     S getCurrentState();
 
     /**
-     * Remove previously added state changed listener.
+     * Removes listener for when the state is changed.
      *
      * @param listener The listener to remove.
      */
     void removeStateChangedListener(OnStateChanged<S> listener);
+
+    /**
+     * Removes listener for when the state is updated.
+     *
+     * @param listener The listener to remove.
+     */
+    void removeStateUpdatedListener(OnStateUpdated<S> listener);
 
 }
