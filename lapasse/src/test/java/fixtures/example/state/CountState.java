@@ -32,4 +32,8 @@ public final class CountState implements State {
                 "count=" + count +
                 '}';
     }
+
+    public static CountState createInitialState() {
+        return new CountState(0);
+    }
 }
