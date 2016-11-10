@@ -9,6 +9,7 @@ import com.cookingfox.lapasse.api.event.bus.EventBus;
 import com.cookingfox.lapasse.api.event.handler.EventHandler;
 import com.cookingfox.lapasse.api.event.logging.EventLogger;
 import com.cookingfox.lapasse.api.facade.Facade;
+import com.cookingfox.lapasse.api.facade.FacadeBuilder;
 import com.cookingfox.lapasse.api.logging.CombinedLogger;
 import com.cookingfox.lapasse.api.logging.LoggersHelper;
 import com.cookingfox.lapasse.api.message.store.MessageStore;
@@ -161,7 +162,7 @@ public class LaPasseFacade<S extends State> implements Facade<S> {
      *
      * @param <S> The concrete type of the state object.
      */
-    public static class Builder<S extends State> {
+    public static class Builder<S extends State> implements FacadeBuilder<S> {
 
         protected CommandBus<S> commandBus;
         protected EventBus<S> eventBus;
@@ -182,11 +183,7 @@ public class LaPasseFacade<S extends State> implements Facade<S> {
         // PUBLIC METHODS
         //------------------------------------------------------------------------------------------
 
-        /**
-         * Build a new facade using the current settings.
-         *
-         * @return The created facade.
-         */
+        @Override
         public LaPasseFacade<S> build() {
             return new LaPasseFacade<>(getCommandBus(), getEventBus(), getLoggersHelper(),
                     getMessageStore(), getStateManager());
@@ -196,6 +193,7 @@ public class LaPasseFacade<S extends State> implements Facade<S> {
         // GETTERS
         //------------------------------------------------------------------------------------------
 
+        @Override
         public CommandBus<S> getCommandBus() {
             if (commandBus == null) {
                 commandBus = new DefaultCommandBus<>(getMessageStore(), getEventBus(),
@@ -205,6 +203,7 @@ public class LaPasseFacade<S extends State> implements Facade<S> {
             return commandBus;
         }
 
+        @Override
         public EventBus<S> getEventBus() {
             if (eventBus == null) {
                 eventBus = new DefaultEventBus<>(getMessageStore(), getLoggersHelper(),
@@ -214,6 +213,7 @@ public class LaPasseFacade<S extends State> implements Facade<S> {
             return eventBus;
         }
 
+        @Override
         public LoggersHelper<S> getLoggersHelper() {
             if (loggersHelper == null) {
                 loggersHelper = new DefaultLoggersHelper<>();
@@ -222,6 +222,7 @@ public class LaPasseFacade<S extends State> implements Facade<S> {
             return loggersHelper;
         }
 
+        @Override
         public MessageStore getMessageStore() {
             if (messageStore == null) {
                 messageStore = new NoStorageMessageStore();
@@ -230,6 +231,7 @@ public class LaPasseFacade<S extends State> implements Facade<S> {
             return messageStore;
         }
 
+        @Override
         public StateManager<S> getStateManager() {
             if (stateManager == null) {
                 stateManager = new DefaultStateManager<>(initialState);
@@ -242,26 +244,31 @@ public class LaPasseFacade<S extends State> implements Facade<S> {
         // SETTERS
         //------------------------------------------------------------------------------------------
 
+        @Override
         public Builder<S> setCommandBus(CommandBus<S> commandBus) {
             this.commandBus = Objects.requireNonNull(commandBus, "Command bus can not be null");
             return this;
         }
 
+        @Override
         public Builder<S> setEventBus(EventBus<S> eventBus) {
             this.eventBus = Objects.requireNonNull(eventBus, "Event bus can not be null");
             return this;
         }
 
+        @Override
         public Builder<S> setLoggersHelper(LoggersHelper<S> loggersHelper) {
             this.loggersHelper = Objects.requireNonNull(loggersHelper, "Loggers helper can not be null");
             return this;
         }
 
+        @Override
         public Builder<S> setMessageStore(MessageStore messageStore) {
             this.messageStore = Objects.requireNonNull(messageStore, "Message store can not be null");
             return this;
         }
 
+        @Override
         public Builder<S> setStateManager(StateManager<S> stateManager) {
             this.stateManager = Objects.requireNonNull(stateManager, "State manager can not be null");
             return this;
