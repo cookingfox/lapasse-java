@@ -23,7 +23,9 @@ import fixtures.example.state.CountState;
 import org.junit.Before;
 import org.junit.Test;
 import rx.Observable;
+import rx.Scheduler;
 import rx.observers.TestSubscriber;
+import rx.schedulers.Schedulers;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -356,6 +358,54 @@ public class DefaultRxCommandBusTest {
         commandBus.handleCommand(new IncrementCount(1));
 
         assertTrue(commandBus.subscriptions.hasSubscriptions());
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // TESTS: getObserveOnScheduler
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void getObserveOnScheduler_should_return_provided() throws Exception {
+        Scheduler target = Schedulers.newThread();
+
+        commandBus.observeOnScheduler = target;
+
+        Scheduler result = commandBus.getObserveOnScheduler();
+
+        assertSame(target, result);
+    }
+
+    @Test
+    public void getObserveOnScheduler_should_default_to_immediate() throws Exception {
+        commandBus.observeOnScheduler = null;
+
+        Scheduler result = commandBus.getObserveOnScheduler();
+
+        assertSame(Schedulers.immediate(), result);
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // TESTS: getSubscribeOnScheduler
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void getSubscribeOnScheduler_should_return_provided() throws Exception {
+        Scheduler target = Schedulers.newThread();
+
+        commandBus.subscribeOnScheduler = target;
+
+        Scheduler result = commandBus.getSubscribeOnScheduler();
+
+        assertSame(target, result);
+    }
+
+    @Test
+    public void getSubscribeOnScheduler_should_default_to_immediate() throws Exception {
+        commandBus.subscribeOnScheduler = null;
+
+        Scheduler result = commandBus.getSubscribeOnScheduler();
+
+        assertSame(Schedulers.immediate(), result);
     }
 
     //----------------------------------------------------------------------------------------------
