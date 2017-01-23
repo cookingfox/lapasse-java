@@ -1,5 +1,9 @@
 # LaPasse for Java: Change Log
 
+## [0.5.5](../../tree/0.5.5) (2017-01-23)
+
+- Introduces `CollectionUtils` and makes `lapasse` module collections concurrent.
+
 ## [0.5.4](../../tree/0.5.4) (2016-09-20)
 
 - Removing a listener or logger will no longer throw if it has not been added.
