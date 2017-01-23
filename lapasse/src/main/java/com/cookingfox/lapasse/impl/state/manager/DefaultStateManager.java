@@ -4,8 +4,8 @@ import com.cookingfox.lapasse.api.event.Event;
 import com.cookingfox.lapasse.api.state.State;
 import com.cookingfox.lapasse.api.state.manager.StateManager;
 import com.cookingfox.lapasse.api.state.observer.OnStateChanged;
+import com.cookingfox.lapasse.impl.util.CollectionUtils;
 
-import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
 
@@ -24,14 +24,14 @@ public class DefaultStateManager<S extends State> implements StateManager<S> {
     /**
      * Collection of listeners of when the state changes.
      */
-    protected final Set<OnStateChanged<S>> stateChangedListeners = new LinkedHashSet<>();
+    protected final Set<OnStateChanged<S>> stateChangedListeners = CollectionUtils.newConcurrentSet();
 
     //----------------------------------------------------------------------------------------------
     // CONSTRUCTOR
     //----------------------------------------------------------------------------------------------
 
     public DefaultStateManager(S initialState) {
-        this.currentState = Objects.requireNonNull(initialState, "Initial state can not be null");
+        currentState = Objects.requireNonNull(initialState, "Initial state can not be null");
     }
 
     //----------------------------------------------------------------------------------------------

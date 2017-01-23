@@ -3,8 +3,8 @@ package com.cookingfox.lapasse.impl.message.store;
 import com.cookingfox.lapasse.api.message.Message;
 import com.cookingfox.lapasse.api.message.store.MessageStore;
 import com.cookingfox.lapasse.api.message.store.OnMessageAdded;
+import com.cookingfox.lapasse.impl.util.CollectionUtils;
 
-import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
 
@@ -16,7 +16,7 @@ public abstract class AbstractMessageStore implements MessageStore {
     /**
      * Collection of listeners for when a message is added.
      */
-    protected final Set<OnMessageAdded> messageAddedListeners = new LinkedHashSet<>();
+    protected final Set<OnMessageAdded> messageAddedListeners = CollectionUtils.newConcurrentSet();
 
     //----------------------------------------------------------------------------------------------
     // PUBLIC METHODS

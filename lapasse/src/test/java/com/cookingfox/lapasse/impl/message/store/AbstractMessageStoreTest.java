@@ -6,6 +6,7 @@ import fixtures.message.FixtureMessage;
 import fixtures.message.store.FixtureMessageStore;
 import org.junit.Before;
 import org.junit.Test;
+import testing.TestingUtils;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -21,7 +22,7 @@ public class AbstractMessageStoreTest {
     // TEST SETUP
     //----------------------------------------------------------------------------------------------
 
-    private AbstractMessageStore messageStore;
+    AbstractMessageStore messageStore;
 
     @Before
     public void setUp() throws Exception {
@@ -110,6 +111,29 @@ public class AbstractMessageStoreTest {
         messageStore.addMessage(new FixtureMessage());
 
         assertFalse(called.get());
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // TESTS: CONCURRENCY (messageAddedListeners)
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void messageAddedListeners_should_pass_concurrency_tests() throws Exception {
+        TestingUtils.runConcurrencyTest(new Runnable() {
+            @Override
+            public void run() {
+                final OnMessageAdded listener = new OnMessageAdded() {
+                    @Override
+                    public void onMessageAdded(Message message) {
+                        // no-op
+                    }
+                };
+
+                messageStore.addMessageAddedListener(listener);
+                messageStore.notifyMessageAdded(new FixtureMessage());
+                messageStore.removeMessageAddedListener(listener);
+            }
+        });
     }
 
 }

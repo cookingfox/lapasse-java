@@ -6,8 +6,11 @@ import com.cookingfox.lapasse.api.message.exception.NoMessageHandlersException;
 import com.cookingfox.lapasse.api.message.handler.MessageHandler;
 import com.cookingfox.lapasse.api.message.store.MessageStore;
 import com.cookingfox.lapasse.api.message.store.OnMessageAdded;
+import com.cookingfox.lapasse.impl.util.CollectionUtils;
 
-import java.util.*;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * Abstract message bus implementation.
@@ -25,7 +28,7 @@ public abstract class AbstractMessageBus<M extends Message, H extends MessageHan
     /**
      * A map of message types to a set of message handlers.
      */
-    protected final Map<Class<M>, Set<H>> messageHandlerMap = new LinkedHashMap<>();
+    protected final Map<Class<M>, Set<H>> messageHandlerMap = CollectionUtils.newConcurrentMap();
 
     /**
      * Stores messages.
@@ -76,7 +79,7 @@ public abstract class AbstractMessageBus<M extends Message, H extends MessageHan
 
         // no handler collection yet? create it first
         if (handlers == null) {
-            handlers = new LinkedHashSet<>();
+            handlers = CollectionUtils.newConcurrentSet();
             messageHandlerMap.put(messageClass, handlers);
         }
 

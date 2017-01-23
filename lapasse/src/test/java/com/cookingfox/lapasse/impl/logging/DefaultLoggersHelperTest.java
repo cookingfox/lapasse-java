@@ -7,11 +7,15 @@ import com.cookingfox.lapasse.api.event.Event;
 import com.cookingfox.lapasse.api.event.exception.NoRegisteredEventLoggerException;
 import com.cookingfox.lapasse.api.event.logging.EventLogger;
 import com.cookingfox.lapasse.api.state.State;
+import fixtures.example.command.IncrementCount;
+import fixtures.example.event.CountIncremented;
 import fixtures.example.state.CountState;
 import org.junit.Before;
 import org.junit.Test;
+import testing.TestingUtils;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.Assert.assertFalse;
@@ -26,7 +30,7 @@ public class DefaultLoggersHelperTest {
     // TEST SETUP
     //----------------------------------------------------------------------------------------------
 
-    private DefaultLoggersHelper<CountState> loggers;
+    DefaultLoggersHelper<CountState> loggers;
 
     @Before
     public void setUp() throws Exception {
@@ -266,6 +270,46 @@ public class DefaultLoggersHelperTest {
 
         assertFalse(loggers.commandLoggers.contains(logger));
         assertFalse(loggers.eventLoggers.contains(logger));
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // TESTS: CONCURRENCY (commandLoggers)
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void commandLoggers_should_pass_concurrency_tests() throws Exception {
+        TestingUtils.runConcurrencyTest(new Runnable() {
+            @Override
+            public void run() {
+                DefaultLogger<CountState> logger = new DefaultLogger<>();
+                IncrementCount command = new IncrementCount(1);
+
+                loggers.addLogger(logger);
+                loggers.onCommandHandlerError(new Exception("example"), command);
+                loggers.onCommandHandlerResult(command, Collections.<Event>emptyList());
+                loggers.removeLogger(logger);
+            }
+        });
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // TESTS: CONCURRENCY (eventLoggers)
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void eventLoggers_should_pass_concurrency_tests() throws Exception {
+        TestingUtils.runConcurrencyTest(new Runnable() {
+            @Override
+            public void run() {
+                DefaultLogger<CountState> logger = new DefaultLogger<>();
+                CountIncremented event = new CountIncremented(1);
+
+                loggers.addLogger(logger);
+                loggers.onEventHandlerError(new Exception("example"), event);
+                loggers.onEventHandlerResult(event, new CountState(1));
+                loggers.removeLogger(logger);
+            }
+        });
     }
 
 }

@@ -9,6 +9,7 @@ import fixtures.message.handler.FixtureMessageHandler;
 import fixtures.message.store.FixtureMessageStore;
 import org.junit.Before;
 import org.junit.Test;
+import testing.TestingUtils;
 
 import java.util.Set;
 
@@ -23,7 +24,7 @@ public class AbstractMessageBusTest {
     // TEST SETUP
     //----------------------------------------------------------------------------------------------
 
-    private FixtureMessageBus messageBus;
+    FixtureMessageBus messageBus;
     private FixtureMessageStore messageStore;
 
     @Before
@@ -188,6 +189,21 @@ public class AbstractMessageBusTest {
     @Test
     public void onMessageAddedToStore_should_not_throw_for_unsupported_message_type() throws Exception {
         messageBus.onMessageAddedToStore.onMessageAdded(new CountIncremented(123));
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // TESTS: CONCURRENCY (messageAddedListeners)
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void messageAddedListeners_should_pass_concurrency_tests() throws Exception {
+        TestingUtils.runConcurrencyTest(new Runnable() {
+            @Override
+            public void run() {
+                messageBus.mapMessageHandler(FixtureMessage.class, new FixtureMessageHandler());
+                messageBus.handleMessage(new FixtureMessage());
+            }
+        });
     }
 
 }

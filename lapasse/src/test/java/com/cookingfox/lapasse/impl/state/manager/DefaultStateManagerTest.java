@@ -6,8 +6,10 @@ import fixtures.example.event.CountIncremented;
 import fixtures.example.state.CountState;
 import org.junit.Before;
 import org.junit.Test;
+import testing.TestingUtils;
 
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.Assert.*;
@@ -181,6 +183,32 @@ public class DefaultStateManagerTest {
         stateManager.handleNewState(new CountState(1), new CountIncremented(1));
 
         assertFalse(called.get());
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // TESTS: CONCURRENCY (stateChangedListeners)
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void stateChangedListeners_should_pass_concurrency_tests() throws Exception {
+        final AtomicInteger counter = new AtomicInteger(0);
+        final DefaultStateManager<CountState> stateManager = new DefaultStateManager<>(new CountState(counter.get()));
+
+        TestingUtils.runConcurrencyTest(new Runnable() {
+            @Override
+            public void run() {
+                final OnStateChanged<CountState> listener = new OnStateChanged<CountState>() {
+                    @Override
+                    public void onStateChanged(CountState state, Event event) {
+                        // no-op
+                    }
+                };
+
+                stateManager.addStateChangedListener(listener);
+                stateManager.handleNewState(new CountState(counter.incrementAndGet()), new CountIncremented(1));
+                stateManager.removeStateChangedListener(listener);
+            }
+        });
     }
 
 }

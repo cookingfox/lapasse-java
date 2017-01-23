@@ -9,9 +9,9 @@ import com.cookingfox.lapasse.api.event.logging.EventLogger;
 import com.cookingfox.lapasse.api.logging.CombinedLogger;
 import com.cookingfox.lapasse.api.logging.LoggersHelper;
 import com.cookingfox.lapasse.api.state.State;
+import com.cookingfox.lapasse.impl.util.CollectionUtils;
 
 import java.util.Collection;
-import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
 
@@ -25,12 +25,12 @@ public class DefaultLoggersHelper<S extends State> implements LoggersHelper<S> {
     /**
      * Set of unique command logger instances.
      */
-    protected final Set<CommandLogger> commandLoggers = new LinkedHashSet<>();
+    protected final Set<CommandLogger> commandLoggers = CollectionUtils.newConcurrentSet();
 
     /**
      * Set of unique event logger instances.
      */
-    protected final Set<EventLogger<S>> eventLoggers = new LinkedHashSet<>();
+    protected final Set<EventLogger<S>> eventLoggers = CollectionUtils.newConcurrentSet();
 
     //----------------------------------------------------------------------------------------------
     // COMMAND LOGGER
