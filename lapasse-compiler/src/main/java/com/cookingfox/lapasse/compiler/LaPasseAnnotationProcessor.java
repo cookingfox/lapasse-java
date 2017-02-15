@@ -248,6 +248,14 @@ public class LaPasseAnnotationProcessor extends AbstractProcessor {
                     case RETURNS_EVENT_COLLECTION_OBSERVABLE:
                         commandHandlerClass = RxMultiCommandHandler.class;
                         break;
+
+                    case RETURNS_EVENT_SINGLE:
+                        commandHandlerClass = RxSingleCommandHandler.class;
+                        break;
+
+                    case RETURNS_EVENT_COLLECTION_SINGLE:
+                        commandHandlerClass = RxSingleMultiCommandHandler.class;
+                        break;
                 }
 
                 handlerType = ParameterizedTypeName.get(ClassName.get(commandHandlerClass),

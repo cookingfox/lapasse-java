@@ -1,10 +1,7 @@
 package com.cookingfox.lapasse.impl.command.bus;
 
 import com.cookingfox.lapasse.api.command.Command;
-import com.cookingfox.lapasse.api.command.handler.RxCommandHandler;
-import com.cookingfox.lapasse.api.command.handler.RxMultiCommandHandler;
-import com.cookingfox.lapasse.api.command.handler.SyncCommandHandler;
-import com.cookingfox.lapasse.api.command.handler.SyncMultiCommandHandler;
+import com.cookingfox.lapasse.api.command.handler.*;
 import com.cookingfox.lapasse.api.event.Event;
 import com.cookingfox.lapasse.api.event.bus.EventBus;
 import com.cookingfox.lapasse.api.event.handler.EventHandler;
@@ -23,6 +20,7 @@ import fixtures.example.state.CountState;
 import org.junit.Before;
 import org.junit.Test;
 import rx.Observable;
+import rx.Single;
 import rx.observers.TestSubscriber;
 
 import java.util.Collection;
@@ -306,7 +304,7 @@ public class DefaultRxCommandBusTest {
     }
 
     @Test
-    public void executeHandler_should_add_subscription_single() throws Exception {
+    public void executeHandler_should_add_subscription_observable() throws Exception {
         assertFalse(commandBus.subscriptions.hasSubscriptions());
 
         commandBus.mapCommandHandler(IncrementCount.class,
@@ -356,6 +354,49 @@ public class DefaultRxCommandBusTest {
         commandBus.handleCommand(new IncrementCount(1));
 
         assertTrue(commandBus.subscriptions.hasSubscriptions());
+    }
+
+    @Test
+    public void executeHandler_should_support_rx_single_handler() throws Exception {
+        mapCountIncrementedEventHandler();
+
+        TestSubscriber<StateChanged<CountState>> subscriber = TestSubscriber.create();
+
+        stateManager.observeStateChanges().subscribe(subscriber);
+
+        commandBus.mapCommandHandler(IncrementCount.class, new RxSingleCommandHandler<CountState, IncrementCount, CountIncremented>() {
+            @Override
+            public Single<CountIncremented> handle(CountState state, IncrementCount command) {
+                return Single.just(new CountIncremented(command.getCount()));
+            }
+        });
+
+        commandBus.handleCommand(new IncrementCount(1));
+
+        subscriber.assertNoErrors();
+        subscriber.assertValueCount(1);
+    }
+
+    @Test
+    public void executeHandler_should_support_rx_single_multi_handler() throws Exception {
+        mapCountIncrementedEventHandler();
+
+        TestSubscriber<StateChanged<CountState>> subscriber = TestSubscriber.create();
+
+        stateManager.observeStateChanges().subscribe(subscriber);
+
+        commandBus.mapCommandHandler(IncrementCount.class, new RxSingleMultiCommandHandler<CountState, IncrementCount, CountIncremented>() {
+            @Override
+            public Single<Collection<CountIncremented>> handle(CountState state, IncrementCount command) {
+                return Single.just((Collection<CountIncremented>)
+                        Collections.singleton(new CountIncremented(command.getCount())));
+            }
+        });
+
+        commandBus.handleCommand(new IncrementCount(1));
+
+        subscriber.assertNoErrors();
+        subscriber.assertValueCount(1);
     }
 
     //----------------------------------------------------------------------------------------------

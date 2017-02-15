@@ -6,6 +6,7 @@ import com.cookingfox.lapasse.api.event.Event;
 import com.cookingfox.lapasse.api.state.State;
 import com.cookingfox.lapasse.compiler.processor.ProcessorHelper;
 import rx.Observable;
+import rx.Single;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
@@ -321,8 +322,9 @@ public class HandleCommandProcessor {
         boolean returnsCallable = isSubtype(returnType, Callable.class);
         boolean returnsCollection = isSubtype(returnType, Collection.class);
         boolean returnsObservable = isSubtype(returnType, Observable.class);
+        boolean returnsSingle = isSubtype(returnType, Single.class);
 
-        if (!returnsCallable && !returnsCollection && !returnsObservable) {
+        if (!returnsCallable && !returnsCollection && !returnsObservable && !returnsSingle) {
             throw createInvalidReturnTypeException(returnType);
         }
 
@@ -336,9 +338,11 @@ public class HandleCommandProcessor {
                 return RETURNS_EVENT_CALLABLE;
             } else if (returnsCollection) {
                 return RETURNS_EVENT_COLLECTION;
+            } else if (returnsObservable) {
+                return RETURNS_EVENT_OBSERVABLE;
             }
 
-            return RETURNS_EVENT_OBSERVABLE;
+            return RETURNS_EVENT_SINGLE;
         } else if (returnsCollection || !firstArgIsSubType(returnType, Collection.class)) {
             // throw: below expects callable or observable of collection
             throw createInvalidReturnTypeException(returnType);
@@ -352,8 +356,10 @@ public class HandleCommandProcessor {
 
             if (returnsCallable) {
                 return RETURNS_EVENT_COLLECTION_CALLABLE;
-            } else {
+            } else if (returnsObservable) {
                 return RETURNS_EVENT_COLLECTION_OBSERVABLE;
+            } else {
+                return RETURNS_EVENT_COLLECTION_SINGLE;
             }
         }
 

@@ -18,6 +18,7 @@ import fixtures.example2.event.ExampleEvent;
 import fixtures.example2.state.ExampleState;
 import org.junit.Test;
 import rx.Observable;
+import rx.Single;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -318,11 +319,11 @@ public class HandleCommandSuccessTest {
     }
 
     //----------------------------------------------------------------------------------------------
-    // RX COMMAND HANDLER
+    // RX OBSERVABLE COMMAND HANDLER
     //----------------------------------------------------------------------------------------------
 
     @Test
-    public void rx_command_handler() throws Exception {
+    public void rx_observable_command_handler() throws Exception {
         ParameterizedTypeName returnType =
                 ParameterizedTypeName.get(Observable.class, CountIncremented.class);
 
@@ -349,11 +350,11 @@ public class HandleCommandSuccessTest {
     }
 
     //----------------------------------------------------------------------------------------------
-    // ASYNC MULTI COMMAND HANDLER
+    // RX OBSERVABLE MULTI COMMAND HANDLER
     //----------------------------------------------------------------------------------------------
 
     @Test
-    public void rx_multi_command_handler() throws Exception {
+    public void rx_observable_multi_command_handler() throws Exception {
         ParameterizedTypeName returnType = ParameterizedTypeName.get(ClassName.get(Observable.class),
                 ParameterizedTypeName.get(Collection.class, CountIncremented.class));
 
@@ -370,6 +371,70 @@ public class HandleCommandSuccessTest {
         TestGenerationModel generation = TestGenerationModel.create();
 
         ParameterizedTypeName handlerType = ParameterizedTypeName.get(RxMultiCommandHandler.class,
+                CountState.class, IncrementCount.class, CountIncremented.class);
+
+        MethodSpec.Builder generatedHandler = generation.createCommandHandler(IncrementCount.class)
+                .addStatement("return $N.$N($N, $N)", VAR_ORIGIN, METHOD_HANDLE, VAR_STATE, VAR_COMMAND)
+                .returns(returnType);
+
+        generation.addCommandHandler(IncrementCount.class, handlerType, generatedHandler);
+
+        assertCompileSuccess(createSource(sourceHandler), generation.generateExpected());
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // RX SINGLE COMMAND HANDLER
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void rx_single_command_handler() throws Exception {
+        ParameterizedTypeName returnType =
+                ParameterizedTypeName.get(Single.class, CountIncremented.class);
+
+        MethodSpec sourceHandler = createHandleCommandMethod()
+                .addParameter(CountState.class, VAR_STATE)
+                .addParameter(IncrementCount.class, VAR_COMMAND)
+                .addStatement("return $T.just(new $T($N.getCount()))",
+                        Single.class, CountIncremented.class, VAR_COMMAND)
+                .returns(returnType)
+                .build();
+
+        TestGenerationModel generation = TestGenerationModel.create();
+
+        ParameterizedTypeName handlerType = ParameterizedTypeName.get(RxSingleCommandHandler.class,
+                CountState.class, IncrementCount.class, CountIncremented.class);
+
+        MethodSpec.Builder generatedHandler = generation.createCommandHandler(IncrementCount.class)
+                .addStatement("return $N.$N($N, $N)", VAR_ORIGIN, METHOD_HANDLE, VAR_STATE, VAR_COMMAND)
+                .returns(returnType);
+
+        generation.addCommandHandler(IncrementCount.class, handlerType, generatedHandler);
+
+        assertCompileSuccess(createSource(sourceHandler), generation.generateExpected());
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // RX SINGLE MULTI COMMAND HANDLER
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void rx_single_multi_command_handler() throws Exception {
+        ParameterizedTypeName returnType = ParameterizedTypeName.get(ClassName.get(Single.class),
+                ParameterizedTypeName.get(Collection.class, CountIncremented.class));
+
+        MethodSpec sourceHandler = createHandleCommandMethod()
+                .addParameter(CountState.class, VAR_STATE)
+                .addParameter(IncrementCount.class, VAR_COMMAND)
+                // note: requires casting of singleton result (Set) to Collection
+                .addStatement("return $T.<$T<$T>>just($T.singleton(new $T($N.getCount())))",
+                        Single.class, Collection.class, CountIncremented.class,
+                        Collections.class, CountIncremented.class, VAR_COMMAND)
+                .returns(returnType)
+                .build();
+
+        TestGenerationModel generation = TestGenerationModel.create();
+
+        ParameterizedTypeName handlerType = ParameterizedTypeName.get(RxSingleMultiCommandHandler.class,
                 CountState.class, IncrementCount.class, CountIncremented.class);
 
         MethodSpec.Builder generatedHandler = generation.createCommandHandler(IncrementCount.class)

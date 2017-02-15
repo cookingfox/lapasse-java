@@ -3,6 +3,7 @@ package com.cookingfox.lapasse.compiler.processor.command;
 import com.cookingfox.lapasse.annotation.HandleCommand;
 import com.cookingfox.lapasse.api.event.Event;
 import rx.Observable;
+import rx.Single;
 
 import java.util.Collection;
 import java.util.concurrent.Callable;
@@ -33,14 +34,24 @@ public enum HandleCommandReturnValue {
     RETURNS_EVENT_COLLECTION_CALLABLE,
 
     /**
-     * The method returns an {@link Observable} of a {@link Collection} of {@link Event}s.
+     * The method returns an Rx {@link Observable} of a {@link Collection} of {@link Event}s.
      */
     RETURNS_EVENT_COLLECTION_OBSERVABLE,
 
     /**
-     * The method returns an {@link Observable} of an {@link Event}.
+     * The method returns an Rx {@link Single} of a {@link Collection} of {@link Event}s.
+     */
+    RETURNS_EVENT_COLLECTION_SINGLE,
+
+    /**
+     * The method returns an Rx {@link Observable} of an {@link Event}.
      */
     RETURNS_EVENT_OBSERVABLE,
+
+    /**
+     * The method returns an Rx {@link Single} of an {@link Event}.
+     */
+    RETURNS_EVENT_SINGLE,
 
     /**
      * The method returns void.
