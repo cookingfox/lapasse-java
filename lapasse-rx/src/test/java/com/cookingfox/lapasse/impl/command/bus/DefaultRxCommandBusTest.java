@@ -22,6 +22,7 @@ import org.junit.Test;
 import rx.Observable;
 import rx.Single;
 import rx.observers.TestSubscriber;
+import rx.schedulers.Schedulers;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -390,6 +391,30 @@ public class DefaultRxCommandBusTest {
             public Single<Collection<CountIncremented>> handle(CountState state, IncrementCount command) {
                 return Single.just((Collection<CountIncremented>)
                         Collections.singleton(new CountIncremented(command.getCount())));
+            }
+        });
+
+        commandBus.handleCommand(new IncrementCount(1));
+
+        subscriber.assertNoErrors();
+        subscriber.assertValueCount(1);
+    }
+
+    @Test
+    public void executeHandler_should_set_rx_single_handler_schedulers() throws Exception {
+        mapCountIncrementedEventHandler();
+
+        commandBus.setCommandObserveScheduler(Schedulers.immediate());
+        commandBus.setCommandSubscribeScheduler(Schedulers.immediate());
+
+        TestSubscriber<StateChanged<CountState>> subscriber = TestSubscriber.create();
+
+        stateManager.observeStateChanges().subscribe(subscriber);
+
+        commandBus.mapCommandHandler(IncrementCount.class, new RxSingleCommandHandler<CountState, IncrementCount, CountIncremented>() {
+            @Override
+            public Single<CountIncremented> handle(CountState state, IncrementCount command) {
+                return Single.just(new CountIncremented(command.getCount()));
             }
         });
 

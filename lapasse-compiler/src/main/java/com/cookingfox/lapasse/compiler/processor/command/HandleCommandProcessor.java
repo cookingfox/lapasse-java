@@ -370,6 +370,7 @@ public class HandleCommandProcessor {
      * Determines the state type based on the handler method and annotation parameters.
      *
      * @return The concrete state type if available, or null.
+     * @throws Exception when the state type can not be determined.
      */
     protected TypeMirror determineStateType() throws Exception {
         TypeMirror stateType = null;

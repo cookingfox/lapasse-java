@@ -12,16 +12,16 @@ import java.util.Collection;
 /**
  * Helper for re-usable Rx action instances, so they don't need to be recreated for every operation.
  */
-enum DefaultRxCommandBusActions {
+final class DefaultRxCommandBusActions {
 
     //----------------------------------------------------------------------------------------------
     // SINGLETON INSTANCE
     //----------------------------------------------------------------------------------------------
 
-    INSTANCE;
+    private static final DefaultRxCommandBusActions INSTANCE = new DefaultRxCommandBusActions();
 
     //----------------------------------------------------------------------------------------------
-    // PROPERTIES
+    // PROTECTED PROPERTIES
     //----------------------------------------------------------------------------------------------
 
     /**
@@ -38,6 +38,16 @@ enum DefaultRxCommandBusActions {
      * Whether the handler is a {@link MultiCommandHandler}.
      */
     protected boolean isMultiCommandHandler;
+
+    //----------------------------------------------------------------------------------------------
+    // CONSTRUCTOR
+    //----------------------------------------------------------------------------------------------
+
+    /**
+     * Not meant to be instantiated from outside.
+     */
+    private DefaultRxCommandBusActions() {
+    }
 
     //----------------------------------------------------------------------------------------------
     // STATIC METHODS

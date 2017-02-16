@@ -93,7 +93,7 @@ public class DefaultRxCommandBus<S extends State>
     public void dispose() {
         super.dispose();
 
-        subscriptions.unsubscribe();
+        subscriptions.clear();
     }
 
     @Override
@@ -137,7 +137,7 @@ public class DefaultRxCommandBus<S extends State>
      *
      * @param state   The current state object.
      * @param command The command object.
-     * @param handler The handler to execute.
+     * @param handler The Rx command handler to execute.
      */
     protected void executeRxCommandHandler(S state, Command command,
                                            CommandHandler<S, Command, Event> handler) {
@@ -148,8 +148,9 @@ public class DefaultRxCommandBus<S extends State>
         Action1<Throwable> onError = actions.getOnError();
 
         // the Rx observable / single that was returned by the command handler.
-        Object rx = null;
+        Object rx;
 
+        // execute handler: returns Rx observable / single
         try {
             if (handler instanceof RxCommandHandler) {
                 rx = ((RxCommandHandler<S, Command, Event>) handler).handle(state, command);
@@ -157,7 +158,7 @@ public class DefaultRxCommandBus<S extends State>
                 rx = ((RxMultiCommandHandler<S, Command, Event>) handler).handle(state, command);
             } else if (handler instanceof RxSingleCommandHandler) {
                 rx = ((RxSingleCommandHandler<S, Command, Event>) handler).handle(state, command);
-            } else if (handler instanceof RxSingleMultiCommandHandler) {
+            } else {
                 rx = ((RxSingleMultiCommandHandler<S, Command, Event>) handler).handle(state, command);
             }
         } catch (Throwable error) {
@@ -165,7 +166,7 @@ public class DefaultRxCommandBus<S extends State>
             return;
         }
 
-        // null result is valid: command handlers are not required to return an event
+        // `null` result is valid: command handlers are not required to return an event
         if (rx == null) {
             actions.getOnNull().call();
             return;
