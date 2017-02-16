@@ -1,5 +1,10 @@
 # LaPasse for Java: Change Log
 
+## [0.5.6](../../tree/0.5.6) (2017-02-16)
+
+- Adds support for `rx.Single` to `lapasse-rx` and `lapasse-compiler`.
+- Adds Rx counter sample.
+
 ## [0.5.5](../../tree/0.5.5) (2017-01-23)
 
 - Introduces `CollectionUtils` and makes `lapasse` module collections concurrent.
