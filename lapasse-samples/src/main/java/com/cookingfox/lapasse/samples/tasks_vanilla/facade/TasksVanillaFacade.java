@@ -21,9 +21,9 @@ import java.util.UUID;
 /**
  * LaPasse {@link Facade} delegate containing the command and event handlers.
  */
-public final class TasksFacadeVanilla extends LaPasseFacadeDelegate<TasksState> {
+public final class TasksVanillaFacade extends LaPasseFacadeDelegate<TasksState> {
 
-    public TasksFacadeVanilla(Facade<TasksState> facade) {
+    public TasksVanillaFacade(Facade<TasksState> facade) {
         super(facade);
 
         facade.mapCommandHandler(AddTask.class, handleAddTask);

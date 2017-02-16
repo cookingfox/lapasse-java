@@ -10,7 +10,7 @@ import com.cookingfox.lapasse.samples.shared.tasks.command.CompleteTask;
 import com.cookingfox.lapasse.samples.shared.tasks.command.RemoveTask;
 import com.cookingfox.lapasse.samples.shared.tasks.event.TaskAdded;
 import com.cookingfox.lapasse.samples.shared.tasks.state.TasksState;
-import com.cookingfox.lapasse.samples.tasks_vanilla.facade.TasksFacadeVanilla;
+import com.cookingfox.lapasse.samples.tasks_vanilla.facade.TasksVanillaFacade;
 
 import java.util.Collection;
 import java.util.UUID;
@@ -20,10 +20,10 @@ import java.util.UUID;
  * - Core LaPasse library (no extensions).
  * - No annotations.
  */
-public class TasksSampleVanilla implements CombinedLogger<TasksState>, OnStateChanged<TasksState> {
+public class TasksVanillaSample implements CombinedLogger<TasksState>, OnStateChanged<TasksState> {
 
     public static void main(String[] args) {
-        new TasksSampleVanilla().init();
+        new TasksVanillaSample().init();
     }
 
     private UUID firstCreatedTaskId;
@@ -35,7 +35,7 @@ public class TasksSampleVanilla implements CombinedLogger<TasksState>, OnStateCh
         TasksState initialState = TasksState.createInitialState();
 
         // create facade
-        TasksFacadeVanilla facade = new TasksFacadeVanilla(new LaPasseFacade.Builder<>(initialState).build());
+        TasksVanillaFacade facade = new TasksVanillaFacade(new LaPasseFacade.Builder<>(initialState).build());
 
         // add state changed listener
         facade.addStateChangedListener(this);

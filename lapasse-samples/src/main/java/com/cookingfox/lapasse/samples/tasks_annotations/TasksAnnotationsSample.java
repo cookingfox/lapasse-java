@@ -1,16 +1,16 @@
-package com.cookingfox.lapasse.samples.tasks_immutables;
+package com.cookingfox.lapasse.samples.tasks_annotations;
 
 import com.cookingfox.lapasse.api.command.Command;
 import com.cookingfox.lapasse.api.event.Event;
 import com.cookingfox.lapasse.api.logging.CombinedLogger;
 import com.cookingfox.lapasse.api.state.observer.OnStateChanged;
 import com.cookingfox.lapasse.impl.facade.LaPasseFacade;
-import com.cookingfox.lapasse.samples.tasks_immutables.command.AddTask;
-import com.cookingfox.lapasse.samples.tasks_immutables.command.CompleteTask;
-import com.cookingfox.lapasse.samples.tasks_immutables.command.RemoveTask;
-import com.cookingfox.lapasse.samples.tasks_immutables.event.TaskAdded;
-import com.cookingfox.lapasse.samples.tasks_immutables.facade.TasksFacadeImmutables;
-import com.cookingfox.lapasse.samples.tasks_immutables.state.TasksState;
+import com.cookingfox.lapasse.samples.shared.tasks.command.AddTask;
+import com.cookingfox.lapasse.samples.shared.tasks.command.CompleteTask;
+import com.cookingfox.lapasse.samples.shared.tasks.command.RemoveTask;
+import com.cookingfox.lapasse.samples.shared.tasks.event.TaskAdded;
+import com.cookingfox.lapasse.samples.shared.tasks.state.TasksState;
+import com.cookingfox.lapasse.samples.tasks_annotations.facade.TasksAnnotationsFacade;
 
 import java.util.Collection;
 import java.util.UUID;
@@ -18,10 +18,10 @@ import java.util.UUID;
 /**
  * Sample application using core LaPasse library with annotations.
  */
-public class TasksSampleImmutables implements CombinedLogger<TasksState>, OnStateChanged<TasksState> {
+public class TasksAnnotationsSample implements CombinedLogger<TasksState>, OnStateChanged<TasksState> {
 
     public static void main(String[] args) {
-        new TasksSampleImmutables().init();
+        new TasksAnnotationsSample().init();
     }
 
     private UUID firstCreatedTaskId;
@@ -33,7 +33,7 @@ public class TasksSampleImmutables implements CombinedLogger<TasksState>, OnStat
         TasksState initialState = TasksState.createInitialState();
 
         // create facade
-        TasksFacadeImmutables facade = new TasksFacadeImmutables(new LaPasseFacade.Builder<>(initialState).build());
+        TasksAnnotationsFacade facade = new TasksAnnotationsFacade(new LaPasseFacade.Builder<>(initialState).build());
 
         // add state changed listener
         facade.addStateChangedListener(this);
@@ -44,13 +44,13 @@ public class TasksSampleImmutables implements CombinedLogger<TasksState>, OnStat
         System.out.println("\nINITIAL STATE: " + initialState);
 
         System.out.println("\n>>> ADD TASK");
-        facade.handleCommand(new AddTask.Builder().text("First task").build());
+        facade.handleCommand(new AddTask("First task"));
 
         System.out.println("\n>>> MARK TASK COMPLETE");
-        facade.handleCommand(new CompleteTask.Builder().taskId(firstCreatedTaskId).build());
+        facade.handleCommand(new CompleteTask(firstCreatedTaskId));
 
         System.out.println("\n>>> REMOVE TASK");
-        facade.handleCommand(new RemoveTask.Builder().taskId(firstCreatedTaskId).build());
+        facade.handleCommand(new RemoveTask(firstCreatedTaskId));
     }
 
     @Override

@@ -24,9 +24,9 @@ import java.util.UUID;
 /**
  * LaPasse {@link Facade} delegate containing the command and event handlers with annotations.
  */
-public final class TasksFacadeImmutables extends LaPasseFacadeDelegate<TasksState> {
+public final class TasksImmutablesFacade extends LaPasseFacadeDelegate<TasksState> {
 
-    public TasksFacadeImmutables(Facade<TasksState> facade) {
+    public TasksImmutablesFacade(Facade<TasksState> facade) {
         super(facade);
 
         // required to link annotated code to generated code
