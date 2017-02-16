@@ -93,7 +93,7 @@ public class DefaultRxCommandBus<S extends State>
     public void dispose() {
         super.dispose();
 
-        subscriptions.clear();
+        subscriptions.unsubscribe();
     }
 
     @Override
