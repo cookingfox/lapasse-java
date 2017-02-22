@@ -82,3 +82,5 @@ uses the core LaPasse library (no extensions) and annotations.
 - [Tasks app with Immutables](lapasse-samples/src/main/java/com/cookingfox/lapasse/samples/tasks_immutables):
 uses the core LaPasse library (no extensions), annotations and
 [Immutables library](http://immutables.github.io/).
+- [Counter example with Rx](lapasse-samples/src/main/java/com/cookingfox/lapasse/samples/counter_rx):
+uses the LaPasse library with the Rx extension and no annotations.
