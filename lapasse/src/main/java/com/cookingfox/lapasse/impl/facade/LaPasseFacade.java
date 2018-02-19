@@ -152,6 +152,21 @@ public class LaPasseFacade<S extends State> implements Facade<S> {
         stateManager.removeStateChangedListener(listener);
     }
 
+    @Override
+    public void handleNewState(S newState) {
+        stateManager.handleNewState(newState);
+    }
+
+    @Override
+    public void handleNewState(S newState, String event) {
+        stateManager.handleNewState(newState, event);
+    }
+
+    @Override
+    public void handleNewState(S newState, Event event) {
+        stateManager.handleNewState(newState, event);
+    }
+
     //----------------------------------------------------------------------------------------------
     // INNER CLASS: BUILDER
     //----------------------------------------------------------------------------------------------

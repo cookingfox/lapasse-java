@@ -3,6 +3,8 @@ package fixtures.state.manager;
 import com.cookingfox.lapasse.api.event.Event;
 import com.cookingfox.lapasse.api.state.manager.StateManager;
 import com.cookingfox.lapasse.api.state.observer.OnStateChanged;
+import com.cookingfox.lapasse.impl.event.StringEvent;
+import com.cookingfox.lapasse.impl.event.UnspecifiedEvent;
 import fixtures.example.state.CountState;
 
 import java.util.Objects;
@@ -26,6 +28,16 @@ public class FixtureStateManager implements StateManager<CountState> {
     @Override
     public CountState getCurrentState() {
         return currentState;
+    }
+
+    @Override
+    public void handleNewState(CountState newState) {
+        handleNewState(newState, new UnspecifiedEvent());
+    }
+
+    @Override
+    public void handleNewState(CountState newState, String event) {
+        handleNewState(newState, new StringEvent(event));
     }
 
     @Override

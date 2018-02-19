@@ -4,6 +4,8 @@ import com.cookingfox.lapasse.api.event.Event;
 import com.cookingfox.lapasse.api.state.State;
 import com.cookingfox.lapasse.api.state.manager.StateManager;
 import com.cookingfox.lapasse.api.state.observer.OnStateChanged;
+import com.cookingfox.lapasse.impl.event.StringEvent;
+import com.cookingfox.lapasse.impl.event.UnspecifiedEvent;
 import com.cookingfox.lapasse.impl.util.CollectionUtils;
 
 import java.util.Objects;
@@ -51,6 +53,16 @@ public class DefaultStateManager<S extends State> implements StateManager<S> {
     @Override
     public S getCurrentState() {
         return currentState;
+    }
+
+    @Override
+    public void handleNewState(S newState) {
+        handleNewState(newState, new UnspecifiedEvent());
+    }
+
+    @Override
+    public void handleNewState(S newState, String event) {
+        handleNewState(newState, new StringEvent(event));
     }
 
     @Override

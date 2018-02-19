@@ -127,4 +127,18 @@ public class LaPasseFacadeDelegate<S extends State> implements Facade<S> {
         facade.removeStateChangedListener(listener);
     }
 
+    @Override
+    public void handleNewState(S newState) {
+        facade.handleNewState(newState);
+    }
+
+    @Override
+    public void handleNewState(S newState, String event) {
+        facade.handleNewState(newState, event);
+    }
+
+    @Override
+    public void handleNewState(S newState, Event event) {
+        facade.handleNewState(newState, event);
+    }
 }

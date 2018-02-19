@@ -2,6 +2,8 @@ package com.cookingfox.lapasse.impl.state.manager;
 
 import com.cookingfox.lapasse.api.event.Event;
 import com.cookingfox.lapasse.api.state.observer.OnStateChanged;
+import com.cookingfox.lapasse.impl.event.StringEvent;
+import com.cookingfox.lapasse.impl.event.UnspecifiedEvent;
 import fixtures.example.event.CountIncremented;
 import fixtures.example.state.CountState;
 import org.junit.Before;
@@ -12,7 +14,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Unit tests for {@link DefaultStateManager}.
@@ -86,7 +92,61 @@ public class DefaultStateManagerTest {
     }
 
     //----------------------------------------------------------------------------------------------
-    // TESTS: handleNewState
+    // TESTS: handleNewState(State)
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void handleNewState_should_notify_listeners_when_unspecified_event() throws Exception {
+        final AtomicReference<CountState> listenerState = new AtomicReference<>();
+        final AtomicReference<Event> listenerEvent = new AtomicReference<>();
+
+        stateManager.addStateChangedListener(new OnStateChanged<CountState>() {
+            @Override
+            public void onStateChanged(CountState state, Event event) {
+                listenerState.set(state);
+                listenerEvent.set(event);
+            }
+        });
+
+        CountState newState = new CountState(1);
+
+        stateManager.handleNewState(newState);
+
+        assertSame(newState, listenerState.get());
+        assertTrue(listenerEvent.get() instanceof UnspecifiedEvent);
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // TESTS: handleNewState(State, String)
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void handleNewState_should_notify_listeners_when_string_event() throws Exception {
+        final AtomicReference<CountState> listenerState = new AtomicReference<>();
+        final AtomicReference<Event> listenerEvent = new AtomicReference<>();
+
+        stateManager.addStateChangedListener(new OnStateChanged<CountState>() {
+            @Override
+            public void onStateChanged(CountState state, Event event) {
+                listenerState.set(state);
+                listenerEvent.set(event);
+            }
+        });
+
+        CountState newState = new CountState(1);
+        String event = "example";
+
+        stateManager.handleNewState(newState, event);
+
+        Event eventFromListener = listenerEvent.get();
+
+        assertSame(newState, listenerState.get());
+        assertTrue(eventFromListener instanceof StringEvent);
+        assertEquals(event, ((StringEvent) eventFromListener).getEvent());
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // TESTS: handleNewState(State, Event)
     //----------------------------------------------------------------------------------------------
 
     @Test(expected = NullPointerException.class)
@@ -96,7 +156,7 @@ public class DefaultStateManagerTest {
 
     @Test(expected = NullPointerException.class)
     public void handleNewState_should_throw_if_event_null() throws Exception {
-        stateManager.handleNewState(new CountState(1), null);
+        stateManager.handleNewState(new CountState(1), (Event) null);
     }
 
     @Test

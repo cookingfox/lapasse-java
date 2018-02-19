@@ -5,6 +5,7 @@ import com.cookingfox.lapasse.api.event.bus.EventBus;
 import com.cookingfox.lapasse.api.lifecycle.Disposable;
 import com.cookingfox.lapasse.api.logging.CombinedLoggerAware;
 import com.cookingfox.lapasse.api.state.State;
+import com.cookingfox.lapasse.api.state.manager.StateManager;
 import com.cookingfox.lapasse.api.state.observer.StateObserver;
 
 /**
@@ -17,5 +18,5 @@ public interface Facade<S extends State> extends
         CommandBus<S>,
         Disposable,
         EventBus<S>,
-        StateObserver<S> {
+        StateManager<S> {
 }

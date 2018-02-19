@@ -12,6 +12,10 @@ import com.cookingfox.lapasse.api.state.observer.StateObserver;
  */
 public interface StateManager<S extends State> extends Disposable, StateObserver<S> {
 
+    void handleNewState(S newState);
+
+    void handleNewState(S newState, String event);
+
     /**
      * Validate and set a new state object. Notifies listeners if the new state is different from
      * the previous state.
